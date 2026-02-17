@@ -1,0 +1,17 @@
+services:
+  db:
+    image: "postgres:latest"
+    container_name: back_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=back
+      - POSTGRES_USER=back
+      - POSTGRES_DB=back
+    ports:
+      - "5432:5432"
+    volumes:
+      - back_db:/var/lib/postgresql/
+
+volumes:
+  back_db:
+    driver: local
