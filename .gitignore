@@ -28,7 +28,7 @@ _static
 _template
 
 # env
-.env
+PrINTech-Back/.env
 .venv
 
 #ide
