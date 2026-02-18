@@ -4,7 +4,7 @@ from django.db import models
 
 class User(AbstractUser):
     email = models.EmailField(blank=False, unique=True, null=False)
-    credit = models.DecimalField(default=0)
+    credit = models.DecimalField(default=0, max_digits=6, decimal_places=2)
 
 
 class Filament(models.Model):
@@ -29,14 +29,14 @@ class Filament(models.Model):
         GREY = 'GREY'
         ORANGE = 'ORANGE'
 
-    colour = models.CharField(choices=Color.choices, max_length=10, null=False, blank=False)
-    type = models.CharField(choices=Type.choices, max_length=10, null=False, blank=False)
+    colour = models.CharField(choices=Color.choices, max_length=25, null=False, blank=False)
+    type = models.CharField(choices=Type.choices, max_length=25, null=False, blank=False)
     quantity = models.PositiveIntegerField(default=0)
 
 
 class File(models.Model):
     user_id=models.ForeignKey(User, on_delete=models.CASCADE)
-    filament_id=models.ForeignKey(Filament, on_delete=models.CASCADE)
+    filament_id=models.ManyToManyField(Filament)
     path = models.FileField(upload_to='uploads/%Y/%m/%d')
     number_of_printing = models.IntegerField(default=1)
     para_slicer =  models.JSONField(null=True, blank=True)
@@ -57,8 +57,8 @@ class Printer(models.Model):
         Binder_Jetting = 'Binder_Jetting'
         DMLS = 'DMLS/SLM' #Metal
 
-    type = models.CharField(choices=Type.choices, max_length=20, null=False, blank=False)
-    status = models.CharField(choices=Status.choices, max_length=10, null=False, blank=False)
+    type = models.CharField(choices=Type.choices, max_length=25, null=False, blank=False)
+    status = models.CharField(choices=Status.choices, max_length=25, null=False, blank=False)
 
 
 class Request(models.Model):
@@ -72,7 +72,7 @@ class Request(models.Model):
     file_id = models.ForeignKey(File, on_delete=models.CASCADE)
     printer_id = models.ForeignKey(Printer, on_delete=models.CASCADE, null=True)
     datetime = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(choices=Status.choices, max_length=20, null=False, blank=False)
+    status = models.CharField(choices=Status.choices, max_length=25, null=False, blank=False)
 
 
 class Operation(models.Model):
@@ -81,10 +81,10 @@ class Operation(models.Model):
         WITHDRAW = 'WITHDRAW'
         ADDING = 'ADDING'
 
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    signer_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='operation_receiver')
+    signer_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='operation_signer')
     datetime = models.DateTimeField(auto_now_add=True)
-    operation_type = models.CharField(choices=Type.choices, max_length=20, null=False, blank=False)
+    operation_type = models.CharField(choices=Type.choices, max_length=25, null=False, blank=False)
     comment = models.TextField(null=True, blank=True)
-    quantity = models.PositiveIntegerField(default=0)
+    amount = models.PositiveIntegerField(default=0)
 

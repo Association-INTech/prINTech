@@ -1,8 +1,8 @@
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
-from rest_framework import routers
-
+from rest_framework import routers, permissions
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 from .views import home
 
 admin.autodiscover()
@@ -12,8 +12,10 @@ router = routers.DefaultRouter()
 urlpatterns = [
     # Examples:
     path('', home, name='home'),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     # path('app/', include('apps.app.urls')),
-
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path('admin/', admin.site.urls),
 ]
 

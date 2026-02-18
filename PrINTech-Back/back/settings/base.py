@@ -1,5 +1,6 @@
 from pathlib import Path
 
+
 DJANGO_ROOT = Path(__file__).resolve(strict=True).parent.parent
 SITE_ROOT = DJANGO_ROOT.parent
 SITE_NAME = DJANGO_ROOT.name
@@ -105,6 +106,7 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     'django_extensions',
     'rest_framework',
+    'drf_spectacular',
 ]
 
 LOCAL_APPS = [
@@ -115,5 +117,10 @@ LOCAL_APPS = [
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 #################
+AUTH_USER_MODEL = "api.User"
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
