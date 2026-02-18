@@ -1,11 +1,11 @@
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
-from models import User
+from .models import User
 from rest_framework import permissions, viewsets, generics, status
 from django.shortcuts import render
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.throttling import UserRateThrottle
-from serializers import UserSerializer, ChangePasswordSerializer
+from .serializers import UserSerializer, ChangePasswordSerializer
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
