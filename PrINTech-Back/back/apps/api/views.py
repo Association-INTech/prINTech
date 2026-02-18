@@ -1,6 +1,5 @@
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
-
 from models import User
 from rest_framework import permissions, viewsets, generics, status
 from django.shortcuts import render

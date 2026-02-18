@@ -3,6 +3,8 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework import routers, permissions
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from apps.api.views import CreateUserView, UserMeView, ChangePasswordView
 from .views import home
 
 admin.autodiscover()
