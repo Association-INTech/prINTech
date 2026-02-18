@@ -6,30 +6,30 @@ hide circle
 skinparam linetype ortho
 skinparam shadowing false
 skinparam roundcorner 10
+skinparam nodesep 80
+skinparam ranksep 80
 
 ' --- ENTITÉS ---
-entity "User" as user {
-  *id : UUID <<PK>>
-  --
-  *email : varchar(254) <<UNIQUE>>
-  credit : numeric(6,2) = 0
-}
-package "Django Auth" #DDDDDD {
-class "AbstractUser" as abstract_user {
-        *username
-        *password
-        is_staff = false
-        is_superuser = false
-        ...
-    }
-}
-entity "Printer" as printer {
-        *id : UUID <<PK>>
-        *type : varchar(25)
-        *status : varchar(25)
-}
 
-entity "Operation" as operation{
+package "User Environment" #DDDDDD{
+    package "Django Auth" #DDDDDD {
+        class "AbstractUser" as abstract_user {
+            *username
+            *password
+            is_staff = false
+            is_superuser = false
+            ...
+        }
+    }
+
+    entity "User" as user {
+      *id : UUID <<PK>>
+      --
+      *email : varchar(254) <<UNIQUE>>
+      credit : numeric(6,2) = 0
+    }
+
+    entity "Operation" as operation{
         *id : UUID <<PK>>
         --
         *user_id : UUID <<FK>>
@@ -37,37 +37,49 @@ entity "Operation" as operation{
         *operation_type : varchar(25)
         *amount : integer
         comment : text
-}
-entity "File" as file{
+    }
+    entity "File" as file{
         *id : UUID <<PK>>
         --
         *user_id : UUID <<FK>>
         *path : varchar(100)
         number_of_printing : integer = 1
         para_slicer : jsonb
+    }
+
+
+    entity "Request" as request{
+            *id : UUID <<PK>>
+            --
+            *file_id : UUID <<FK>>
+            *printer_id : UUID <<FK>>
+            status : ENUM('PENDING', \n 'PROCESSING', 'COMPLETED', \n 'FAILED')
+            datetime : datetime
+    }
 }
-entity "Filament" as filament{
+package "Material Assets" #DDDDDD{
+    entity "Printer" as printer {
+            *id : UUID <<PK>>
+            *type : varchar(25)
+            *status : varchar(25)
+    }
+
+    entity "Filament" as filament{
         *id : UUID <<PK>>
         --
         *colour : varchar(25)
         *type : varchar(25)
         quantity : integer = 0
+    }
 }
 
-entity "Request" as request{
-        *id : UUID <<PK>>
-        --
-        *file_id : UUID <<FK>>
-        *printer_id : UUID <<FK>>
-        status : ENUM('PENDING', \n 'PROCESSING', 'COMPLETED', \n 'FAILED')
-        datetime : datetime
-}
-
-' --- RELATIONS ---
-' ||-- = One (Obligatoire)
-' }o-- = Many (Optionnel)
-
-abstract_user <|-- user : Inherit
 
 
+
+abstract_user <|-r-- user : inherits
+file }o-- user : sends
+file ||-r- request : linked to
+"Material Assets" <--> "User Environment" : Interacts
+printer ||-- request : linked to
+operation }o-- user : signer or user
 @enduml
