@@ -8,36 +8,29 @@ skinparam shadowing false
 skinparam roundcorner 10
 
 ' --- ENTITÉS ---
-' On définit une entité avec ses champs
 entity "User" as user {
   *id : UUID <<PK>>
   --
   *email : varchar(254) <<UNIQUE>>
-  password_hash : text
-  created_at : timestamp
+  credit : numeric(6,2) = 0
 }
-
-entity "Commande" as order {
-  *id : UUID <<PK>>
-  --
-  *user_id : UUID <<FK>>
-  total_price : decimal
-  status : enum
-}
-
-entity "Ligne_Commande" as order_line {
-  *id : UUID <<PK>>
-  --
-  *order_id : UUID <<FK>>
-  product_id : UUID
-  quantity : int
+class "AbstractUser" as abstract_user {
+        username
+        password
+        is_staff
+        is_superuser
+        ...
+    }
+entity "Printer" as printer {
+        *id : UUID <<PK>>
+        type : varchar(25)
+        status : varchar(25)
 }
 
 ' --- RELATIONS ---
 ' ||-- = One (Obligatoire)
 ' }o-- = Many (Optionnel)
 
-user ||..o{ order : "Passe"
-order ||--|{ order_line : "Contient"
+abstract_user <|-- user : Inherit
 
 @enduml
