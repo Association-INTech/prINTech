@@ -1,15 +1,17 @@
 @startuml
 title "  Diagramme UML \n Base de données"
 
-' --- STYLE ---
 hide circle
 skinparam linetype ortho
 skinparam shadowing false
 skinparam roundcorner 10
 skinparam nodesep 80
 skinparam ranksep 80
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName Segoe UI, Arial, sans-serif
+skinparam style strictuml
 
-' --- ENTITÉS ---
 
 package "User Environment" #DDDDDD{
     package "Django Auth" #DDDDDD {
