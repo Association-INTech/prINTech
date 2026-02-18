@@ -30,6 +30,7 @@ _template
 # env
 PrINTech-Back/.env
 .venv
+.env
 
 #ide
 .idea
