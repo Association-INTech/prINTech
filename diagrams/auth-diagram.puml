@@ -1,0 +1,54 @@
+@startuml
+title "Sequencial Diagram \n Authentification"
+
+skinparam style strictuml
+skinparam sequenceMessageAlign center
+
+actor "User" as User
+participant "Angular/Front-end" as Front
+participant "Django API (back.apps.api)" as API
+database "PostgreSQL" as DB
+
+== Sign up ==
+User -> Front: Fill the form
+Front -> API: POST /api/v1/user/
+API -> DB: Check the mail
+
+alt mail already been used
+    DB --> API: Conflict
+    API --> Front: 400 Bad Request
+    Front --> User: Display "This mail already been used"
+else new user
+    API -> DB: Save User (hash password)
+    DB --> API: Success
+    API --> Front: 201 Created
+    Front --> User: Display "Successful registration"
+end
+
+== Log in (with SimpleJWT)==
+
+User -> Front: Enter identifiers
+Front -> API: POST /api/v1/token/
+API -> DB: Verify User
+alt invalid identifiers
+    DB --> API: Not found / Wrong password
+    API --> Front: 401 Unauthorized
+    Front --> User: Display "Email or password wrong"
+else valid identifiers
+    API --> Front: 200 OK {access, refresh}
+    Note over Front: Tokens are stored in localStorage/Cookies/store
+    Front --> User: Redirect to main page
+end
+
+== API call with expired access token ==
+Front -> API: GET /api/v1/user/me/ (expired access token)
+API --> Front: 401 Unauthorized
+
+alt valid refresh token
+    Front -> API: POST /api/v1/token/refresh/ {refresh_token}
+    API --> Front: 200 OK {new_access_token}
+    Front -> API: Retry the previous request
+else expired refresh token
+    Front --> User:  Forced disconnection (redirect to login page)
+end
+@enduml

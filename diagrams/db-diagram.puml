@@ -1,43 +1,127 @@
 @startuml
-title "  Diagramme UML \n Base de données"
+title "  UML Diagram \n Database"
 
-' --- STYLE ---
 hide circle
 skinparam linetype ortho
 skinparam shadowing false
 skinparam roundcorner 10
+skinparam nodesep 80
+skinparam ranksep 80
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName Segoe UI, Arial, sans-serif
+skinparam style strictuml
 
-' --- ENTITÉS ---
-' On définit une entité avec ses champs
-entity "User" as user {
-  *id : UUID <<PK>>
-  --
-  *email : varchar(254) <<UNIQUE>>
-  password_hash : text
-  created_at : timestamp
+
+
+
+
+package "User Environment" #DDDDDD{
+
+    enum RequestStatus {
+        PENDING
+        PROCESSING
+        COMPLETED
+        FAILED
+    }
+    enum OperationType {
+        CASH
+        CARD
+        OTHER
+    }
+
+    entity "User" as user {
+      *id : UUID <<PK>>
+      --
+      *username : varchar(150) <<UNIQUE>>
+      *password : varchar(128)
+      *email : varchar(254) <<UNIQUE>>
+      credit : integer = 0
+      is_staff = false
+      is_superuser = false
+      ...
+    }
+
+    entity "Operation" as operation{
+        *id : UUID <<PK>>
+        --
+        *beneficiary_id : UUID <<FK>>
+        *agent_id : UUID <<FK>>
+        *operation_type : OperationType
+        *amount : integer = 0
+        comment : text
+        created_at : DateTime
+    }
+    entity "File" as file{
+        *id : UUID <<PK>>
+        --
+        *user_id : UUID <<FK>>
+        *path : varchar(100)
+        number_of_printing : integer = 1 {>= 0}
+        para_slicer : jsonb
+    }
+
+
+    entity "Request" as request{
+            *id : UUID <<PK>>
+            --
+            *file_id : UUID <<FK>>
+            *printer_id : Bigint <<FK>>
+            status : RequestStatus = PENDING
+            created_at : DateTime
+    }
+}
+package "Material Assets" #DDDDDD{
+    entity "Printer" as printer {
+            *id : Bigint <<PK>>
+            --
+            *type : PrinterType
+            *status : PrinterStatus = DOWN
+    }
+
+    entity "Filament" as filament{
+        *id : Bigint <<PK>>
+        --
+        *colour : varchar(25)
+        *type : FilamentType
+        quantity : integer = 0 {>= 0}
+    }
+
+    enum FilamentType {
+        PLA
+        REINFORCED_PLA
+        PETG
+        ABS
+        TPE/TPU
+    }
+
+    enum PrinterType {
+        SLA
+        SLS
+        FDM
+        MJP
+        DMLS
+        BINDER_JETTING
+    }
+
+    enum PrinterStatus {
+        UP
+        DOWN
+        USED
+    }
 }
 
-entity "Commande" as order {
-  *id : UUID <<PK>>
-  --
-  *user_id : UUID <<FK>>
-  total_price : decimal
-  status : enum
-}
 
-entity "Ligne_Commande" as order_line {
-  *id : UUID <<PK>>
-  --
-  *order_id : UUID <<FK>>
-  product_id : UUID
-  quantity : int
-}
 
-' --- RELATIONS ---
-' ||-- = One (Obligatoire)
-' }o-- = Many (Optionnel)
 
-user ||..o{ order : "Passe"
-order ||--|{ order_line : "Contient"
-
+file }o-l- user : owns
+file ||-r- request : linked to
+"Material Assets" <--> "User Environment" : Interacts
+printer ||-- request : processes
+operation }o-- user : beneficiary or agent
+request .d.> RequestStatus : uses
+printer ..> PrinterStatus : uses
+printer ..> PrinterType : uses
+filament ..> FilamentType : uses
+operation .r.> OperationType : uses
 @enduml
