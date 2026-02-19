@@ -1,5 +1,5 @@
 @startuml
-title "  Diagramme UML \n Base de données"
+title "  UML Diagram \n Database"
 
 hide circle
 skinparam linetype ortho
