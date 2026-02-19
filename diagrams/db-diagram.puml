@@ -13,6 +13,9 @@ skinparam defaultFontName Segoe UI, Arial, sans-serif
 skinparam style strictuml
 
 
+
+
+
 package "User Environment" #DDDDDD{
     package "Django Auth" #DDDDDD {
         class "AbstractUser" as abstract_user {
@@ -22,6 +25,17 @@ package "User Environment" #DDDDDD{
             is_superuser = false
             ...
         }
+    }
+    enum RequestStatus {
+        PENDING
+        PROCESSING
+        COMPLETED
+        FAILED
+    }
+    enum OperationType {
+        CASH
+        CARD
+        OTHER
     }
 
     entity "User" as user {
@@ -34,18 +48,19 @@ package "User Environment" #DDDDDD{
     entity "Operation" as operation{
         *id : UUID <<PK>>
         --
-        *user_id : UUID <<FK>>
-        *signer_id : UUID <<FK>>
-        *operation_type : varchar(25)
-        *amount : integer
+        *beneficiary_id : UUID <<FK>>
+        *agent_id : UUID <<FK>>
+        *operation_type : OperationType
+        *amount : numeric(6,2) = 0
         comment : text
+        created_at : DateTime
     }
     entity "File" as file{
         *id : UUID <<PK>>
         --
         *user_id : UUID <<FK>>
         *path : varchar(100)
-        number_of_printing : integer = 1
+        number_of_printing : integer = 1 {>= 0}
         para_slicer : jsonb
     }
 
@@ -54,34 +69,63 @@ package "User Environment" #DDDDDD{
             *id : UUID <<PK>>
             --
             *file_id : UUID <<FK>>
-            *printer_id : UUID <<FK>>
-            status : ENUM('PENDING', \n 'PROCESSING', 'COMPLETED', \n 'FAILED')
-            datetime : datetime
+            *printer_id : Bigint <<FK>>
+            status : RequestStatus = PENDING
+            created_at : DateTime
     }
 }
 package "Material Assets" #DDDDDD{
     entity "Printer" as printer {
-            *id : UUID <<PK>>
-            *type : varchar(25)
-            *status : varchar(25)
+            *id : Bigint <<PK>>
+            --
+            *type : PrinterType
+            *status : PrinterStatus = DOWN
     }
 
     entity "Filament" as filament{
-        *id : UUID <<PK>>
+        *id : Bigint <<PK>>
         --
         *colour : varchar(25)
-        *type : varchar(25)
-        quantity : integer = 0
+        *type : FilamentType
+        quantity : integer = 0 {>= 0}
+    }
+
+    enum FilamentType {
+        PLA
+        REINFORCED_PLA
+        PETG
+        ABS
+        TPE/TPU
+    }
+
+    enum PrinterType {
+        SLA
+        SLS
+        FDM
+        MJP
+        DMLS
+        BINDER_JETTING
+    }
+
+    enum PrinterStatus {
+        UP
+        DOWN
+        USED
     }
 }
 
 
 
 
-abstract_user <|-r-- user : inherits
-file }o-- user : sends
+abstract_user <|--u- user : inherits
+file }o-l- user : owns
 file ||-r- request : linked to
 "Material Assets" <--> "User Environment" : Interacts
-printer ||-- request : linked to
-operation }o-- user : signer or user
+printer ||-- request : processes
+operation }o-- user : beneficiary or agent
+request .d.> RequestStatus : uses
+printer ..> PrinterStatus : uses
+printer ..> PrinterType : uses
+filament ..> FilamentType : uses
+operation .r.> OperationType : uses
 @enduml

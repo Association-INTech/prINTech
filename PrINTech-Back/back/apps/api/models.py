@@ -1,8 +1,11 @@
+import uuid
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
 class User(AbstractUser):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(blank=False, unique=True, null=False)
     credit = models.DecimalField(default=0, max_digits=6, decimal_places=2)
 
@@ -35,10 +38,11 @@ class Filament(models.Model):
 
 
 class File(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user_id=models.ForeignKey(User, on_delete=models.CASCADE)
     filament_id=models.ManyToManyField(Filament)
     path = models.FileField(upload_to='uploads/%Y/%m/%d')
-    number_of_printing = models.IntegerField(default=1)
+    number_of_printing = models.PositiveIntegerField(default=1)
     para_slicer =  models.JSONField(null=True, blank=True)
 
 
@@ -58,7 +62,7 @@ class Printer(models.Model):
         DMLS = 'DMLS/SLM' #Metal
 
     type = models.CharField(choices=Type.choices, max_length=25, null=False, blank=False)
-    status = models.CharField(choices=Status.choices, max_length=25, null=False, blank=False)
+    status = models.CharField(choices=Status.choices, max_length=25, null=False, blank=False, default=Status.DOWN)
 
 
 class Request(models.Model):
@@ -69,22 +73,24 @@ class Request(models.Model):
         COMPLETED = 'COMPLETED'
         FAILED = 'FAILED'
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     file_id = models.ForeignKey(File, on_delete=models.CASCADE)
     printer_id = models.ForeignKey(Printer, on_delete=models.CASCADE, null=True)
-    datetime = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(choices=Status.choices, max_length=25, null=False, blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(choices=Status.choices, max_length=25, null=False, blank=False, default=Status.PENDING)
 
 
 class Operation(models.Model):
 
     class Type(models.TextChoices):
-        WITHDRAW = 'WITHDRAW'
-        ADDING = 'ADDING'
+        CASH = 'CASH'
+        CARD = 'CARD'
 
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='operation_receiver')
-    signer_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='operation_signer')
-    datetime = models.DateTimeField(auto_now_add=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    beneficiary_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='operation_beneficiary')
+    agent_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='operation_agent')
+    created_at = models.DateTimeField(auto_now_add=True)
     operation_type = models.CharField(choices=Type.choices, max_length=25, null=False, blank=False)
     comment = models.TextField(null=True, blank=True)
-    amount = models.PositiveIntegerField(default=0)
+    amount = models.DecimalField(default=0, max_digits=6, decimal_places=2)
 
