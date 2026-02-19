@@ -1,4 +1,6 @@
 @startuml
+title "Sequencial Diagram \n Authentification"
+
 skinparam style strictuml
 skinparam sequenceMessageAlign center
 
