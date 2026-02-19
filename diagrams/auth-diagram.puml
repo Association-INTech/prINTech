@@ -10,7 +10,7 @@ participant "Django API (back.apps.api)" as API
 database "PostgreSQL" as DB
 
 == Sign up ==
-User -> Front: fill the form
+User -> Front: Fill the form
 Front -> API: POST /api/v1/user/
 API -> DB: Check the mail
 
@@ -27,7 +27,7 @@ end
 
 == Log in (with SimpleJWT)==
 
-User -> Front: enter identifiers
+User -> Front: Enter identifiers
 Front -> API: POST /api/v1/token/
 API -> DB: Verify User
 alt invalid identifiers
@@ -36,7 +36,7 @@ alt invalid identifiers
     Front --> User: Display "Email or password wrong"
 else valid identifiers
     API --> Front: 200 OK {access, refresh}
-    Note over Front: tokens are stored in localStorage/Cookies
+    Note over Front: Tokens are stored in localStorage/Cookies/store
     Front --> User: Redirect to main page
 end
 
