@@ -17,15 +17,7 @@ skinparam style strictuml
 
 
 package "User Environment" #DDDDDD{
-    package "Django Auth" #DDDDDD {
-        class "AbstractUser" as abstract_user {
-            *username
-            *password
-            is_staff = false
-            is_superuser = false
-            ...
-        }
-    }
+
     enum RequestStatus {
         PENDING
         PROCESSING
@@ -41,8 +33,13 @@ package "User Environment" #DDDDDD{
     entity "User" as user {
       *id : UUID <<PK>>
       --
+      *username : varchar(150) <<UNIQUE>>
+      *password : varchar(128)
       *email : varchar(254) <<UNIQUE>>
-      credit : numeric(6,2) = 0
+      credit : integer = 0
+      is_staff = false
+      is_superuser = false
+      ...
     }
 
     entity "Operation" as operation{
@@ -51,7 +48,7 @@ package "User Environment" #DDDDDD{
         *beneficiary_id : UUID <<FK>>
         *agent_id : UUID <<FK>>
         *operation_type : OperationType
-        *amount : numeric(6,2) = 0
+        *amount : integer = 0
         comment : text
         created_at : DateTime
     }
@@ -117,7 +114,6 @@ package "Material Assets" #DDDDDD{
 
 
 
-abstract_user <|--u- user : inherits
 file }o-l- user : owns
 file ||-r- request : linked to
 "Material Assets" <--> "User Environment" : Interacts

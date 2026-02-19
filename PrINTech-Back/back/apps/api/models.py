@@ -7,7 +7,7 @@ from django.db import models
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(blank=False, unique=True, null=False)
-    credit = models.DecimalField(default=0, max_digits=6, decimal_places=2)
+    credit = models.IntegerField(default=0)
 
 
 class Filament(models.Model):
@@ -92,5 +92,5 @@ class Operation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     operation_type = models.CharField(choices=Type.choices, max_length=25, null=False, blank=False)
     comment = models.TextField(null=True, blank=True)
-    amount = models.DecimalField(default=0, max_digits=6, decimal_places=2)
+    amount = models.IntegerField(default=0)
 
