@@ -34,13 +34,15 @@ toc-title: "Sommaire du Pré-rapport"
 
 ## 2.1. Description du sujet
 
-Jusqu'alors, l'association INTech du campus Tsp-Imtbs rencontrait des difficultées de gestion des impressions 3D.
-En effet, lorsqu'une personne veut faire une impression, elle doit demander à un membre de l'association qui annote alors sur un fichier Excel le nom de la dite personne.
-C'est une tâche chronophage et manuelle qui implique des erreurs et un pré-paiement des bobines.
+Depuis cette année, l'association INTech du campus rencontrait des difficultés de gestion des impressions 3D faites par les membres. En effet, depuis cette année, INTech offre aux membres du campus la possibilité d'imprimer leur modèle 3D en devenant adhérents.
+\newline
+Actuellement, le système de gestion possède des problèmes. Les adhérents doivent télécharger et paramétrer un logiciel appelé slicer qui permet de transformer un modèle 3D en série d'instructions pour les imprimantes 3D, appelé G-code. On demande ensuite aux adhérents de charger le G-code sur les imprimantes, de lancer les impressions et ensuite de remplir un Google Form avec le nom de leur fichier, le poids de l'impression et d'autres paramètres.  
+\newline
+Ce système implique beaucoup d'étapes manuelles qui peuvent mener à des erreurs et rendre la fraude facile. Il faut aussi former tout le monde qui devient adhérent à l'utilisation des imprimantes.
 
 Intervient alors le projet PrINTech consistant au développement d'une application web dynamique qui permette une gestion des impressions 3D de manière automatique.
 
-Contrairement aux solutions Excel existantes, ce projet s'inscrit dans une vision long terme avec une scalabilité des fonctionnalitées possible ainsi qu'une sécurité accrue.
+Contrairement à la solution existante, ce projet a une vision plus long terme et facilite l'expansion à plus d'imprimantes ou de personnes et permet de réduire la charge de travail du bureau.
 
 ## 2.2. Liste des fonctionnalités de l'application
 Afin de répondre au sujet, l'application doit intégrer les fonctionnalités suivantes, classées par priorité de développement :
