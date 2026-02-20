@@ -27,7 +27,7 @@ toc-title: "Sommaire du Pré-rapport"
 
 ---
 
-\newpage{=latex}
+\newpage{}
 
 # 2. Cahier des charges
 
@@ -59,7 +59,7 @@ Afin de répondre au sujet, l'application doit intégrer les fonctionnalités su
 
 ---
 
-\newpage{=latex}
+\newpage{}
 
 # 3. Conception Préliminaire
 *Conformément au cycle de développement (Cycle en V), cette section valide l'étape de conception préliminaire en traduisant les besoins en architecture technique.*
