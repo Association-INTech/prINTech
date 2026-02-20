@@ -1,6 +1,6 @@
 @startuml
-title "  UML Diagram \n Database"
-
+title UML Diagram\nDatabase
+scale 1.4
 hide circle
 skinparam linetype ortho
 skinparam shadowing false
@@ -75,7 +75,7 @@ package "Material Assets" #DDDDDD{
     entity "Printer" as printer {
             *id : Bigint <<PK>>
             --
-            *type : PrinterType
+            *model : PrinterModel
             *status : PrinterStatus = DOWN
     }
 
@@ -84,6 +84,7 @@ package "Material Assets" #DDDDDD{
         --
         *colour : varchar(25)
         *type : FilamentType
+        *price : integer = 0 {>= 0}
         quantity : integer = 0 {>= 0}
     }
 
@@ -95,13 +96,9 @@ package "Material Assets" #DDDDDD{
         TPE/TPU
     }
 
-    enum PrinterType {
-        SLA
-        SLS
-        FDM
-        MJP
-        DMLS
-        BINDER_JETTING
+    enum PrinterModel {
+        Creality_K1C
+        Prusa MK3S
     }
 
     enum PrinterStatus {
@@ -121,7 +118,7 @@ printer ||-- request : processes
 operation }o-- user : beneficiary or agent
 request .d.> RequestStatus : uses
 printer ..> PrinterStatus : uses
-printer ..> PrinterType : uses
+printer ..> PrinterModel : uses
 filament ..> FilamentType : uses
 operation .r.> OperationType : uses
 @enduml
