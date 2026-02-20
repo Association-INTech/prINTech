@@ -76,15 +76,11 @@ Afin de répondre au sujet, l'application doit intégrer les fonctionnalités su
 | **F07-2** | **Stock de filament** | Gérer la quantité de filament restant. | Pour aller plus loin |
 | **F07-3** | **Rapport de consommation** | Rapport sur quantités, crédits et montant imprimé. | Pour aller plus loin |
 
-
-
 ---
 
 \newpage
 
 # 3. Conception Préliminaire
-*Conformément au cycle de développement (Cycle en V), cette section valide l'étape de conception préliminaire en traduisant les besoins en architecture technique.*
-
 ## 3.1. Base de données
 
 ![Schema de base de données](diagrams/db-diagram.svg)
@@ -96,5 +92,7 @@ Afin de répondre au sujet, l'application doit intégrer les fonctionnalités su
 ## 3.2. Séquence de l'Authentification
 
 ![Schema de l'authentification](diagrams/auth-diagram.svg)
+
+NB: Dans un premier temps la creation de compts ce feras par un admin sur ca page de gestion. A terms cela seras fait automatiquement quand un utilisateurs se connect sur le CAS. 
 
 ---
