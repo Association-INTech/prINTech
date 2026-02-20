@@ -56,3 +56,5 @@ class ChangePasswordView(generics.UpdateAPIView):
             {"message": "Mot de passe changé avec succès."}, status=status.HTTP_200_OK
         )
 
+class CreateRequestView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
