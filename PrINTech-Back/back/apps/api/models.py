@@ -35,6 +35,7 @@ class Filament(models.Model):
     colour = models.CharField(choices=Color.choices, max_length=25, null=False, blank=False)
     type = models.CharField(choices=Type.choices, max_length=25, null=False, blank=False)
     quantity = models.PositiveIntegerField(default=0)
+    price = models.PositiveIntegerField(default=0)
 
 
 class File(models.Model):
@@ -53,15 +54,11 @@ class Printer(models.Model):
         DOWN = 'DOWN'
         USED = 'USED'
 
-    class Type(models.TextChoices):
-        SLA = 'SLA/DLP/MSLA' #Resin
-        SLS = 'SLS/MJF' #Powder
-        FDM = 'FDM/FFF' #Filament
-        MJP = 'MJP' #MultiJet Printing
-        Binder_Jetting = 'Binder_Jetting'
-        DMLS = 'DMLS/SLM' #Metal
+    class Model(models.TextChoices):
+        Creality_K1C = 'Creality_K1C'
+        Prusa_MK3S = 'Prusa_MK3S'
 
-    type = models.CharField(choices=Type.choices, max_length=25, null=False, blank=False)
+    type = models.CharField(choices=Model.choices, max_length=25, null=False, blank=False)
     status = models.CharField(choices=Status.choices, max_length=25, null=False, blank=False, default=Status.DOWN)
 
 
