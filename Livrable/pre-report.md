@@ -76,11 +76,15 @@ Afin de répondre au sujet, l'application doit intégrer les fonctionnalités su
 | **F07-2** | **Stock de filament** | Gérer la quantité de filament restant. | Pour aller plus loin |
 | **F07-3** | **Rapport de consommation** | Rapport sur quantités, crédits et montant imprimé. | Pour aller plus loin |
 
+
+
 ---
 
 \newpage
 
 # 3. Conception Préliminaire
+*Conformément au cycle de développement (Cycle en V), cette section valide l'étape de conception préliminaire en traduisant les besoins en architecture technique.*
+
 ## 3.1. Base de données
 
 ![Schema de base de données](diagrams/db-diagram.svg)
@@ -93,10 +97,109 @@ Afin de répondre au sujet, l'application doit intégrer les fonctionnalités su
 
 ![Schema de l'authentification](diagrams/auth-diagram.svg)
 
-NB: Dans un premier temps la creation de compts ce feras par un admin sur ca page de gestion. A terms cela seras fait automatiquement quand un utilisateurs se connect sur le CAS. 
-
-
-## 3.3. Plan de charge
-
-![Plan de charge](PLAN DE CHARGES - Plan de Charge.pdf)
 ---
+
+\newpage
+
+
+# 4. Planning prévisionnel
+
+---
+
+## 4.1 Phase 0 — Formation Angular *(13 jan -> 8 fev)*
+> Angular est appris en parallele du projet. Le dev front ne commence qu'en fevrier.
+
+| Tache | Duree | Charge |
+|---|---|---|
+| Bases Angular (components, routing, modules) | 1,5 sem. | 6 h |
+| Angular Material & formulaires reactifs | 1,5 sem. | 6 h |
+
+**Sous-total : 12 h**
+
+---
+
+## 4.2 Phase 1 — Cadrage & Architecture *(13 jan -> 27 jan)*
+
+| Tache | Duree | Charge |
+|---|---|---|
+| Besoins, wireframes | 1,5 sem. | 8 h |
+| Modelisation BDD (User, Printer, Job, Filament) | 1 sem. | 4 h |
+| Setup Docker / Git | 1 sem. | 6 h |
+
+**Sous-total : 18 h**
+
+
+---
+
+## 4.3 Phase 2 — Backend Django *(27 jan -> 14 mar)*
+> Django est maitrise -> execution rapide. La partie Moonraker/Klipper est la plus incertaine.
+
+| Tache | Duree | Charge |
+|---|---|---|
+| Modeles, migrations PostgreSQL, auth JWT | 2 sem. | 12 h |
+| API CRUD (imprimantes, filaments, jobs) | 2 sem. | 8 h |
+| Integration Moonraker + Klipper (envoi G-code, statuts) | 3 sem. | 16 h |
+| WebSocket temps reel (Django Channels) | 2 sem. | 8 h |
+| Tests backend | 2 sem. | 6 h |
+
+**Sous-total : 50 h**
+
+---
+
+## 4.4 Phase 3 — Frontend Angular *(3 fev -> 11 avr)*
+> Phase la plus longue a cause de l'apprentissage en cours. Scope limite au MVP.
+
+| Tache | Duree | Charge |
+|---|---|---|
+| Routing, guards, intercepteurs JWT | 1,5 sem. | 8 h |
+| Pages catalogue, formulaire soumission job | 2,5 sem. | 12 h |
+| Dashboard suivi impression temps reel | 2,5 sem. | 10 h |
+| Page admin basique | 2 sem. | 8 h |
+| Responsive & UI polish | 2 sem. | 6 h |
+
+**Sous-total : 44 h**
+
+---
+
+## 4.5 Phase 4 — Tests & Recette *(11 avr -> 5 mai)*
+
+| Tache | Duree | Charge |
+|---|---|---|
+| Tests E2E front <-> back <-> imprimante | 2 sem. | 8 h |
+| Corrections bugs & recette finale | 2 sem. | 6 h |
+
+**Sous-total : 14 h**
+
+---
+
+## 4.6 Phase 5 — Deploiement *(5 mai -> 15 mai)*
+
+| Tache | Duree | Charge |
+|---|---|---|
+| Config Nginx + Gunicorn + PostgreSQL en prod | 4 j | 4 h |
+| Mise en production + documentation | 1 sem. | 6 h |
+
+**Sous-total : 10 h**
+
+---
+
+## 4.7 Livraison finale — 15 mai 2025
+
+---
+
+## Recapitulatif des charges
+
+| Phase | Charge |
+|---|---|
+| Phase 0 — Formation Angular | 12 h |
+| Phase 1 — Cadrage & Architecture | 18 h |
+| Phase 2 — Backend Django | 50 h |
+| Phase 3 — Frontend Angular | 44 h |
+| Phase 4 — Tests & Recette | 14 h |
+| Phase 5 — Deploiement | 10 h |
+| Marge / imprevu | 12 h |
+| **TOTAL** | **160 h planifiees + 40 h de marge = 200 h** |
+
+> Les 40 h de marge (~10 h par personne) sont reservees pour les imprevu,
+> notamment l'integration Moonraker/Klipper et la courbe d'apprentissage Angular.
+
