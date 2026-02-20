@@ -95,4 +95,8 @@ Afin de répondre au sujet, l'application doit intégrer les fonctionnalités su
 
 NB: Dans un premier temps la creation de compts ce feras par un admin sur ca page de gestion. A terms cela seras fait automatiquement quand un utilisateurs se connect sur le CAS. 
 
+
+## 3.3. Plan de charge
+
+![Plan de charge](PLAN DE CHARGES - Plan de Charge.pdf)
 ---
