@@ -80,6 +80,16 @@ Afin de répondre au sujet, l'application doit intégrer les fonctionnalités su
 
 ---
 
+# 2.3. Choix des technologies
+
+Les technologies pour développer une webapp sont nombreuses. Pour faire la sélection des technologies, nous avons d'abord examiné lesquelles étaient capables de répondre à notre cahier des charges, puis ensuite sur les technologies auxquelles les membres de notre équipe avaient déjà de l'expérience. Sur la base de ces critères, nous avons sélectionné le stack suivant :
+- AngularJS : pour réaliser le frontend
+- Django : pour réaliser le backend et l'API REST
+- PostgreSQL : pour la base de données de l'application
+- Docker : pour faciliter le déploiement de l'application
+- Klipper : comme firmware des imprimantes. Ce firmware communautaire vient remplacer celui du constructeur
+- Moonraker : expose les API JSON-RPC de Klipper avec une API REST
+
 \newpage
 
 # 3. Conception Préliminaire
@@ -183,7 +193,7 @@ Afin de répondre au sujet, l'application doit intégrer les fonctionnalités su
 
 ---
 
-## 4.7 Livraison finale — 15 mai 2025
+## 4.7 Livraison finale — 15 mai 2026
 
 ---
 
