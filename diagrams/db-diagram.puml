@@ -1,6 +1,6 @@
 @startuml
-title "  UML Diagram \n Database"
-
+title UML Diagram\nDatabase
+scale 1.4
 hide circle
 skinparam linetype ortho
 skinparam shadowing false
