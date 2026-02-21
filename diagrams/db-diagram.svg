@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="926px" preserveAspectRatio="none" style="width:1696px;height:926px;" version="1.1" viewBox="0 0 1696 926" width="1696px" zoomAndPan="magnify"><defs/><g><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="141" x="784.5" y="16.708">"  UML Diagram</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="89" x="816.5" y="37.6611">Database"</text><!--MD5=[0d4cad32304a6bb7fe2c1a1b749d579e]
+cluster User Environment--><polygon fill="#DDDDDD" points="656,289.4063,803,289.4063,810,311.7031,1674,311.7031,1674,914.9063,656,914.9063,656,289.4063" style="stroke: #000000; stroke-width: 1.5;"/><line style="stroke: #000000; stroke-width: 1.5;" x1="656" x2="810" y1="311.7031" y2="311.7031"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="141" x="660" y="304.4014">User Environment</text><!--MD5=[f8e62798a7a96f5d27e760b6601a2e0f]
+cluster Material Assets--><polygon fill="#DDDDDD" points="30,74.4063,157,74.4063,164,96.7031,616,96.7031,616,479.9063,30,479.9063,30,74.4063" style="stroke: #000000; stroke-width: 1.5;"/><line style="stroke: #000000; stroke-width: 1.5;" x1="30" x2="164" y1="96.7031" y2="96.7031"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="121" x="34" y="89.4014">Material Assets</text><!--MD5=[9a9b09fa8617134b1b2615b408c4fd7b]
+class RequestStatus--><rect fill="#F8F8F8" height="91.1875" id="RequestStatus" rx="5" ry="5" style="stroke: #383838; stroke-width: 1.5;" width="99" x="1488.5" y="799.9063"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="93" x="1491.5" y="816.0449">RequestStatus</text><line style="stroke: #383838; stroke-width: 1.5;" x1="1489.5" x2="1586.5" y1="823.875" y2="823.875"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="50" x="1494.5" y="838.0854">PENDING</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="74" x="1494.5" y="850.8901">PROCESSING</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="68" x="1494.5" y="863.6948">COMPLETED</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="37" x="1494.5" y="876.4995">FAILED</text><line style="stroke: #383838; stroke-width: 1.5;" x1="1489.5" x2="1586.5" y1="883.0938" y2="883.0938"/><!--MD5=[cc4941acd9f25cf973013d8901d108c0]
+class OperationType--><rect fill="#F8F8F8" height="78.3828" id="OperationType" rx="5" ry="5" style="stroke: #383838; stroke-width: 1.5;" width="97" x="1061.5" y="358.4063"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="91" x="1064.5" y="374.5449">OperationType</text><line style="stroke: #383838; stroke-width: 1.5;" x1="1062.5" x2="1157.5" y1="382.375" y2="382.375"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="31" x="1067.5" y="396.5854">CASH</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="30" x="1067.5" y="409.3901">CARD</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="38" x="1067.5" y="422.1948">OTHER</text><line style="stroke: #383838; stroke-width: 1.5;" x1="1062.5" x2="1157.5" y1="428.7891" y2="428.7891"/><!--MD5=[e59cf999063292dce8d6ea34dd10a338]
+class user--><rect fill="#F8F8F8" height="142.4063" id="user" rx="5" ry="5" style="stroke: #383838; stroke-width: 1.5;" width="229" x="688.5" y="560.9063"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="29" x="788.5" y="577.0449">User</text><line style="stroke: #383838; stroke-width: 1.5;" x1="689.5" x2="916.5" y1="584.875" y2="584.875"/><ellipse cx="699.5" cy="595.875" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="81" x="708.5" y="599.0854">id : UUID «PK»</text><line style="stroke: #383838; stroke-width: 1.0;" x1="689.5" x2="916.5" y1="605.6797" y2="605.6797"/><ellipse cx="699.5" cy="616.6797" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="203" x="708.5" y="619.8901">username : varchar(150) «UNIQUE»</text><ellipse cx="699.5" cy="629.4844" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="140" x="708.5" y="632.6948">password : varchar(128)</text><ellipse cx="699.5" cy="642.2891" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="176" x="708.5" y="645.4995">email : varchar(254) «UNIQUE»</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="108" x="708.5" y="658.3042">credit : integer = 0</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="87" x="708.5" y="671.1089">is_staff = false</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="120" x="708.5" y="683.9136">is_superuser = false</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="12" x="708.5" y="696.7183">...</text><!--MD5=[b7fdae1517bfb210dbb895153335cd24]
+class operation--><rect fill="#F8F8F8" height="129.6016" id="operation" rx="5" ry="5" style="stroke: #383838; stroke-width: 1.5;" width="205" x="744.5" y="332.4063"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="62" x="816" y="348.5449">Operation</text><line style="stroke: #383838; stroke-width: 1.5;" x1="745.5" x2="948.5" y1="356.375" y2="356.375"/><ellipse cx="755.5" cy="367.375" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="81" x="764.5" y="370.5854">id : UUID «PK»</text><line style="stroke: #383838; stroke-width: 1.0;" x1="745.5" x2="948.5" y1="377.1797" y2="377.1797"/><ellipse cx="755.5" cy="388.1797" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="148" x="764.5" y="391.3901">beneficiary_id : UUID «FK»</text><ellipse cx="755.5" cy="400.9844" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="118" x="764.5" y="404.1948">agent_id : UUID «FK»</text><ellipse cx="755.5" cy="413.7891" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="179" x="764.5" y="416.9995">operation_type : OperationType</text><ellipse cx="755.5" cy="426.5938" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="119" x="764.5" y="429.8042">amount : integer = 0</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="86" x="764.5" y="442.6089">comment : text</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="126" x="764.5" y="455.4136">created_at : DateTime</text><!--MD5=[d73585d71b2748f54a72687d17b93a91]
+class file--><rect fill="#F8F8F8" height="103.9922" id="file" rx="5" ry="5" style="stroke: #383838; stroke-width: 1.5;" width="259" x="1031.5" y="579.9063"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="21" x="1150.5" y="596.0449">File</text><line style="stroke: #383838; stroke-width: 1.5;" x1="1032.5" x2="1289.5" y1="603.875" y2="603.875"/><ellipse cx="1042.5" cy="614.875" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="81" x="1051.5" y="618.0854">id : UUID «PK»</text><line style="stroke: #383838; stroke-width: 1.0;" x1="1032.5" x2="1289.5" y1="624.6797" y2="624.6797"/><ellipse cx="1042.5" cy="635.6797" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="112" x="1051.5" y="638.8901">user_id : UUID «FK»</text><ellipse cx="1042.5" cy="648.4844" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="109" x="1051.5" y="651.6948">path : varchar(100)</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="233" x="1051.5" y="664.4995">number_of_printing : integer = 1 {&gt;= 0}</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="106" x="1051.5" y="677.3042">para_slicer : jsonb</text><!--MD5=[0dbbe5e9e04a32a61f4c8be5c884f575]
+class request--><rect fill="#F8F8F8" height="103.9922" id="request" rx="5" ry="5" style="stroke: #383838; stroke-width: 1.5;" width="224" x="1426" y="579.9063"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="52" x="1512" y="596.0449">Request</text><line style="stroke: #383838; stroke-width: 1.5;" x1="1427" x2="1649" y1="603.875" y2="603.875"/><ellipse cx="1437" cy="614.875" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="81" x="1446" y="618.0854">id : UUID «PK»</text><line style="stroke: #383838; stroke-width: 1.0;" x1="1427" x2="1649" y1="624.6797" y2="624.6797"/><ellipse cx="1437" cy="635.6797" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="103" x="1446" y="638.8901">file_id : UUID «FK»</text><ellipse cx="1437" cy="648.4844" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="129" x="1446" y="651.6948">printer_id : Bigint «FK»</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="198" x="1446" y="664.4995">status : RequestStatus = PENDING</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="126" x="1446" y="677.3042">created_at : DateTime</text><!--MD5=[a093872cf1ec41e70f3754a5adcb6f24]
+class printer--><rect fill="#F8F8F8" height="78.3828" id="printer" rx="5" ry="5" style="stroke: #383838; stroke-width: 1.5;" width="200" x="328" y="123.9063"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="42" x="407" y="140.0449">Printer</text><line style="stroke: #383838; stroke-width: 1.5;" x1="329" x2="527" y1="147.875" y2="147.875"/><ellipse cx="339" cy="158.875" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="86" x="348" y="162.0854">id : Bigint «PK»</text><line style="stroke: #383838; stroke-width: 1.0;" x1="329" x2="527" y1="168.6797" y2="168.6797"/><ellipse cx="339" cy="179.6797" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="101" x="348" y="182.8901">type : PrinterType</text><ellipse cx="339" cy="192.4844" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="174" x="348" y="195.6948">status : PrinterStatus = DOWN</text><!--MD5=[791dcace3ea863df779aa24bbb1463f1]
+class filament--><rect fill="#F8F8F8" height="91.1875" id="filament" rx="5" ry="5" style="stroke: #383838; stroke-width: 1.5;" width="194" x="54" y="117.4063"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="53" x="124.5" y="133.5449">Filament</text><line style="stroke: #383838; stroke-width: 1.5;" x1="55" x2="247" y1="141.375" y2="141.375"/><ellipse cx="65" cy="152.375" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="86" x="74" y="155.5854">id : Bigint «PK»</text><line style="stroke: #383838; stroke-width: 1.0;" x1="55" x2="247" y1="162.1797" y2="162.1797"/><ellipse cx="65" cy="173.1797" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="112" x="74" y="176.3901">colour : varchar(25)</text><ellipse cx="65" cy="185.9844" fill="#000000" rx="3" ry="3" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="111" x="74" y="189.1948">type : FilamentType</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="168" x="74" y="201.9995">quantity : integer = 0 {&gt;= 0}</text><!--MD5=[5ec76b4dd5eee3f39e5e62a0e63b8709]
+class FilamentType--><rect fill="#F8F8F8" height="103.9922" id="FilamentType" rx="5" ry="5" style="stroke: #383838; stroke-width: 1.5;" width="108" x="68" y="345.4063"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="82" x="81" y="361.5449">FilamentType</text><line style="stroke: #383838; stroke-width: 1.5;" x1="69" x2="175" y1="369.375" y2="369.375"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="20" x="74" y="383.5854">PLA</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="96" x="74" y="396.3901">REINFORCED_PLA</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="30" x="74" y="409.1948">PETG</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="23" x="74" y="421.9995">ABS</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="47" x="74" y="434.8042">TPE/TPU</text><line style="stroke: #383838; stroke-width: 1.5;" x1="69" x2="175" y1="441.3984" y2="441.3984"/><!--MD5=[03ae29fcc56da0431d5f0f8a6ffe3cf3]
+class PrinterType--><rect fill="#F8F8F8" height="116.7969" id="PrinterType" rx="5" ry="5" style="stroke: #383838; stroke-width: 1.5;" width="103" x="256.5" y="338.9063"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="71" x="272.5" y="355.0449">PrinterType</text><line style="stroke: #383838; stroke-width: 1.5;" x1="257.5" x2="358.5" y1="362.875" y2="362.875"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="21" x="262.5" y="377.0854">SLA</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="22" x="262.5" y="389.8901">SLS</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="23" x="262.5" y="402.6948">FDM</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="19" x="262.5" y="415.4995">MJP</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="31" x="262.5" y="428.3042">DMLS</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="91" x="262.5" y="441.1089">BINDER_JETTING</text><line style="stroke: #383838; stroke-width: 1.5;" x1="257.5" x2="358.5" y1="447.7031" y2="447.7031"/><!--MD5=[e125e6b6b334f8746de43678843fc44e]
+class PrinterStatus--><rect fill="#F8F8F8" height="78.3828" id="PrinterStatus" rx="5" ry="5" style="stroke: #383838; stroke-width: 1.5;" width="89" x="439.5" y="358.4063"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="83" x="442.5" y="374.5449">PrinterStatus</text><line style="stroke: #383838; stroke-width: 1.5;" x1="440.5" x2="527.5" y1="382.375" y2="382.375"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="15" x="445.5" y="396.5854">UP</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="34" x="445.5" y="409.3901">DOWN</text><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="31" x="445.5" y="422.1948">USED</text><line style="stroke: #383838; stroke-width: 1.5;" x1="440.5" x2="527.5" y1="428.7891" y2="428.7891"/><!--MD5=[96ff0251488efa8757c6c54b29b18dc5]
+link user to file--><path d="M917.75,631.9063 C917.75,631.9063 1023.36,631.9063 1023.36,631.9063 " fill="none" id="user-&gt;file" style="stroke: #383838; stroke-width: 1.0;"/><line style="stroke: #383838; stroke-width: 1.0;" x1="1023.36" x2="1031.36" y1="631.9063" y2="625.9063"/><line style="stroke: #383838; stroke-width: 1.0;" x1="1023.36" x2="1031.36" y1="631.9063" y2="637.9063"/><line style="stroke: #383838; stroke-width: 1.0;" x1="1023.36" x2="1031.36" y1="631.9063" y2="631.9063"/><ellipse cx="1017.36" cy="631.9063" fill="none" rx="4" ry="4" style="stroke: #383838; stroke-width: 1.0;"/><!--MD5=[6486f9dc58e7fb166fe0bc88a9a3623d]
+reverse link file to request--><path d="M1297.74,631.9063 C1297.74,631.9063 1425.94,631.9063 1425.94,631.9063 " fill="none" id="file&lt;-request" style="stroke: #383838; stroke-width: 1.0;"/><line style="stroke: #383838; stroke-width: 1.0;" x1="1294.74" x2="1294.74" y1="635.9063" y2="627.9063"/><line style="stroke: #383838; stroke-width: 1.0;" x1="1297.74" x2="1297.74" y1="635.9063" y2="627.9063"/><line style="stroke: #383838; stroke-width: 1.0;" x1="1298.74" x2="1290.74" y1="631.9063" y2="631.9063"/><!--MD5=[ba6b3f2194326762d01c5774aead80d4]
+link Material Assets to User Environment--><path d="M616.0302,397.9063 C616.1072,397.9063 616.1846,397.9063 616.2623,397.9063 C621.2403,397.9063 627.9119,397.9063 634.6863,397.9063 C641.4606,397.9063 648.3378,397.9063 653.727,397.9063 C654.4007,397.9063 655.0511,397.9063 655.6751,397.9063 C655.7531,397.9063 655.8307,397.9063 655.9079,397.9063 " fill="none" id="Material Assets-User Environment" style="stroke: #383838; stroke-width: 1.0;"/><polygon fill="#383838" points="655.9079,397.9063,646.9079,393.9063,650.9079,397.9063,646.9079,401.9063,655.9079,397.9063" style="stroke: #383838; stroke-width: 1.0;"/><polygon fill="#383838" points="616.0302,397.9063,625.0302,401.9063,621.0302,397.9063,625.0302,393.9063,616.0302,397.9063" style="stroke: #383838; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="56" x="1446" y="261.4731">Interacts</text><!--MD5=[7af409dccf17333360817820ce2f5532]
+reverse link printer to request--><path d="M535.46,182.9063 C535.46,182.9063 1538,182.9063 1538,182.9063 C1538,182.9063 1538,461.0763 1538,579.5263 " fill="none" id="printer&lt;-request" style="stroke: #383838; stroke-width: 1.0;"/><line style="stroke: #383838; stroke-width: 1.0;" x1="532.46" x2="532.46" y1="186.9063" y2="178.9063"/><line style="stroke: #383838; stroke-width: 1.0;" x1="535.46" x2="535.46" y1="186.9063" y2="178.9063"/><line style="stroke: #383838; stroke-width: 1.0;" x1="536.46" x2="528.46" y1="182.9063" y2="182.9063"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="65" x="1320" y="401.9731">processes</text><!--MD5=[1a3696dc035b537621fafb7b953fe00d]
+reverse link operation to user--><path d="M831,470.4163 C831,470.4163 831,560.5963 831,560.5963 " fill="none" id="operation&lt;-user" style="stroke: #383838; stroke-width: 1.0;"/><line style="stroke: #383838; stroke-width: 1.0;" x1="831" x2="825" y1="470.4163" y2="462.4163"/><line style="stroke: #383838; stroke-width: 1.0;" x1="831" x2="837" y1="470.4163" y2="462.4163"/><line style="stroke: #383838; stroke-width: 1.0;" x1="831" x2="831" y1="470.4163" y2="462.4163"/><ellipse cx="831" cy="476.4163" fill="none" rx="4" ry="4" style="stroke: #383838; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="127" x="826" y="516.9731">beneficiary or agent</text><!--MD5=[7009c16ce8feb5d8ff8493b44df3ad7b]
+link request to RequestStatus--><path d="M1538,684.1363 C1538,684.1363 1538,794.8763 1538,794.8763 " fill="none" id="request-&gt;RequestStatus" style="stroke: #383838; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/><polygon fill="#383838" points="1538,799.8763,1542,790.8763,1538,794.8763,1534,790.8763,1538,799.8763" style="stroke: #383838; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="30" x="1539" y="755.9731">uses</text><!--MD5=[eaeec2db56ec2c53b8e27be7c9e9a4d9]
+link printer to PrinterStatus--><path d="M483.75,202.1563 C483.75,202.1563 483.75,353.0263 483.75,353.0263 " fill="none" id="printer-&gt;PrinterStatus" style="stroke: #383838; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/><polygon fill="#383838" points="483.75,358.0263,487.75,349.0263,483.75,353.0263,479.75,349.0263,483.75,358.0263" style="stroke: #383838; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="30" x="457" y="261.4731">uses</text><!--MD5=[c5042109526fce31551e8e4a0dff3bcc]
+link printer to PrinterType--><path d="M343.75,202.1563 C343.75,202.1563 343.75,333.6563 343.75,333.6563 " fill="none" id="printer-&gt;PrinterType" style="stroke: #383838; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/><polygon fill="#383838" points="343.75,338.6563,347.75,329.6563,343.75,333.6563,339.75,329.6563,343.75,338.6563" style="stroke: #383838; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="30" x="310" y="261.4731">uses</text><!--MD5=[eecdf2e51a0166b8b1a48ee5e84da745]
+link filament to FilamentType--><path d="M122,208.6762 C122,208.6762 122,340.2062 122,340.2062 " fill="none" id="filament-&gt;FilamentType" style="stroke: #383838; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/><polygon fill="#383838" points="122,345.2062,126,336.2062,122,340.2062,118,336.2062,122,345.2062" style="stroke: #383838; stroke-width: 1.0;"/><text fill="#000000" font-family="Segoe UI, Arial, sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="30" x="144" y="261.4731">uses</text><!--MD5=[5e0676831950b238ed9917ead78ef924]
+link operation to OperationType--><path d="M949.81,397.9063 C949.81,397.9063 1056.49,397.9063 1056.49,397.9063 " fill="none" id="operation-&gt;OperationType" style="stroke: #383838; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/><polygon fill="#383838" points="1061.49,397.9063,1052.49,393.9063,1056.49,397.9063,1052.49,401.9063,1061.49,397.9063" style="stroke: #383838; stroke-width: 1.0;"/><!--MD5=[65ad7c8e4641f0ceeb49c5dcae2cde91]
+@startuml
+title "  UML Diagram \n Database"
+
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam nodesep 80
+skinparam ranksep 80
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName Segoe UI, Arial, sans-serif
+skinparam style strictuml
+
+
+
+
+
+package "User Environment" #DDDDDD{
+
+    enum RequestStatus {
+        PENDING
+        PROCESSING
+        COMPLETED
+        FAILED
+    }
+    enum OperationType {
+        CASH
+        CARD
+        OTHER
+    }
+
+    entity "User" as user {
+      *id : UUID <<PK>>
+      - -
+      *username : varchar(150) <<UNIQUE>>
+      *password : varchar(128)
+      *email : varchar(254) <<UNIQUE>>
+      credit : integer = 0
+      is_staff = false
+      is_superuser = false
+      ...
+    }
+
+    entity "Operation" as operation{
+        *id : UUID <<PK>>
+        - -
+        *beneficiary_id : UUID <<FK>>
+        *agent_id : UUID <<FK>>
+        *operation_type : OperationType
+        *amount : integer = 0
+        comment : text
+        created_at : DateTime
+    }
+    entity "File" as file{
+        *id : UUID <<PK>>
+        - -
+        *user_id : UUID <<FK>>
+        *path : varchar(100)
+        number_of_printing : integer = 1 {>= 0}
+        para_slicer : jsonb
+    }
+
+
+    entity "Request" as request{
+            *id : UUID <<PK>>
+            - -
+            *file_id : UUID <<FK>>
+            *printer_id : Bigint <<FK>>
+            status : RequestStatus = PENDING
+            created_at : DateTime
+    }
+}
+package "Material Assets" #DDDDDD{
+    entity "Printer" as printer {
+            *id : Bigint <<PK>>
+            - -
+            *type : PrinterType
+            *status : PrinterStatus = DOWN
+    }
+
+    entity "Filament" as filament{
+        *id : Bigint <<PK>>
+        - -
+        *colour : varchar(25)
+        *type : FilamentType
+        quantity : integer = 0 {>= 0}
+    }
+
+    enum FilamentType {
+        PLA
+        REINFORCED_PLA
+        PETG
+        ABS
+        TPE/TPU
+    }
+
+    enum PrinterType {
+        SLA
+        SLS
+        FDM
+        MJP
+        DMLS
+        BINDER_JETTING
+    }
+
+    enum PrinterStatus {
+        UP
+        DOWN
+        USED
+    }
+}
+
+
+
+
+file }o-l- user : owns
+file ||-r- request : linked to
+"Material Assets" <- -> "User Environment" : Interacts
+printer ||- - request : processes
+operation }o- - user : beneficiary or agent
+request .d.> RequestStatus : uses
+printer ..> PrinterStatus : uses
+printer ..> PrinterType : uses
+filament ..> FilamentType : uses
+operation .r.> OperationType : uses
+@enduml
+
+PlantUML version 1.2020.02(Sun Mar 01 11:22:07 CET 2020)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Java Version: 21.0.10+7-Ubuntu-124.04
+Operating System: Linux
+Default Encoding: UTF-8
+Language: en
+Country: null
+--></g></svg>
