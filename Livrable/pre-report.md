@@ -77,18 +77,27 @@ Afin de répondre au sujet, l'application doit intégrer les fonctionnalités su
 | **F07-3** | **Rapport de consommation** | Rapport sur quantités, crédits et montant imprimé. | Pour aller plus loin |
 
 
-
 ---
+
+\newpage
 
 # 2.3. Choix des technologies
 
 Les technologies pour développer une webapp sont nombreuses. Pour faire la sélection des technologies, nous avons d'abord examiné lesquelles étaient capables de répondre à notre cahier des charges, puis ensuite sur les technologies auxquelles les membres de notre équipe avaient déjà de l'expérience. Sur la base de ces critères, nous avons sélectionné le stack suivant :
+\newline
 - AngularJS : pour réaliser le frontend
+\newline
 - Django : pour réaliser le backend et l'API REST
+\newline
 - PostgreSQL : pour la base de données de l'application
+\newline
 - Docker : pour faciliter le déploiement de l'application
+\newline
 - Klipper : comme firmware des imprimantes. Ce firmware communautaire vient remplacer celui du constructeur
+\newline
 - Moonraker : expose les API JSON-RPC de Klipper avec une API REST
+
+--- 
 
 \newpage
 
