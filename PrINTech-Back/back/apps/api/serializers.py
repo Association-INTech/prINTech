@@ -2,7 +2,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.fields import UUIDField
 
-from .models import User, Request, File
+from .models import User, Request, File, Filament
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -57,8 +57,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CreateFileSerializer(serializers.ModelSerializer):
-    requests = serializers.PrimaryKeyRelatedField(many=False, pk_field=UUIDField(format='hex'), required=False, queryset=Request.objects.all())
-    filaments = serializers.PrimaryKeyRelatedField(many=True, queryset=File.objects.all())
+    filaments = serializers.PrimaryKeyRelatedField(many=True, queryset=Filament.objects.all())
 
     class Meta:
         model = File
@@ -67,9 +66,9 @@ class CreateFileSerializer(serializers.ModelSerializer):
             "path",
             "number_of_printing",
             "filaments",
-            "requests",
             "para_slicer",
         ]
+        extra_kwargs = {"user_id": {"read_only": True}}
 
     def validate(self, data):
         user = self.context["request"].user
@@ -81,13 +80,24 @@ class CreateFileSerializer(serializers.ModelSerializer):
         return data
 
 
-class CreateRequestSerializer(serializers.ModelSerializer):
 
+
+class CreateRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Request
-        fields = ["file_id", "printer_id", "created_at"]
+        fields = ["file_id", "created_at"]
         extra_kwargs = {"created_at": {"read_only": True}}
 
     def validate(self, data):
-        pass
+        user = self.context["request"].user
+        file = data["file_id"]
+        if file.user_id != user.id:
+            raise serializers.ValidationError("File doesn't belong to this user")
+        return data
+
+class ChangeRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Request
+        fields = ["printer_id", "status"]
+        extra_kwargs = {"status": {"read_only": True}}
