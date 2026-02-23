@@ -5,13 +5,14 @@ from rest_framework import routers, permissions
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .apps.api.views import CreateUserView, UserMeView, ChangePasswordView, \
-    RequestViewSet, CreateFileView
+    RequestViewSet, CreateFileView, FileViewSet
 from .views import home
 
 admin.autodiscover()
 
 router = routers.DefaultRouter()
 router.register(r'requests', RequestViewSet, basename='request')
+router.register(r'files', FileViewSet, basename='file')
 
 urlpatterns = [
     path('', home, name='home'),
