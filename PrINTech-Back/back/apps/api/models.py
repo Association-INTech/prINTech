@@ -8,6 +8,7 @@ class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(blank=False, unique=True, null=False)
     credit = models.IntegerField(default=0)
+    is_bot = models.BooleanField(default=False)
 
 
 class Filament(models.Model):
@@ -78,6 +79,7 @@ class Request(models.Model):
     printer_id = models.ForeignKey(Printer, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(choices=Status.choices, max_length=25, null=False, blank=False, default=Status.PENDING)
+
 
 
 class Operation(models.Model):
