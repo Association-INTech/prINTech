@@ -1,11 +1,12 @@
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from .models import User
-from rest_framework import permissions, viewsets, generics, status
+from rest_framework import permissions, viewsets, generics, status, serializers
 from django.shortcuts import render
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated,IsAdminUser
 from rest_framework.throttling import UserRateThrottle
-from .serializers import UserSerializer, ChangePasswordSerializer
+from .serializers import UserSerializer, ChangePasswordSerializer, OperationSerializer
+from django.db import transaction
 
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -56,3 +57,16 @@ class ChangePasswordView(generics.UpdateAPIView):
             {"message": "Mot de passe changé avec succès."}, status=status.HTTP_200_OK
         )
 
+class CreateOperationView(generics.CreateAPIView):
+    permission_classes=[IsAdminUser]
+    serializer_class = OperationSerializer 
+      
+    def perform_create(self, serializer):
+        with transaction.atomic():
+            beneficiary = serializer.validated_data['beneficiary_id']
+            amount = serializer.validated_data['amount']
+            if beneficiary.balance<amount:
+                raise serializers.ValidationError("Insufficient funds")
+            beneficiary.balance += amount            
+            beneficiary.save()
+            serializer.save(agent_id=self.request.user)

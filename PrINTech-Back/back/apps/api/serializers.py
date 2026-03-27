@@ -1,6 +1,6 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from .models import User
+from .models import User, Operation
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -49,3 +49,8 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "password", "email"]
         extra_kwargs = {"password": {"write_only": True}}
 
+class OperationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Operation
+        fields = ['id', 'beneficiary_id', 'agent_id', 'amount', 'operation_type', 'comment', 'created_at'] 
+        read_only_fields = ['agent_id', 'id', 'created_at']
