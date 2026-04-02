@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
-from .models import User
+from .models import User, Operation
 from rest_framework import permissions, viewsets, generics, status, serializers
 from django.shortcuts import render
 from rest_framework.permissions import AllowAny, IsAuthenticated,IsAdminUser
@@ -58,6 +58,7 @@ class ChangePasswordView(generics.UpdateAPIView):
         )
 
 class CreateOperationView(generics.CreateAPIView):
+    queryset = Operation.objects.all()
     permission_classes=[IsAdminUser]
     serializer_class = OperationSerializer 
       
@@ -65,8 +66,8 @@ class CreateOperationView(generics.CreateAPIView):
         with transaction.atomic():
             beneficiary = serializer.validated_data['beneficiary_id']
             amount = serializer.validated_data['amount']
-            if beneficiary.balance<amount:
+            if amount<0 and beneficiary.credit<-amount:
                 raise serializers.ValidationError("Insufficient funds")
-            beneficiary.balance += amount            
+            beneficiary.credit += amount            
             beneficiary.save()
             serializer.save(agent_id=self.request.user)
