@@ -1,1 +1,52 @@
-<p>history works!</p>
+<div class="page-content">
+    <div class="title">Historique des impressions</div>
+    <input type="search" id="print-search" placeholder="cat_PLA_58.34g.stl">
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Modèle 3D</th>
+                    <th>Imprimante 3D</th>
+                    <th>Matériau</th>
+                    <th>Date</th>
+                    <th>Statut</th>
+                    <th>Durée</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>#3012</td>
+                    <td class="file-name">prototype_boîtier_v2.stl</td>
+                    <td>Prusa MK4</td>
+                    <td>PLA (Noir)</td>
+                    <td>26/03/2026 14:32</td>
+                    <td><span class="status status-printed">Terminé</span></td>
+                    <td>4h 25m</td>
+                    <td><button type="button" class="reprint-btn">Relancer</button></td>
+                </tr>
+                <tr>
+                    <td>#3011</td>
+                    <td class="file-name">support_camera.stl</td>
+                    <td>Bambu Lab X1C</td>
+                    <td>PETG (Gris)</td>
+                    <td>25/03/2026 09:11</td>
+                    <td><span class="status status-failed">Échec</span></td>
+                    <td>1h 50m</td>
+                    <td><button type="button" class="reprint-btn">Relancer</button></td>
+                </tr>
+                <tr>
+                    <td>#3010</td>
+                    <td class="file-name">engrenage_test.step</td>
+                    <td>Creality K1</td>
+                    <td>ABS (Blanc)</td>
+                    <td>24/03/2026 17:49</td>
+                    <td><span class="status status-queued">En cours</span></td>
+                    <td>2h 10m</td>
+                    <td><button type="button" class="reprint-btn">Relancer</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
