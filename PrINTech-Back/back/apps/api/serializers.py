@@ -1,6 +1,8 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from .models import User, Operation
+from .models import User, Operation, Request, File
+from django.db import transaction
+
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -52,5 +54,48 @@ class UserSerializer(serializers.ModelSerializer):
 class OperationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Operation
-        fields = ['id', 'beneficiary_id', 'agent_id', 'amount', 'operation_type', 'comment', 'created_at'] 
-        read_only_fields = ['agent_id', 'id', 'created_at']
+        fields = ['id', 'beneficiary', 'agent', 'amount', 'operation_type', 'comment', 'created_at','request'] 
+        read_only_fields = ['agent', 'id', 'created_at']
+        
+    def create(self, validated_data):
+        with transaction.atomic():
+            beneficiary = validated_data['beneficiary']
+            amount = validated_data['amount']
+            if amount<0 and beneficiary.credit<-amount:
+                raise serializers.ValidationError("Insufficient funds")
+            beneficiary.credit += amount            
+            beneficiary.save()
+            return super().create(validated_data)
+     
+        
+class FileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = File
+        fields = ["path", "number_of_printing", "filament", "para_slicer"]
+        read_only_fields = ['id', 'user','status', 'printer', 'created_at', 'status']
+
+
+class RequestSerializer(serializers.ModelSerializer):
+    file = FileSerializer(many=False, read_only=True)
+    path = serializers.FileField(write_only=True)
+    number_of_printing = serializers.IntegerField(write_only=True, default=1)
+    para_slicer = serializers.JSONField(write_only=True, required=False)
+    
+    class Meta:
+        model = Request
+        fields = ['id', 'user', 'file', 'printer', 'operation', 'comment', 'created_at','status',"path","number_of_printing", "para_slicer"] 
+        read_only_fields = ['id', 'user','file', 'printer', 'operation', 'created_at', 'status']
+        
+    def create(self, validated_data):
+            path = validated_data.pop('path')
+            number_of_printing = validated_data.pop('number_of_printing')
+            para_slicer = validated_data.pop('para_slicer', {})
+            filament = validated_data.pop('filament', None)
+
+            new_file = File.objects.create(
+                path=path,
+                number_of_printing=number_of_printing,
+                para_slicer=para_slicer,
+                filament=filament
+            )
+            return Request.objects.create(file=new_file, **validated_data)

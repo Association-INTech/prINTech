@@ -4,12 +4,18 @@ from django.urls import include, path
 from rest_framework import routers, permissions
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .apps.api.views import CreateUserView, UserMeView, ChangePasswordView, CreateOperationView
+from .apps.api.views import CreateUserView, UserMeView, ChangePasswordView, OperationView, AdminOperationView, RequestView, AdminRequestView
 from .views import home
 
 admin.autodiscover()
 
 router = routers.DefaultRouter()
+
+router.register(r'requests', RequestView, basename='request')
+router.register(r'admin/requests', AdminRequestView, basename='admin-request')
+router.register(r'operations', OperationView, basename='operation')
+router.register(r'admin/operations', AdminOperationView, basename='admin-operation')
+
 
 urlpatterns = [
     # Examples:
@@ -20,7 +26,6 @@ urlpatterns = [
     path("api/v1/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/v1/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/v1/user/", CreateUserView.as_view(), name="create_user"),
-    path("api/v1/operation/", CreateOperationView.as_view(), name="create_operation"),
     path("api/v1/user/me/", UserMeView.as_view(), name="user_info"),
     path(
         "api/v1/user/me/change-password/",

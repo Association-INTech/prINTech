@@ -1,0 +1,5 @@
+back/media/
+
+.venv/
+env/
+__pycache__/

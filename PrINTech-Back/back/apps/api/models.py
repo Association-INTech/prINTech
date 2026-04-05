@@ -39,8 +39,7 @@ class Filament(models.Model):
 
 class File(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user_id=models.ForeignKey(User, on_delete=models.CASCADE)
-    filament_id=models.ManyToManyField(Filament)
+    filament=models.ForeignKey(Filament, on_delete=models.CASCADE, null=True)
     path = models.FileField(upload_to='uploads/%Y/%m/%d')
     number_of_printing = models.PositiveIntegerField(default=1)
     para_slicer =  models.JSONField(null=True, blank=True)
@@ -54,43 +53,52 @@ class Printer(models.Model):
         USED = 'USED'
 
     class Type(models.TextChoices):
-        SLA = 'SLA/DLP/MSLA' #Resin
-        SLS = 'SLS/MJF' #Powder
-        FDM = 'FDM/FFF' #Filament
-        MJP = 'MJP' #MultiJet Printing
-        Binder_Jetting = 'Binder_Jetting'
-        DMLS = 'DMLS/SLM' #Metal
-
+        CREALITY_K1C = 'CREALITY_K1C'
+        SNAPMAKER_U1 = 'SNAPMAKER_U1'
+        PRUSA_MK3 = 'PRUSA_MK3'
     type = models.CharField(choices=Type.choices, max_length=25, null=False, blank=False)
     status = models.CharField(choices=Status.choices, max_length=25, null=False, blank=False, default=Status.DOWN)
+
 
 
 class Request(models.Model):
 
     class Status(models.TextChoices):
+        SUBMITTED = 'SUBMITTED'
+        AWAITING_PAYMENT = 'AWAITING_PAYMENT'
         PENDING = 'PENDING'
-        PROCESSING = 'PROCESSING'
-        COMPLETED = 'COMPLETED'
+        PRINTING = 'PRINTING'
+        AWAITING_PICKUP = 'AWAITING_PICKUP'
+        PICKED_UP = 'PICKED_UP'
         FAILED = 'FAILED'
+        CANCELED = 'CANCELED'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    file_id = models.ForeignKey(File, on_delete=models.CASCADE)
-    printer_id = models.ForeignKey(Printer, on_delete=models.CASCADE, null=True)
+    user=models.ForeignKey(User, on_delete=models.CASCADE)
+    file = models.ForeignKey(File, on_delete=models.CASCADE, null=True)
+    printer = models.ForeignKey(Printer, on_delete=models.CASCADE, null=True)
+    comment = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(choices=Status.choices, max_length=25, null=False, blank=False, default=Status.PENDING)
 
+    @property
+    def is_paid(self):
+        return hasattr(self, 'operation')
 
 class Operation(models.Model):
 
     class Type(models.TextChoices):
         CASH = 'CASH'
         CARD = 'CARD'
+        PAYMENT = 'PAYMENT'
+        REFUND = 'REFUND'
+
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    beneficiary_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='operation_beneficiary')
-    agent_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='operation_agent')
+    beneficiary = models.ForeignKey(User, on_delete=models.CASCADE, related_name='operation_beneficiary')
+    agent = models.ForeignKey(User, on_delete=models.CASCADE, related_name='operation_agent')
     created_at = models.DateTimeField(auto_now_add=True)
     operation_type = models.CharField(choices=Type.choices, max_length=25, null=False, blank=False)
     comment = models.TextField(null=True, blank=True)
     amount = models.IntegerField(default=0)
-
+    request = models.OneToOneField(Request, on_delete=models.CASCADE, null=True)
