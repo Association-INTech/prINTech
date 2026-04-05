@@ -2,7 +2,7 @@ import uuid
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db import transaction
+from django.core.validators import RegexValidator
 
 
 class User(AbstractUser):
@@ -17,20 +17,12 @@ class Filament(models.Model):
         PLA = 'PLA'
         PETG = 'PETG'
 
-    class Color(models.TextChoices):
-        RED = 'RED'
-        GREEN = 'GREEN'
-        YELLOW = 'YELLOW'
-        BLUE = 'BLUE'
-        MAGENTA = 'MAGENTA'
-        WHITE = 'WHITE'
-        BLACK = 'BLACK'
-        PURPLE = 'PURPLE'
-        BROWN = 'BROWN'
-        GREY = 'GREY'
-        ORANGE = 'ORANGE'
-
-    colour = models.CharField(choices=Color.choices, max_length=25, null=False, blank=False)
+    color = models.CharField(
+            max_length=7, 
+            default='#ffffff',
+            validators=[RegexValidator(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$')]
+        )
+    color_name = models.TextField(null=False, blank=False)
     type = models.CharField(choices=Type.choices, max_length=25, null=False, blank=False)
     quantity = models.PositiveIntegerField(default=0)
 
@@ -50,11 +42,12 @@ class Printer(models.Model):
         DOWN = 'DOWN'
         USED = 'USED'
 
-    class Type(models.TextChoices):
+    class Name(models.TextChoices):
         CREALITY_K1C = 'CREALITY_K1C'
         SNAPMAKER_U1 = 'SNAPMAKER_U1'
         PRUSA_MK3 = 'PRUSA_MK3'
-    type = models.CharField(choices=Type.choices, max_length=25, null=False, blank=False)
+        
+    name = models.CharField(primary_key=True,choices=Name.choices, max_length=25, null=False, blank=False)
     status = models.CharField(choices=Status.choices, max_length=25, null=False, blank=False, default=Status.DOWN)
 
 

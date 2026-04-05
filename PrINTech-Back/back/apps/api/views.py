@@ -1,12 +1,12 @@
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
-from .models import User, Operation, Request
+from .models import User, Operation, Request, Filament, Printer
 from rest_framework import permissions, viewsets, mixins, generics, status, serializers
 from rest_framework.decorators import action
 from django.shortcuts import render
 from rest_framework.permissions import AllowAny, IsAuthenticated,IsAdminUser
 from rest_framework.throttling import UserRateThrottle
-from .serializers import UserSerializer, ChangePasswordSerializer, OperationSerializer, RequestSerializer
+from .serializers import UserSerializer, ChangePasswordSerializer, OperationSerializer, RequestSerializer,FilamentSerializer, PrinterSerializer
 from django.db import transaction
 
 class CreateUserView(generics.CreateAPIView):
@@ -164,6 +164,7 @@ class RequestView(mixins.CreateModelMixin,
         print_request.save()
         
         return Response({"status": "Request canceled successfully"}, status=status.HTTP_200_OK)
+    
 class AdminRequestView(viewsets.ReadOnlyModelViewSet):
     serializer_class = RequestSerializer
     permission_classes=[IsAdminUser]
@@ -196,3 +197,27 @@ class AdminRequestView(viewsets.ReadOnlyModelViewSet):
         
         serializer = self.get_serializer(print_request)
         return Response(serializer.data)
+    
+    
+class FilamentView(viewsets.ReadOnlyModelViewSet):
+    queryset = Filament.objects.all()
+    serializer_class = FilamentSerializer
+    permission_classes = [permissions.AllowAny]
+
+class AdminFilamentView(viewsets.ModelViewSet):
+    queryset = Filament.objects.all()
+    serializer_class = FilamentSerializer
+    permission_classes = [permissions.IsAdminUser]
+    
+class PrinterView(viewsets.ReadOnlyModelViewSet):
+    queryset = Printer.objects.all()
+    serializer_class = PrinterSerializer
+    permission_classes = [permissions.AllowAny]
+ 
+class AdminPrinterView(mixins.UpdateModelMixin,
+                       mixins.RetrieveModelMixin,
+                       mixins.ListModelMixin,
+                       viewsets.GenericViewSet):
+    queryset = Printer.objects.all()
+    serializer_class = PrinterSerializer
+    permission_classes = [permissions.IsAdminUser]

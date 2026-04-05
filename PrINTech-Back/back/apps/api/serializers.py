@@ -1,6 +1,6 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from .models import User, Operation, Request, File
+from .models import User, Operation, Request, File, Filament, Printer
 from django.db import transaction
 
 
@@ -80,10 +80,12 @@ class RequestSerializer(serializers.ModelSerializer):
     path = serializers.FileField(write_only=True)
     number_of_printing = serializers.IntegerField(write_only=True, default=1)
     para_slicer = serializers.JSONField(write_only=True, required=False)
-    
+    filament = serializers.PrimaryKeyRelatedField(
+        write_only=True, queryset=Filament.objects.all(), required=True
+    )
     class Meta:
         model = Request
-        fields = ['id', 'user', 'file', 'printer', 'comment', 'created_at','status',"path","number_of_printing", "para_slicer"] 
+        fields = ['id', 'user', 'file', 'printer', 'filament', 'comment', 'created_at','status',"path","number_of_printing", "para_slicer"] 
         read_only_fields = ['id', 'user','file', 'printer', 'created_at', 'status']
         
     def create(self, validated_data):
@@ -99,3 +101,13 @@ class RequestSerializer(serializers.ModelSerializer):
                 filament=filament
             )
             return Request.objects.create(file=new_file, **validated_data)
+        
+class FilamentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Filament
+        fields = ['id', 'color', 'color_name', 'type', 'quantity']
+        
+class PrinterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Printer
+        fields = ['name', 'status']

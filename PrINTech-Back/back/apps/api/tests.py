@@ -6,7 +6,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
 User = get_user_model()
 import json
-from .models import Request, File, Operation
+from .models import Request, File, Operation, Filament, Printer
 
 class RequestViewSetTests(APITestCase):
     def setUp(self):
@@ -18,7 +18,14 @@ class RequestViewSetTests(APITestCase):
         refresh = RefreshToken.for_user(self.user)
         self.access_token = str(refresh.access_token)        
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.access_token}')
-        
+
+        self.filament = Filament.objects.create(
+            color='#FF0000',
+            color_name='Rouge',
+            type='PLA',
+            quantity=5
+        )
+
         test_file = SimpleUploadedFile(
             name='test.stl',
             content=b'blabla',
@@ -27,7 +34,8 @@ class RequestViewSetTests(APITestCase):
         
         file = File.objects.create(
                     path=test_file,
-                    number_of_printing=1
+                    number_of_printing=1,
+                    filament=self.filament
                 )
         
         self.req_usr1 = Request.objects.create(
@@ -70,7 +78,8 @@ class RequestViewSetTests(APITestCase):
             "comment": "test",
             "path": test_file,
             "number_of_printing": 1,
-            "para_slicer": json.dumps({"layer_height": 0.2, "infill": "20%"})
+            "para_slicer": json.dumps({"layer_height": 0.2, "infill": "20%"}),
+            "filament": self.filament.id
         }
         response = self.client.post(self.list_url, data, format='multipart')
         #response = self.client.post(self.list_url, data)
@@ -130,23 +139,42 @@ class RequestViewSetTests(APITestCase):
         self.user.refresh_from_db()
         self.assertEqual(self.user.credit, USER_BALANCE)
         
+    def test_cannot_pay_other_user_request(self):
+        usr2_pay_url = reverse('request-pay', args=[self.req_usr2.id])
+        response = self.client.post(usr2_pay_url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(Operation.objects.filter(request=self.req_usr2).count(), 0)
+
+    def test_cannot_cancel_other_user_request(self):
+        usr2_cancel_url = reverse('request-cancel', args=[self.req_usr2.id])
+        response = self.client.post(usr2_cancel_url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.req_usr2.refresh_from_db()
+        self.assertEqual(self.req_usr2.status, 'SUBMITTED')
+            
 class AdminRequestViewTests(APITestCase):
     def setUp(self):
-        self.admin_user = User.objects.create_user(
+        self.admin = User.objects.create_user(
             username='william', 
             password='password123', 
             email='william@intech.com',
             is_staff=True
         )
         
-        refresh = RefreshToken.for_user(self.admin_user)
+        refresh = RefreshToken.for_user(self.admin)
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
         
+        self.filament = Filament.objects.create(
+            color='#FF0000',
+            color_name='Rouge',
+            type='PLA',
+            quantity=5
+        )
         test_file = SimpleUploadedFile(name='test.stl', content=b'data', content_type='model/stl')
-        self.file_obj = File.objects.create(path=test_file, number_of_printing=1)
+        self.file_obj = File.objects.create(path=test_file, number_of_printing=1, filament=self.filament)
         
         self.print_req = Request.objects.create(
-            user=self.admin_user, 
+            user=self.admin, 
             status='SUBMITTED', 
             comment="Admin Test", 
             file=self.file_obj
@@ -302,3 +330,160 @@ class AdminOperationTests(APITestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data) >= 1)
+        
+
+class FilamentTests(APITestCase):
+    def setUp(self):
+        self.initial_balance=100
+        self.user = User.objects.create_user(
+            username='Celian', 
+            password='password123', 
+            email='celian@intech.com',
+            credit=self.initial_balance
+        )
+
+        self.admin = User.objects.create_user(
+            username='William', 
+            password='password123', 
+            email='william@intech.com',
+            is_staff=True
+        )
+
+        # Create initial data
+        self.filament = Filament.objects.create(
+            color='#FF0000',
+            color_name='Rouge',
+            type='PLA',
+            quantity=5
+        )
+
+        self.public_list_url = reverse('filament-list')
+        self.admin_list_url = reverse('filament-admin-list')
+        self.admin_detail_url = reverse('filament-admin-detail', args=[self.filament.id])
+
+
+    def test_user_can_list_filaments(self):
+        refresh = RefreshToken.for_user(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+        
+        response = self.client.get(self.public_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['color_name'], 'Rouge')
+
+    def test_user_cannot_create_filament(self):
+        """ReadOnlyModelViewSet should block POST requests from regular users."""
+        refresh = RefreshToken.for_user(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+        
+        data = {"color": "#00FF00", "color_name": "Green", "type": "PETG", "quantity": 10}
+        response = self.client.post(self.public_list_url, data)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_user_cannot_access_admin_endpoint(self):
+        refresh = RefreshToken.for_user(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+        
+        response = self.client.get(self.admin_list_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+    def test_admin_create_filament(self):
+        refresh = RefreshToken.for_user(self.admin)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+        
+        data = {
+            "color": "#0000FF",
+            "color_name": "Bleu",
+            "type": "PLA",
+            "quantity": 5
+        }
+        response = self.client.post(self.admin_list_url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Filament.objects.count(), 2)
+
+    def test_admin_can_update_quantity(self):
+        refresh = RefreshToken.for_user(self.admin)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+        
+        data = {"quantity": 67}
+        response = self.client.patch(self.admin_detail_url, data)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.filament.refresh_from_db()
+        self.assertEqual(self.filament.quantity, 67)
+
+    def test_invalid_hex_code(self):
+        refresh = RefreshToken.for_user(self.admin)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+        
+        data = {
+            "color": "NOT A HEX CODE",
+            "color_name": "blabla",
+            "type": "PLA",
+            "quantity": 1
+        }
+        response = self.client.post(self.admin_list_url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_admin_delete_filament(self):
+        refresh = RefreshToken.for_user(self.admin)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+        
+        response = self.client.delete(self.admin_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Filament.objects.count(), 0)
+        
+class PrinterViewTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='Celian', password='password123', email='celian@intech.com')
+        self.admin = User.objects.create_user(username='William', password='password123', email='william@intech.com', is_staff=True)
+ 
+        for printer in Printer.Name.values:
+            Printer.objects.get_or_create(name=printer)
+ 
+        self.public_list_url = reverse('printer-list')
+        self.admin_list_url = reverse('admin-printer-list')
+        self.printer = Printer.objects.first()
+        self.admin_detail_url = reverse('admin-printer-detail', args=[self.printer.name])
+ 
+    def test_list_printers(self):
+        refresh = RefreshToken.for_user(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+        response = self.client.get(self.public_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 3)
+ 
+    def test_readonly(self):
+        data = {'status': 'UP'}
+        response = self.client.patch(self.public_list_url, data)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+ 
+    def test_admin_update_printer_status(self):
+        refresh = RefreshToken.for_user(self.admin)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+        data = {'status': 'UP'}
+        response = self.client.patch(self.admin_detail_url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.printer.refresh_from_db()
+        self.assertEqual(self.printer.status, 'UP')
+ 
+    def test_admin_access(self):
+        refresh = RefreshToken.for_user(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+        data = {'status': 'UP'}
+        response = self.client.patch(self.admin_detail_url, data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+ 
+    def test_admin_cannot_create_printer(self):
+        refresh = RefreshToken.for_user(self.admin)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+        data = {'name': 'CREALITY_K1C', 'status': 'UP'}
+        response = self.client.post(self.admin_list_url, data)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+ 
+    def test_admin_cannot_delete_printer(self):
+        refresh = RefreshToken.for_user(self.admin)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+        response = self.client.delete(self.admin_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
