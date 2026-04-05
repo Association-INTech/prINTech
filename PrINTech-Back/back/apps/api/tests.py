@@ -10,8 +10,10 @@ from .models import Request, File, Operation
 
 class RequestViewSetTests(APITestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='Celian', password='password123', email='celian@intech.com')
-        self.user2 = User.objects.create_user(username='Yanis', password='password123', email='yanis@intech.com')
+        self.initial_balance = 100
+        
+        self.user = User.objects.create_user(username='Celian', password='password123', email='celian@intech.com', credit=self.initial_balance)
+        self.user2 = User.objects.create_user(username='Yanis', password='password123', email='yanis@intech.com', credit=self.initial_balance)
 
         refresh = RefreshToken.for_user(self.user)
         self.access_token = str(refresh.access_token)        
@@ -29,13 +31,15 @@ class RequestViewSetTests(APITestCase):
                 )
         
         self.req_usr1 = Request.objects.create(
-            user=self.user, status='SUBMITTED', comment="Robotech", file=file
+            user=self.user, status='AWAITING_PAYMENT', comment="Robotech", file=file
         )
         self.req_usr2 = Request.objects.create(
             user=self.user2, status='SUBMITTED', comment="Autotech", file=file
         )
         
         self.list_url = reverse('request-list')
+        self.pay_url = reverse('request-pay', args=[self.req_usr1.id])
+        self.cancel_url = reverse('request-cancel', args=[self.req_usr1.id])
 
     def test_list_requests_authenticated(self):
         response = self.client.get(self.list_url)
@@ -47,6 +51,12 @@ class RequestViewSetTests(APITestCase):
         url = reverse('request-detail', args=[self.req_usr2.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_cannot_change_status(self):
+        data = {'status': 'PRINTING'}
+        response = self.client.patch(self.list_url, data)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
 
     def test_create_request(self):
         
@@ -64,7 +74,6 @@ class RequestViewSetTests(APITestCase):
         }
         response = self.client.post(self.list_url, data, format='multipart')
         #response = self.client.post(self.list_url, data)
-        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Request.objects.count(), 3)
 
@@ -72,7 +81,54 @@ class RequestViewSetTests(APITestCase):
         self.client.credentials()  # Clear the header
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    
+    def test_pay_request_success(self):
+        response = self.client.post(self.pay_url)
         
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.req_usr1.refresh_from_db()
+        self.user.refresh_from_db()
+        
+        self.assertEqual(self.req_usr1.status, 'PENDING')
+        print_price=10 #TODO change to dynamic print price
+        expected_balance = self.initial_balance - print_price
+        self.assertEqual(self.user.credit, expected_balance)        
+        self.assertEqual(self.req_usr1.operation_set.filter(operation_type='PAYMENT').count(), 1)
+
+    def test_cancel_request_with_refund(self):
+        self.client.post(self.pay_url)
+        response = self.client.post(self.cancel_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.credit, self.initial_balance)
+        self.req_usr1.refresh_from_db()
+        self.assertEqual(self.req_usr1.status, 'CANCELED')
+        self.assertEqual(self.req_usr1.operation_set.count(), 2)
+
+    def test_cancel_request_multiple_payments_conflict(self):
+        self.req_usr1.status = 'PENDING'
+        self.req_usr1.save()
+        
+        for _ in range(2):
+            Operation.objects.create(
+                beneficiary=self.user, agent=self.user, amount=-10,
+                operation_type='PAYMENT', request=self.req_usr1
+            )
+
+        response = self.client.post(self.cancel_url)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+
+    def test_pay_request_insufficient_funds(self):
+        USER_BALANCE = -1 #always insufficient
+        self.user.credit = USER_BALANCE
+        self.user.save()
+        
+        response = self.client.post(self.pay_url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.req_usr1.refresh_from_db()
+        self.assertEqual(self.req_usr1.status, 'AWAITING_PAYMENT')
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.credit, USER_BALANCE)
         
 class AdminRequestViewTests(APITestCase):
     def setUp(self):

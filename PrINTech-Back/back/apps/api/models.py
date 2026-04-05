@@ -2,6 +2,7 @@ import uuid
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db import transaction
 
 
 class User(AbstractUser):
@@ -14,10 +15,7 @@ class Filament(models.Model):
 
     class Type(models.TextChoices):
         PLA = 'PLA'
-        REINFORCED_PLA = 'REINFORCED_PLA'
         PETG = 'PETG'
-        ABS = 'ABS'
-        TPE = 'TPE/TPU'
 
     class Color(models.TextChoices):
         RED = 'RED'
@@ -101,4 +99,4 @@ class Operation(models.Model):
     operation_type = models.CharField(choices=Type.choices, max_length=25, null=False, blank=False)
     comment = models.TextField(null=True, blank=True)
     amount = models.IntegerField(default=0)
-    request = models.OneToOneField(Request, on_delete=models.CASCADE, null=True)
+    request = models.ForeignKey(Request, on_delete=models.CASCADE, null=True)

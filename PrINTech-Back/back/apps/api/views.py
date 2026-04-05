@@ -89,12 +89,87 @@ class RequestView(mixins.CreateModelMixin,
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user, status='SUBMITTED')
+    
+    @transaction.atomic
+    @action(detail=True, methods=['post'])
+    def pay(self, request, pk=None):
+        print_request = self.get_object()
+
+        if print_request.status != 'AWAITING_PAYMENT':
+            return Response(
+                {"error": "Request not awaiting payment."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        price = 10 #TODO calculate price from stl file
         
+        data = {
+                "beneficiary": request.user.id,
+                "amount": -price,
+                "operation_type": "PAYMENT",
+                "request": print_request.id
+            }
+        
+        serializer = OperationSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save(agent=request.user)
+            print_request.status = 'PENDING'
+            print_request.save()
+            return Response(status=201)
+        return Response(serializer.errors, status=400)
+    
+    @transaction.atomic
+    @action(detail=True, methods=['post'])
+    def cancel(self, request, pk=None):
+        print_request = self.get_object()
+        
+        allowed_cancel = ['SUBMITTED','AWAITING_PAYMENT', 'PENDING']
+        
+        if print_request.status not in allowed_cancel:
+            return Response(
+                {"error": f"Cannot cancel for status: {print_request.status}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if print_request.status == 'PENDING':
+            #Operation default related_name: `operation_set`
+            payments = print_request.operation_set.filter(
+                operation_type=Operation.Type.PAYMENT
+            )
+            
+            if payments.count() > 1:
+                return Response(
+                    {"error": "Cannot refund"},
+                    status=status.HTTP_409_CONFLICT
+                )
+            elif payments.count() == 1:
+                payment = payments.first()
+                refund_amount = abs(payment.amount)
+
+                data = {
+                    "beneficiary": print_request.user.id,
+                    "amount": refund_amount,
+                    "operation_type": "REFUND",
+                    "request": print_request.id,
+                    "comment": f"Refund for cancellation of request {print_request.id}"
+                }
+
+                serializer = OperationSerializer(data=data)
+                if serializer.is_valid():
+                    serializer.save(agent=request.user)
+                else:
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)        
+
+        print_request.status = 'CANCELED'
+        print_request.save()
+        
+        return Response({"status": "Request canceled successfully"}, status=status.HTTP_200_OK)
 class AdminRequestView(viewsets.ReadOnlyModelViewSet):
     serializer_class = RequestSerializer
     permission_classes=[IsAdminUser]
     queryset = Request.objects.all()
     
+    @transaction.atomic
     @action(detail=True, methods=['patch'])
     def change_status(self, request, pk):
         print_request = self.get_object()
