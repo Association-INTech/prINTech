@@ -1,13 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { NgOptimizedImage } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Greeting } from '../components/greeting/greeting';
-import { Counter } from '../components/counter/counter';
 import { HomeService } from '../services/home';
 
 @Component({
   selector: 'app-home',
-  imports: [Greeting, Counter, RouterLink, NgOptimizedImage],
+  imports: [RouterLink, NgOptimizedImage],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
@@ -15,9 +13,8 @@ export class Home implements OnInit{
   private readonly homeService = inject(HomeService);
 
   ngOnInit(): void {
-    this.homeService.getCredit();
+    this.homeService.loadUserInfo();
     this.homeService.getActivePrinters();
-    this.homeService.getUsername();
   }
 
   Username = this.homeService.username
