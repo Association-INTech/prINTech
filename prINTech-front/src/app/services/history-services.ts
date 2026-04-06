@@ -32,7 +32,7 @@ const Prints: HistoryItem[] = [
 
 
 export class HistoryServices {
-  private apiUrl = 'http://localhost:8000/api/history'
+  private apiUrl = 'http://localhost:8000/api/requests'
   private USE_MOCK: boolean = true
   
 
