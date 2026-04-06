@@ -47,8 +47,11 @@
 	gap: 16px;
 }
 
-.profile-grid > .profile-card:first-child,
-.profile-grid > .profile-card:last-child {
+.profile-grid > .profile-card:first-child {
+	grid-column: 1 / -1;
+}
+
+app-change-password {
 	grid-column: 1 / -1;
 }
 
@@ -139,40 +142,6 @@
 	border-color: #f8cc08;
 }
 
-.form-grid {
-	display: grid;
-	gap: 12px;
-}
-
-.field {
-	display: grid;
-	gap: 6px;
-}
-
-.field span {
-	font-size: 0.84rem;
-	font-weight: 700;
-	letter-spacing: 0.02em;
-	color: #5f6f92;
-	text-transform: uppercase;
-}
-
-.field input {
-	width: 100%;
-	padding: 10px 12px;
-	border: 1px solid #d8deea;
-	border-radius: 10px;
-	font-size: 0.95rem;
-	color: #1f2937;
-	background: #ffffff;
-	box-sizing: border-box;
-}
-
-.field input:focus {
-	outline: none;
-	border-color: #095c9c;
-}
-
 .label {
 	font-size: 0.84rem;
 	font-weight: 700;
@@ -193,8 +162,11 @@
 		grid-template-columns: 1fr;
 	}
 
-	.profile-grid > .profile-card:first-child,
-	.profile-grid > .profile-card:last-child {
+	.profile-grid > .profile-card:first-child {
+		grid-column: auto;
+	}
+
+	app-change-password {
 		grid-column: auto;
 	}
 
