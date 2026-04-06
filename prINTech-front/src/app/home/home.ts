@@ -17,9 +17,12 @@ export class Home implements OnInit{
   ngOnInit(): void {
     this.homeService.getCredit();
     this.homeService.getActivePrinters();
+    this.homeService.getUsername();
   }
 
+  Username = this.homeService.username
   UserCredit = this.homeService.userCredit
   Active_printers = this.homeService.active_printers
   Total_printers = this.homeService.total_printers
+  Printer_statuses = this.homeService.printers_status
 }

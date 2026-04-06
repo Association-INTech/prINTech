@@ -96,6 +96,12 @@
 	border: 1px solid #b7e1c5;
 }
 
+.badge-danger {
+	background: #fdecec;
+	color: #9f1239;
+	border: 1px solid #f5c2c7;
+}
+
 .empty-state {
 	margin-top: 8px;
 	border: 1px dashed #98a7cb;

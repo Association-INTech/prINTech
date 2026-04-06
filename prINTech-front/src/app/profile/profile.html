@@ -1,1 +1,63 @@
-<p>profile works!</p>
+<div class="profile-page">
+	<section class="profile-header" aria-labelledby="profile-title">
+		<div>
+			<h1 id="profile-title">Mon profil</h1>
+			<p>Gérez vos informations de compte.</p>
+		</div>
+		<span class="status-pill">Compte actif</span>
+	</section>
+
+	<section class="profile-grid" aria-label="Informations du profil">
+		<article class="profile-card">
+			<h2>Compte</h2>
+			<div class="avatar-block">
+				<div class="avatar-placeholder" aria-hidden="true">JD</div>
+				<button type="button" class="action-btn">Changer la photo</button>
+			</div>
+			<div class="info-list">
+				<div class="info-item">
+					<span class="label">Nom d'utilisateur</span>
+					<span class="value">{{username()}}</span>
+				</div>
+				<div class="info-item">
+					<span class="label">Crédit disponible</span>
+					<span class="value">{{credit()}}€</span>
+				</div>
+				<div class="info-item">
+					<span class="label">Email</span>
+					<span class="value">{{email()}}</span>
+				</div>
+				<div class="info-item">
+					<span class="label">Rôle</span>
+					<span class="value">Adhérent</span>
+				</div>
+				<div class="info-item">
+					<span class="label">Impressions en cours</span>
+					<span class="value">2</span>
+				</div>
+				<div class="info-item">
+					<span class="label">Impressions terminées</span>
+					<span class="value">17</span>
+				</div>
+			</div>
+			<div class="actions-row">
+				<a class="action-btn" href="https://www.helloasso.com/associations/intech" target="_blank" rel="noopener noreferrer">Recharger le crédit</a>
+			</div>
+		</article>
+
+		<article class="profile-card" aria-labelledby="security-title">
+			<h2 id="security-title">Sécurité</h2>
+			<div class="form-grid">
+				<label class="field">
+					<span>Nouveau nom d'utilisateur</span>
+					<input type="text" placeholder="jdoe" />
+				</label>
+				<label class="field">
+					<span>Nouveau mot de passe</span>
+					<input type="password" placeholder="••••••••" />
+				</label>
+				<button type="button" class="action-btn">Mettre à jour</button>
+			</div>
+		</article>
+	</section>
+</div>

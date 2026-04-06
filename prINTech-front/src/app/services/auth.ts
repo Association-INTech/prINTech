@@ -1,6 +1,7 @@
 import { computed, Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root'
@@ -31,6 +32,26 @@ export class AuthService {
 
   getToken(): string | null {
     return this.token();
+  }
+
+  isLoggedIn(): boolean {
+    const token = this.token();
+
+    if (token == null) {
+      console.warn('no token')
+      return false;
+    }
+
+    const decodedToken = jwtDecode(token);
+
+    if (!decodedToken.exp) {
+      console.warn('invalid token')
+      return false;
+    }
+    const currentTime = Date.now() / 1000;
+    const isExpired = decodedToken.exp < currentTime;
+
+    return (!isExpired);
   }
 
   private setTokens(accessToken: string, refreshToken: string): void {
