@@ -1,5 +1,5 @@
 <div class="page-content">
-  <div class="greeting">Bonjour, John </div>
+  <div class="greeting">Bonjour, {{Username()}} </div>
   <p class="subgreeting">Voici l'état de vos impressions et du parc d'imprimantes.</p>
 
   <button class="cta-btn" type="button" routerLink="/print">
@@ -9,14 +9,17 @@
   <div class="cards-grid">
     <div class="metric-card">
       <div class="label">Crédit restant</div>
-      <div class="value">{{UserCredit()}}</div>
+      <div class="value">{{UserCredit()}}€</div>
       <div class="sub">Adhérent actif</div>
     </div>
     <div class="metric-card">
       <div class="label">Imprimantes actives</div>
       <div class="value"> {{Active_printers()}} / {{Total_printers()}} </div>
       <div class="sub">
-        <span class="badge badge-success">En ligne</span>
+        <span class="badge" 
+          [class.badge-success]="Printer_statuses() === 'Disponible'"
+          [class.badge-danger]="Printer_statuses() === 'Complet'"
+        >{{Printer_statuses()}}</span>
       </div>
     </div>
     <div class="metric-card">
