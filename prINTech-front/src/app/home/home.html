@@ -9,12 +9,12 @@
   <div class="cards-grid">
     <div class="metric-card">
       <div class="label">Crédit restant</div>
-      <div class="value"> 8.5 €</div>
+      <div class="value">{{UserCredit()}}</div>
       <div class="sub">Adhérent actif</div>
     </div>
     <div class="metric-card">
       <div class="label">Imprimantes actives</div>
-      <div class="value"> 2 / 5 </div>
+      <div class="value"> {{Active_printers()}} / {{Total_printers()}} </div>
       <div class="sub">
         <span class="badge badge-success">En ligne</span>
       </div>
