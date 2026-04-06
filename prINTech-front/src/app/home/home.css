@@ -44,64 +44,6 @@
 	border-color: #f8cc08;
 }
 
-.cards-grid {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 16px;
-}
-
-.metric-card {
-	border-radius: 14px;
-	padding: 18px 16px;
-	background: #ffffff;
-	border: 1px solid #d8deea;
-	box-shadow: 0 8px 24px rgba(9, 92, 156, 0.08);
-	display: grid;
-	gap: 8px;
-	min-height: 150px;
-}
-
-.label {
-	font-size: 0.84rem;
-	font-weight: 700;
-	letter-spacing: 0.02em;
-	color: #5f6f92;
-	text-transform: uppercase;
-}
-
-.value {
-	font-size: clamp(1.2rem, 2vw, 1.7rem);
-	font-weight: 800;
-	color: #111111;
-	line-height: 1.2;
-}
-
-.sub {
-	font-size: 0.9rem;
-	color: #475569;
-}
-
-.badge {
-	display: inline-flex;
-	align-items: center;
-	border-radius: 999px;
-	padding: 4px 10px;
-	font-size: 0.78rem;
-	font-weight: 700;
-}
-
-.badge-success {
-	background: #eaf7ef;
-	color: #136a39;
-	border: 1px solid #b7e1c5;
-}
-
-.badge-danger {
-	background: #fdecec;
-	color: #9f1239;
-	border: 1px solid #f5c2c7;
-}
-
 .empty-state {
 	margin-top: 8px;
 	border: 1px dashed #98a7cb;
@@ -192,7 +134,7 @@
 
 .printer-content h3 {
 	margin: 0;
-	font-size: clamp(1.2rem, 2vw, 1.55rem);
+	font-size: clamp(1.2rem, 2vw, wait now that im looking at it theres a 1.55rem);
 	color: #111111;
 	font-weight: 800;
 }
@@ -213,10 +155,6 @@
 }
 
 @media (max-width: 960px) {
-	.cards-grid {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-
 	.printers-grid {
 		grid-template-columns: 1fr;
 	}
@@ -244,13 +182,5 @@
 @media (max-width: 640px) {
 	.page-content {
 		padding-inline: 4px;
-	}
-
-	.cards-grid {
-		grid-template-columns: 1fr;
-	}
-
-	.metric-card {
-		min-height: 130px;
 	}
 }

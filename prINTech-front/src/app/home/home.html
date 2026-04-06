@@ -6,28 +6,7 @@
     + Nouvelle impression
   </button>
 
-  <div class="cards-grid">
-    <div class="metric-card">
-      <div class="label">Crédit restant</div>
-      <div class="value">{{UserCredit()}}€</div>
-      <div class="sub">Adhérent actif</div>
-    </div>
-    <div class="metric-card">
-      <div class="label">Imprimantes actives</div>
-      <div class="value"> {{Active_printers()}} / {{Total_printers()}} </div>
-      <div class="sub">
-        <span class="badge" 
-          [class.badge-success]="Printer_statuses() === 'Disponible'"
-          [class.badge-danger]="Printer_statuses() === 'Complet'"
-        >{{Printer_statuses()}}</span>
-      </div>
-    </div>
-    <div class="metric-card">
-      <div class="label">Travaux en file</div>
-       <div class="value"> 4 </div>
-      <div class="sub">Attente estimée ~ 93 min</div> 
-    </div>
-  </div>
+  <app-metric-card></app-metric-card>
 
   <section class="printers-section" aria-labelledby="printers-title">
     <div class="section-head">

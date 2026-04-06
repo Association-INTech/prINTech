@@ -31,27 +31,6 @@ export class HomeService {
     )
   }
 
-  // getCredit(){
-  //   this.http.get<{ credit: number }>(`${this.ApiBase}/user/me/`) 
-  //   .subscribe(
-  //     (res) => {this.userCredit.set(res.credit)} 
-  //   )
-  // }
-  
-  // getEmail(){
-  //   this.http.get<{ email: string }>(`${this.ApiBase}/user/me`)
-  //   .subscribe(
-  //     (res) => {this.email.set(res.email)}
-  //   )
-  // }
-
-  // getUsername(){
-  //   this.http.get<{ username: string }>(`${this.ApiBase}/user/me`)
-  //   .subscribe(
-  //     (res) => {this.username.set(res.username)}
-  //   )
-  // }
-
   loadUserInfo(){
     this.http.get< User >(`${this.ApiBase}/user/me`)
     .subscribe(
