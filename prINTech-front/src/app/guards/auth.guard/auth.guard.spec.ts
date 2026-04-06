@@ -1,22 +1,44 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
+import { provideRouter, Router, UrlTree } from '@angular/router';
+import { AuthService } from '../../services/auth';
+import { authGuard } from './auth.guard';
 
-import { AuthGuard } from './auth.guard';
+describe('authGuard', () => {
+  let isLoggedIn = false;
 
-describe('AuthGuard', () => {
-  let component: AuthGuard;
-  let fixture: ComponentFixture<AuthGuard>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [AuthGuard],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(AuthGuard);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([]),
+        {
+          provide: AuthService,
+          useValue: {
+            isLoggedIn: () => isLoggedIn,
+          },
+        },
+      ],
+    });
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('returns true when user is logged in', () => {
+    isLoggedIn = true;
+
+    const result = TestBed.runInInjectionContext(() =>
+      authGuard({} as never, {} as never)
+    );
+
+    expect(result).toBe(true);
+  });
+
+  it('redirects to /login when user is not logged in', () => {
+    isLoggedIn = false;
+    const router = TestBed.inject(Router);
+
+    const result = TestBed.runInInjectionContext(() =>
+      authGuard({} as never, {} as never)
+    );
+
+    expect(result instanceof UrlTree).toBe(true);
+    expect(router.serializeUrl(result as UrlTree)).toBe('/login');
   });
 });

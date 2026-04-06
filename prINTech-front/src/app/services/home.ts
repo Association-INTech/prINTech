@@ -15,13 +15,6 @@ export class HomeService {
   printers_status = signal<string>('Disponible')
   email = signal<string>('johndoe@gmail.com')
 
-  getCredit(){
-    this.http.get<{ credit: number }>(`${this.ApiBase}/user/me/`) 
-    .subscribe(
-      (res) => {this.userCredit.set(res.credit)} 
-    )
-  }
-
   getActivePrinters(){
     this.http.get<Printer[]>(`${this.ApiBase}/printers/`)
     .subscribe(
@@ -38,17 +31,35 @@ export class HomeService {
     )
   }
 
-  getEmail(){
-    this.http.get<{ email: string }>(`${this.ApiBase}/user/me`)
-    .subscribe(
-      (res) => {this.email.set(res.email)}
-    )
-  }
+  // getCredit(){
+  //   this.http.get<{ credit: number }>(`${this.ApiBase}/user/me/`) 
+  //   .subscribe(
+  //     (res) => {this.userCredit.set(res.credit)} 
+  //   )
+  // }
+  
+  // getEmail(){
+  //   this.http.get<{ email: string }>(`${this.ApiBase}/user/me`)
+  //   .subscribe(
+  //     (res) => {this.email.set(res.email)}
+  //   )
+  // }
 
-  getUsername(){
-    this.http.get<{ username: string }>(`${this.ApiBase}/user/me`)
+  // getUsername(){
+  //   this.http.get<{ username: string }>(`${this.ApiBase}/user/me`)
+  //   .subscribe(
+  //     (res) => {this.username.set(res.username)}
+  //   )
+  // }
+
+  loadUserInfo(){
+    this.http.get< User >(`${this.ApiBase}/user/me`)
     .subscribe(
-      (res) => {this.username.set(res.username)}
+      (res) => {
+        this.username.set(res.username)
+        this.email.set(res.email)
+        this.userCredit.set(res.credit)
+      }
     )
   }
 }
@@ -56,4 +67,11 @@ export class HomeService {
 export interface Printer {
   name: string,
   status: string,
+}
+
+export interface User {
+  id: string,
+  username: string,
+  email: string,
+  credit: number,
 }

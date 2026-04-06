@@ -11,9 +11,7 @@ import { Home } from '../home/home';
 export class Profile implements OnInit{
   private readonly homeService = inject(HomeService)
   ngOnInit(): void {
-    this.homeService.getUsername();
-    this.homeService.getEmail();
-    this.homeService.getCredit();
+    this.homeService.loadUserInfo();
   }
 
   username = this.homeService.username
