@@ -26,6 +26,22 @@ export class AuthService {
       .pipe(tap(({ access, refresh }) => this.setTokens(access, refresh)));
   }
 
+  change_password(
+    old_password: string,
+    new_password: string,
+    confirm_password: string
+  ): Observable<ChangePasswordResponse> {
+    const change_password_payload: ChangePasswordRequest = {
+      old_password,
+      new_password,
+      confirm_password,
+    };
+
+    return this.http.patch<ChangePasswordResponse>(
+      `${this.apiBase}/user/me/change-password/`,
+      change_password_payload
+    );
+  }
   logout(): void {
     this.clearToken();
   }
@@ -76,4 +92,14 @@ interface LoginRequest {
 interface LoginResponse {
   access: string;
   refresh: string;
+}
+
+interface ChangePasswordRequest {
+  old_password: string;
+  new_password: string;
+  confirm_password: string;
+}
+
+interface ChangePasswordResponse {
+  message: string;
 }
