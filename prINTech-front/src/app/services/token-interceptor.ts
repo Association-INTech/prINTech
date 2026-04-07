@@ -10,6 +10,10 @@ export const tokenInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, n
     return next(req);
   }
 
+  if (!authService.isLoggedIn()){
+    authService.refreshToken()
+  }
+
   const requestWithToken = req.clone({
     setHeaders:{
       Authorization: `Bearer ${token}`
