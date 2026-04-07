@@ -1,0 +1,106 @@
+<div class="page-content">
+  <div class="greeting">Bonjour, John </div>
+  <p class="subgreeting">Voici l'état de vos impressions et du parc d'imprimantes.</p>
+
+  <button class="cta-btn" type="button" routerLink="/print">
+    + Nouvelle impression
+  </button>
+
+  <div class="cards-grid">
+    <div class="metric-card">
+      <div class="label">Crédit restant</div>
+      <div class="value"> 8.5 €</div>
+      <div class="sub">Adhérent actif</div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Imprimantes actives</div>
+      <div class="value"> 2 / 5 </div>
+      <div class="sub">
+        <span class="badge badge-success">En ligne</span>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Travaux en file</div>
+       <div class="value"> 4 </div>
+      <div class="sub">Attente estimée ~ 93 min</div> 
+    </div>
+  </div>
+
+  <section class="printers-section" aria-labelledby="printers-title">
+    <div class="section-head">
+      <h2 id="printers-title">Nos imprimantes</h2>
+      <p>Trois machines complémentaires pour des impressions rapides, propres et fiables.</p>
+    </div>
+
+    <div class="printers-grid">
+      <article class="printer-card">
+        <img
+          class="printer-image"
+          ngSrc="crealityk1c-removebg-preview.png"
+          width="420"
+          height="280"
+          alt="Imprimante 3D Creality K1C"
+        />
+        <div class="printer-content">
+          <h3>Creality K1C</h3>
+          <p>
+            Imprimante FDM rapide idéale pour le prototypage quotidien. Elle offre une bonne
+            qualité de surface et des temps d'impression courts pour les pièces fonctionnelles.
+          </p>
+          <ul>
+            <li>Haute vitesse d'impression</li>
+            <li>Très bon choix pour PLA, PETG et TPU</li>
+            <li>Parfaite pour les itérations rapides</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="printer-card">
+        <img
+          class="printer-image"
+          ngSrc="snapmaker u1.png"
+          width="420"
+          height="280"
+          alt="Imprimante 3D Snapmaker U1"
+        />
+        <div class="printer-content">
+          <h3>Snapmaker U1</h3>
+          <p>
+            Machine polyvalente orientée précision et stabilité. Adaptée aux impressions plus
+            techniques, avec un excellent rendu sur les pièces détaillées.
+          </p>
+          <ul>
+            <li>Grande précision sur les petits détails</li>
+            <li>Très bon comportement sur pièces techniques</li>
+            <li>Bonne régularité pour les impressions longues</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="printer-card">
+        <img
+          class="printer-image"
+          ngSrc="prusa-i3-mk3-removebg-preview.png"
+          width="420"
+          height="280"
+          alt="Imprimante 3D Prusa i3 MK3"
+        />
+        <div class="printer-content">
+          <h3>Prusa i3 MK3</h3>
+          <p>
+            Imprimante reconnue pour sa fiabilité et sa qualité d'impression constante. Idéale pour
+            des pièces précises, des longues sessions d'impression et un excellent rendu global.
+          </p>
+          <ul>
+            <li>Fiabilité élevée sur les impressions longues</li>
+            <li>Très bonne précision dimensionnelle</li>
+            <li>Qualité stable pour prototypes et pièces finales</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </section>
+</div>
+
+
+
