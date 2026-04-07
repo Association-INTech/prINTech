@@ -9,7 +9,8 @@ class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(blank=False, unique=True, null=False)
     credit = models.IntegerField(default=0)
-
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
 class Filament(models.Model):
 
