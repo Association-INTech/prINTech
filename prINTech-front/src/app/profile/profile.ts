@@ -1,10 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { HomeService } from '../services/home';
 import { ChangePassword } from './change-password/change-password';
+import { ProfilePicture } from './profile-picture/profile-picture';
 
 @Component({
   selector: 'app-profile',
-  imports: [ChangePassword],
+  imports: [ChangePassword, ProfilePicture],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
