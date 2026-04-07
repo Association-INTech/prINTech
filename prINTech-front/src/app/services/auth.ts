@@ -26,6 +26,14 @@ export class AuthService {
       .pipe(tap(({ access, refresh }) => this.setTokens(access, refresh)));
   }
 
+  refreshToken(): Observable<RefreshResponse>{
+    const refresh = localStorage.getItem(this.refreshTokenStorageKey);
+    if (!refresh) throw new Error('no refresh token');
+    return this.http
+      .post<RefreshResponse>(`${this.apiBase}/token/refresh/`, { refresh })
+      .pipe(tap(({ access }) => this.setTokens(access, refresh)));
+  }
+
   change_password(
     old_password: string,
     new_password: string,
@@ -94,6 +102,9 @@ interface LoginResponse {
   refresh: string;
 }
 
+interface RefreshResponse {
+  access: string;
+}
 interface ChangePasswordRequest {
   old_password: string;
   new_password: string;
