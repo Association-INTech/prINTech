@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { HistoryServices } from '../services/history-services';
+import { HistoryItem } from './history.model';
 
 @Component({
   selector: 'app-history',
@@ -6,4 +8,14 @@ import { Component } from '@angular/core';
   templateUrl: './history.html',
   styleUrl: './history.css',
 })
-export class History {}
+export class History implements OnInit{
+  fullHistory: HistoryItem[] = [];
+  filteredHistory: HistoryItem[] = [];
+  SearchQuery = '';
+  SelectedStatus = '';
+  SelectedMaterial = ';'
+
+  ngOnInit(): void {
+    
+  }
+}

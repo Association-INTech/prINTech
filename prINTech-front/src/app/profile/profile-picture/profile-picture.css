@@ -1,0 +1,115 @@
+.profile-picture-widget {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	width: 100%;
+}
+
+.avatar-wrapper {
+	position: relative;
+	width: 120px;
+	height: 120px;
+	flex: 0 0 120px;
+}
+
+.avatar-pic {
+	width: 70%;
+	height: 70%;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	border-radius: 50%;
+	object-fit: cover;
+	background: #f8fbff;
+}
+
+.avatar-frame {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	object-fit: contain;
+}
+
+.file-name {
+	margin: 0;
+	color: #475569;
+	font-size: 0.95rem;
+}
+
+.file-upload {
+	display: grid;
+	gap: 10px;
+	justify-items: start;
+	flex: 1;
+}
+
+.actions {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.file-input {
+	display: none;
+}
+
+.upload-btn {
+	justify-self: start;
+	padding: 10px 16px;
+	border: 2px solid transparent;
+	border-radius: 999px;
+	background: #095c9c;
+	color: #ffffff;
+	font-size: 0.9rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.upload-btn:hover {
+	background: #074b7d;
+	transform: translateY(-1px);
+}
+
+.upload-btn:focus-visible {
+	outline: none;
+	border-color: #f8cc08;
+}
+
+.upload-btn:disabled {
+	opacity: 0.7;
+	cursor: not-allowed;
+	transform: none;
+}
+
+.message {
+	margin: 0;
+	padding: 10px 12px;
+	border-radius: 10px;
+	font-size: 0.9rem;
+	font-weight: 600;
+}
+
+.message.error {
+	background: #fdecec;
+	color: #9f1239;
+	border: 1px solid #f5c2c7;
+}
+
+.message.success {
+	background: #eaf7ef;
+	color: #136a39;
+	border: 1px solid #b7e1c5;
+}
+
+@media (max-width: 900px) {
+	.profile-picture-widget {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
