@@ -18,8 +18,8 @@ export class AuthService {
 
   readonly isAuthenticated = computed(() => this.token() !== null);
 
-  login(username: string, password: string): Observable<LoginResponse> {
-    const payload: LoginRequest = { username, password };
+  login(email: string, password: string): Observable<LoginResponse> {
+    const payload: LoginRequest = { email, password };
 
     return this.http
       .post<LoginResponse>(`${this.apiBase}/token/`, payload)
@@ -93,7 +93,7 @@ export class AuthService {
 
 
 interface LoginRequest {
-  username: string;
+  email: string;
   password: string;
 }
 
