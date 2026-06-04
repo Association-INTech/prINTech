@@ -1,6 +1,10 @@
 @startuml
-title "Sequencial Diagram \n Authentification"
-
+title Sequencial Diagram\nAuthentification
+scale 0.5
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam linetype ortho
 skinparam style strictuml
 skinparam sequenceMessageAlign center
 

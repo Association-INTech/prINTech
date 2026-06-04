@@ -26,6 +26,7 @@ class Filament(models.Model):
     color_name = models.TextField(null=False, blank=False)
     type = models.CharField(choices=Type.choices, max_length=25, null=False, blank=False)
     quantity = models.PositiveIntegerField(default=0)
+    price = models.PositiveIntegerField(default=0)
 
 
 class File(models.Model):
