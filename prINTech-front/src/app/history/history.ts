@@ -21,6 +21,7 @@ export class History implements OnInit{
   errorMessage = '';
   successMessage = '';
   relaunchingIds = new Set<string>();
+  payingIds = new Set<string>(); // Track loading state for payments
 
   ngOnInit(): void {
     this.loadFilaments();
@@ -88,9 +89,7 @@ export class History implements OnInit{
   }
 
   onRelaunch(item: HistoryItem): void {
-    if (this.relaunchingIds.has(item.id)) {
-      return;
-    }
+    if (this.relaunchingIds.has(item.id) || this.payingIds.has(item.id)) return;
 
     this.errorMessage = '';
     this.successMessage = '';
@@ -111,8 +110,33 @@ export class History implements OnInit{
     });
   }
 
+  onPay(item: HistoryItem): void {
+    if (this.payingIds.has(item.id) || this.relaunchingIds.has(item.id)) return;
+
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.payingIds.add(item.id);
+
+    this.historyService.payRequest(item.id).subscribe({
+      next: () => {
+        this.successMessage = 'Paiement effectué avec succès !';
+        this.payingIds.delete(item.id);
+        this.loadHistory();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.errorMessage = err?.error?.error || 'Échec du paiement. Vérifiez votre solde.';
+        this.payingIds.delete(item.id);
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
   isRelaunching(id: string): boolean {
     return this.relaunchingIds.has(id);
   }
-}
 
+  isPaying(id: string): boolean {
+    return this.payingIds.has(id);
+  }
+}

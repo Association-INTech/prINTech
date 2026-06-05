@@ -30,19 +30,31 @@
                     <td>{{ item.created_at | date:'short' }}</td>
                     <td>
                         <span class="status" [ngClass]="{
-                            'status-queued': item.status === 'SUBMITTED' || item.status === 'PENDING' || item.status === 'AWAITING_PAYMENT',
+                            'status-queued': item.status === 'SUBMITTED' || item.status === 'PENDING',
+                            'status-payment': item.status === 'AWAITING_PAYMENT',
                             'status-printed': item.status === 'DONE',
                             'status-failed': item.status === 'FAILED' || item.status === 'CANCELED'
                         }">{{ item.status }}</span>
                     </td>
                     <td>
-                        <button
-                            type="button"
-                            class="reprint-btn"
-                            [disabled]="isRelaunching(item.id)"
-                            (click)="onRelaunch(item)">
-                            {{ isRelaunching(item.id) ? 'Relance...' : 'Relancer' }}
-                        </button>
+                        <div class="action-buttons">
+                            <button
+                                *ngIf="item.status === 'AWAITING_PAYMENT'"
+                                type="button"
+                                class="pay-btn"
+                                [disabled]="isPaying(item.id)"
+                                (click)="onPay(item)">
+                                {{ isPaying(item.id) ? 'Paiement...' : 'Payer' }}
+                            </button>
+
+                            <button
+                                type="button"
+                                class="reprint-btn"
+                                [disabled]="isRelaunching(item.id) || isPaying(item.id)"
+                                (click)="onRelaunch(item)">
+                                {{ isRelaunching(item.id) ? 'Relance...' : 'Relancer' }}
+                            </button>
+                        </div>
                     </td>
                 </tr>
             </tbody>

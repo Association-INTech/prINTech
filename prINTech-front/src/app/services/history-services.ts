@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HistoryItem } from '../history/history.model';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import id from '@angular/common/locales/extra/id';
 export interface Filament {
   id: number;
   color: string;
@@ -28,4 +29,9 @@ export class HistoryServices {
   relaunchRequest(requestId: string): Observable<HistoryItem> {
     return this.http.post<HistoryItem>(`${this.apiBase}/requests/${requestId}/relaunch/`, {});
   }
+  
+  payRequest(id: string): Observable<any> {
+    return this.http.post(`/api/v1/requests/${id}/pay/`, {});
+  }
 }
+
