@@ -8,6 +8,7 @@ from django.shortcuts import render
 from rest_framework.permissions import AllowAny, IsAuthenticated,IsAdminUser
 from rest_framework.throttling import UserRateThrottle
 from .serializers import UserSerializer, ChangePasswordSerializer, OperationSerializer, RequestSerializer,FilamentSerializer, PrinterSerializer
+from .serializers import AdminUserSerializer
 from django.db import transaction
 
 class CreateUserView(generics.CreateAPIView):
@@ -90,6 +91,28 @@ class RequestView(mixins.CreateModelMixin,
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user, status='SUBMITTED')
+
+    @transaction.atomic
+    @action(detail=True, methods=['post'])
+    def relaunch(self, request, pk=None):
+        previous_request = self.get_object()
+
+        if previous_request.file is None:
+            return Response(
+                {"error": "Cannot relaunch a request without file."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        relaunched_request = Request.objects.create(
+            user=request.user,
+            file=previous_request.file,
+            printer=None,
+            comment=previous_request.comment,
+            status='SUBMITTED',
+        )
+
+        serializer = self.get_serializer(relaunched_request)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     @transaction.atomic
     @action(detail=True, methods=['post'])
@@ -292,6 +315,12 @@ class AdminRequestView(viewsets.ReadOnlyModelViewSet):
         
         serializer = self.get_serializer(print_request)
         return Response(serializer.data)
+
+
+class AdminUserView(viewsets.ModelViewSet):
+    queryset = User.objects.all().order_by('email')
+    serializer_class = AdminUserSerializer
+    permission_classes = [IsAdminUser]
     
     
 class FilamentView(viewsets.ReadOnlyModelViewSet):

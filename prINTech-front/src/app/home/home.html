@@ -1,30 +1,12 @@
 <div class="page-content">
-  <div class="greeting">Bonjour, John </div>
+  <div class="greeting">Bonjour, {{Username()}} </div>
   <p class="subgreeting">Voici l'état de vos impressions et du parc d'imprimantes.</p>
 
   <button class="cta-btn" type="button" routerLink="/print">
     + Nouvelle impression
   </button>
 
-  <div class="cards-grid">
-    <div class="metric-card">
-      <div class="label">Crédit restant</div>
-      <div class="value"> 8.5 €</div>
-      <div class="sub">Adhérent actif</div>
-    </div>
-    <div class="metric-card">
-      <div class="label">Imprimantes actives</div>
-      <div class="value"> 2 / 5 </div>
-      <div class="sub">
-        <span class="badge badge-success">En ligne</span>
-      </div>
-    </div>
-    <div class="metric-card">
-      <div class="label">Travaux en file</div>
-       <div class="value"> 4 </div>
-      <div class="sub">Attente estimée ~ 93 min</div> 
-    </div>
-  </div>
+  <app-metric-card></app-metric-card>
 
   <section class="printers-section" aria-labelledby="printers-title">
     <div class="section-head">
