@@ -2,18 +2,26 @@ import { Injectable, inject } from '@angular/core';
 import { HistoryItem } from '../history/history.model';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
+export interface Filament {
+  id: number;
+  color: string;
+  color_name: string;
+  type: string;
+  quantity: number;
+}
 
 @Injectable({
   providedIn: 'root',
 })
-
-
 export class HistoryServices {
   private readonly apiBase = '/api/v1';
   private readonly http = inject(HttpClient)
 
   getHistory(): Observable<HistoryItem[]> {
     return this.http.get<HistoryItem[]>(`${this.apiBase}/requests/`)
+  }
+
+  getFilaments(): Observable<Filament[]> {
+    return this.http.get<Filament[]>(`${this.apiBase}/filaments/`)
   }
 }

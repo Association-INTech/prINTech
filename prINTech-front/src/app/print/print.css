@@ -120,6 +120,133 @@
 	color: #6b7280;
 }
 
+.message {
+	padding: 14px 18px;
+	border-radius: 12px;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	justify-content: center;
+	margin: 18px 0;
+}
+
+.message--success {
+	background: linear-gradient(90deg, rgba(16,185,129,0.10), rgba(16,185,129,0.03));
+	color: #064e3b;
+	border: 1px solid rgba(16,185,129,0.18);
+	box-shadow: 0 12px 30px rgba(16,185,129,0.06);
+	font-size: 1.02rem;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.message--error {
+	background: linear-gradient(90deg, rgba(239,68,68,0.08), rgba(239,68,68,0.02));
+	color: #7f1d1d;
+	border: 1px solid rgba(239,68,68,0.14);
+	box-shadow: 0 12px 30px rgba(239,68,68,0.04);
+	font-size: 1.02rem;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.message--success::before,
+.message--error::before {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	font-size: 1.05rem;
+}
+
+.message--success::before {
+	content: '✔';
+	background: rgba(16,185,129,0.12);
+	color: #064e3b;
+}
+
+.message--error::before {
+	content: '⚠';
+	background: rgba(239,68,68,0.10);
+	color: #7f1d1d;
+}
+
+@keyframes slideDown {
+	from {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes fadeOut {
+	to {
+		opacity: 0;
+	}
+}
+
+.top-banner {
+	position: fixed;
+	top: 20px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 9999;
+	width: 280px;
+	padding: 20px;
+	border-radius: 12px;
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	font-weight: 600;
+	font-size: 1.05rem;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+	animation: slideDown 0.3s ease-out, fadeOut 0.5s ease-in 5.5s forwards;
+	background: white;
+	border-left: 5px solid;
+}
+
+.top-banner::before {
+	content: '';
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	font-size: 1.2rem;
+	flex-shrink: 0;
+}
+
+.top-banner--success {
+	border-left-color: #10b981;
+	color: #0f67a6;
+}
+
+.top-banner--success::before {
+	content: '✓';
+	background: #ecfdf5;
+	color: #10b981;
+	font-weight: 900;
+}
+
+.top-banner--error {
+	border-left-color: #ef4444;
+	color: #7f1d1d;
+}
+
+.top-banner--error::before {
+	content: '✕';
+	background: #fef2f2;
+	color: #ef4444;
+	font-weight: 900;
+}
+
 .actions {
 	display: flex;
 	justify-content: flex-end;

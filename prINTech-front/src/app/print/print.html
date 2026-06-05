@@ -1,3 +1,10 @@
+<div *ngIf="successMessage()" class="top-banner top-banner--success" role="status" aria-live="polite">
+	Envoyé
+</div>
+<div *ngIf="errorMessage()" class="top-banner top-banner--error" role="alert" aria-live="assertive">
+	{{ errorMessage() }}
+</div>
+
 <section class="print-page" aria-labelledby="print-title">
 	<header class="print-header">
 		<h1 id="print-title">Nouvelle impression</h1>
@@ -10,7 +17,8 @@
 			<div class="upload-box">
 				<p class="upload-title">Déposez votre fichier STL</p>
 				<p class="upload-subtitle">Format accepté: .stl (taille max: 100 MB)</p>
-				<button type="button" class="ghost-btn">Choisir un fichier</button>
+				<input #fileInput id="stl-file" type="file" accept=".stl" (change)="onFileSelected($event)" />
+				<p class="upload-subtitle">{{ fileInput.files?.[0]?.name || 'Aucun fichier sélectionné' }}</p>
 			</div>
 		</article>
 
@@ -18,28 +26,32 @@
 			<h2 id="settings-title">2. Paramètres</h2>
 			<div class="form-block">
 				<label for="material">Matériau</label>
-				<select id="material" disabled>
-					<option>PLA</option>
+				<select #material id="material" (change)="updateSelectedFilament(material.value, color.value)">
+					<option *ngFor="let t of getTypes()" [value]="t">{{ t }}</option>
 				</select>
 			</div>
 
 			<div class="form-row">
 				<div class="form-block">
 					<label for="color">Couleur</label>
-					<select id="color" disabled>
-						<option>Noir</option>
+					<select #color id="color" (change)="updateSelectedFilament(material.value, color.value)">
+						<option *ngFor="let c of getColorsFor(material.value)" [value]="c">{{ c }}</option>
 					</select>
 				</div>
 				<div class="form-block">
 					<label for="quantity">Quantité</label>
-					<input id="quantity" type="number" value="1" disabled />
+					<input #quantity id="quantity" type="number" min="0" value="1" />
 				</div>
 			</div>
 
 			<div class="form-block">
 				<label for="notes">Commentaire</label>
-				<textarea id="notes" rows="4" placeholder="Instructions supplémentaires" disabled></textarea>
+				<textarea #notes id="notes" rows="4" placeholder="Instructions supplémentaires"></textarea>
 			</div>
+
+			<p class="summary-note" *ngIf="selectedFilamentId() !== null">
+				Filament sélectionné: {{ selectedFilamentId() }}
+			</p>
 		</article>
 
 		<article class="panel summary" aria-labelledby="summary-title">
@@ -55,6 +67,15 @@
 
 	<footer class="actions">
 		<button type="button" class="ghost-btn">Annuler</button>
-		<button type="button" class="primary-btn">Envoyer la demande</button>
+			<button
+				type="button"
+				class="primary-btn"
+				(click)="SendRequest(fileInput, material.value, color.value, quantity.value, notes.value)"
+				[disabled]="loading()"
+			>
+				{{ loading() ? 'Envoi...' : 'Envoyer la demande' }}
+			</button>
 	</footer>
+
+
 </section>
