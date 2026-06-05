@@ -9,6 +9,14 @@ class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(blank=False, unique=True, null=False)
     credit = models.IntegerField(default=0)
+    class Priority(models.TextChoices):
+        ADHERENT = 'ADHERENT'
+        ROBOTECH = 'ROBOTECH'
+        AUTOTECH = 'AUTOTECH'
+        DRONE = 'DRONE'
+        BUREAU = 'BUREAU'
+
+    priority = models.CharField(choices=Priority.choices, max_length=25, default=Priority.ADHERENT)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 

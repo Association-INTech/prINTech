@@ -17,6 +17,7 @@ export class Print {
   readonly successMessage = signal('');
   readonly filaments = signal<Filament[]>([]);
   readonly selectedFilamentId = signal<number | null>(null);
+  readonly selectedQuantity = signal(1);
 
   private selectedFile: File | null = null;
 
@@ -41,7 +42,7 @@ export class Print {
     fileInput: HTMLInputElement,
     material: string,
     color: string,
-    quantity: string,
+    quantity: number,
     comment: string,
   ): void {
     if (this.loading()) {
@@ -50,7 +51,7 @@ export class Print {
 
     const file = fileInput.files?.[0] ?? this.selectedFile;
     const filamentId = this.findFilamentId(material, color);
-    const numberOfPrinting = Math.max(0, Number(quantity) || 0);
+    const numberOfPrinting = Math.max(1, Number(quantity) || 1);
 
     this.errorMessage.set('');
     this.successMessage.set('');
@@ -102,6 +103,11 @@ export class Print {
 
   updateSelectedFilament(material: string, color: string): void {
     this.selectedFilamentId.set(this.findFilamentId(material, color));
+  }
+
+  onQuantityChange(event: Event): void {
+    const value = Number((event.target as HTMLInputElement).value);
+    this.selectedQuantity.set(Math.max(1, value || 1));
   }
 
   private loadFilaments(): void {

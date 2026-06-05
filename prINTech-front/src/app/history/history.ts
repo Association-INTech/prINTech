@@ -19,6 +19,8 @@ export class History implements OnInit{
   SearchQuery = '';
 
   errorMessage = '';
+  successMessage = '';
+  relaunchingIds = new Set<string>();
 
   ngOnInit(): void {
     this.loadFilaments();
@@ -83,6 +85,34 @@ export class History implements OnInit{
   getFileName(path: string | null | undefined): string {
     if (!path) return '-';
     return path.split('/').pop() || path;
+  }
+
+  onRelaunch(item: HistoryItem): void {
+    if (this.relaunchingIds.has(item.id)) {
+      return;
+    }
+
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.relaunchingIds.add(item.id);
+
+    this.historyService.relaunchRequest(item.id).subscribe({
+      next: () => {
+        this.successMessage = 'Demande relancée avec succès.';
+        this.relaunchingIds.delete(item.id);
+        this.loadHistory();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.errorMessage = err?.error?.error || 'Impossible de relancer cette impression.';
+        this.relaunchingIds.delete(item.id);
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  isRelaunching(id: string): boolean {
+    return this.relaunchingIds.has(id);
   }
 }
 

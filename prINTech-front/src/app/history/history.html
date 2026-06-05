@@ -1,5 +1,7 @@
 <div class="page-content">
     <div class="title">Historique des impressions</div>
+    <div *ngIf="successMessage" class="feedback success">{{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="feedback error">{{ errorMessage }}</div>
     <input type="search" id="print-search" placeholder="Filtrer par nom de fichier..." (input)="onSearch($event)">
     <div class="table-wrapper">
         <table>
@@ -17,7 +19,7 @@
             <tbody>
                 <tr *ngIf="filteredHistory.length === 0">
                     <td colspan="7" style="text-align: center; padding: 24px; color: #64748b; font-style: italic;">
-                        {{ errorMessage ? 'Erreur de chargement: ' + errorMessage : 'Aucune impression trouvée pour ce compte.' }}
+                        Aucune impression trouvée pour ce compte.
                     </td>
                 </tr>
                 <tr *ngFor="let item of filteredHistory">
@@ -33,7 +35,15 @@
                             'status-failed': item.status === 'FAILED' || item.status === 'CANCELED'
                         }">{{ item.status }}</span>
                     </td>
-                    <td><button type="button" class="reprint-btn">Relancer</button></td>
+                    <td>
+                        <button
+                            type="button"
+                            class="reprint-btn"
+                            [disabled]="isRelaunching(item.id)"
+                            (click)="onRelaunch(item)">
+                            {{ isRelaunching(item.id) ? 'Relance...' : 'Relancer' }}
+                        </button>
+                    </td>
                 </tr>
             </tbody>
         </table>

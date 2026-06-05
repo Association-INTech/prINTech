@@ -24,4 +24,8 @@ export class HistoryServices {
   getFilaments(): Observable<Filament[]> {
     return this.http.get<Filament[]>(`${this.apiBase}/filaments/`)
   }
+
+  relaunchRequest(requestId: string): Observable<HistoryItem> {
+    return this.http.post<HistoryItem>(`${this.apiBase}/requests/${requestId}/relaunch/`, {});
+  }
 }

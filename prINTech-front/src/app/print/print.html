@@ -40,7 +40,7 @@
 				</div>
 				<div class="form-block">
 					<label for="quantity">Quantité</label>
-					<input #quantity id="quantity" type="number" min="0" value="1" />
+					<input #quantity id="quantity" type="number" min="1" [value]="selectedQuantity()" (input)="onQuantityChange($event)" />
 				</div>
 			</div>
 
@@ -70,7 +70,7 @@
 			<button
 				type="button"
 				class="primary-btn"
-				(click)="SendRequest(fileInput, material.value, color.value, quantity.value, notes.value)"
+				(click)="SendRequest(fileInput, material.value, color.value, selectedQuantity(), notes.value)"
 				[disabled]="loading()"
 			>
 				{{ loading() ? 'Envoi...' : 'Envoyer la demande' }}
