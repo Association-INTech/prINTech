@@ -1,22 +1,13 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { NgOptimizedImage } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { HomeService } from '../services/home';
-import { MetricCard } from './components/metric-card/metric-card';
+import { Greeting } from '../components/greeting/greeting';
+import { Counter } from '../components/counter/counter';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, NgOptimizedImage, MetricCard],
+  imports: [Greeting, Counter, RouterLink, NgOptimizedImage],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
-export class Home implements OnInit{
-  private readonly homeService = inject(HomeService);
-
-  ngOnInit(): void {
-    this.homeService.loadUserInfo();
-    this.homeService.getActivePrinters();
-  }
-
-  Username = this.homeService.username
-}
+export class Home {}
