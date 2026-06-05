@@ -85,8 +85,8 @@ class RequestSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = Request
-        fields = ['id', 'user', 'file', 'printer', 'filament', 'comment', 'created_at','status',"path","number_of_printing", "para_slicer"] 
-        read_only_fields = ['id', 'user','file', 'printer', 'created_at', 'status']
+        fields = ['id', 'user', 'file', 'printer', 'price', 'filament', 'comment', 'created_at','status',"path","number_of_printing", "para_slicer"] 
+        read_only_fields = ['id', 'user','file', 'printer', 'price', 'created_at', 'status']
         
     def create(self, validated_data):
             path = validated_data.pop('path')
