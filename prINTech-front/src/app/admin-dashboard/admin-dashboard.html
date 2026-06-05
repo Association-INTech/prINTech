@@ -1,129 +1,449 @@
 <div class="page-content">
-  <div class="title">Administration</div>
 
+  <!-- Header -->
+  <div class="page-header">
+    <div class="title">⚙ Administration</div>
+  </div>
+
+  <!-- Global alerts -->
   @if (errorMessage()) {
-    <div class="error">{{ errorMessage() }}</div>
+    <div class="alert alert-error">{{ errorMessage() }}</div>
   }
-
   @if (successMessage()) {
-    <div class="success">{{ successMessage() }}</div>
+    <div class="alert alert-success">{{ successMessage() }}</div>
   }
 
-  <section class="section">
-    <div class="section-header">
-      <h2>Impressions en attente</h2>
-      <span class="sort-hint">Cliquez un titre de colonne pour trier</span>
-    </div>
-    <div class="search-row">
-      <input
-        type="search"
-        placeholder="Rechercher (id, fichier, utilisateur, statut)..."
-        [value]="searchQuery()"
-        (input)="onSearchChange($event)"
-      />
-    </div>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th class="sortable" (click)="onHeaderSort('id')">Id {{ sortIndicator('id') }}</th>
-            <th class="sortable" (click)="onHeaderSort('file')">Fichier {{ sortIndicator('file') }}</th>
-            <th class="sortable" (click)="onHeaderSort('user')">Utilisateur {{ sortIndicator('user') }}</th>
-            <th class="sortable" (click)="onHeaderSort('created_at')">Date {{ sortIndicator('created_at') }}</th>
-            <th class="sortable" (click)="onHeaderSort('status')">Statut {{ sortIndicator('status') }}</th>
-            <th>Changer statut</th>
-            <th>Téléchargement</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngIf="sortedWaitingPrints().length === 0">
-            <td colspan="7">Aucune impression en attente.</td>
-          </tr>
-          <tr *ngFor="let item of sortedWaitingPrints()">
-            <td>{{ item.id | slice:0:8 }}</td>
-            <td>{{ getFileName(item.file?.path) }}</td>
-            <td>{{ item.user }}</td>
-            <td>{{ item.created_at | date:'short' }}</td>
-            <td>
-              <span class="status-badge" [ngClass]="getStatusBadgeClass(item.status)">{{ item.status }}</span>
-            </td>
-            <td>
-              <select
-                [value]="item.status"
-                [disabled]="isUpdatingRequest(item.id)"
-                (change)="onStatusChange(item, $event)">
-                <option *ngFor="let status of statusOptions" [value]="status" [disabled]="!canTransition(item.status, status)">
-                  {{ status }}
-                </option>
-              </select>
-            </td>
-            <td>
-              @if (item.file?.path) {
-                <a [href]="getDownloadUrl(item.file?.path)" target="_blank" rel="noopener noreferrer" download>
-                  Télécharger
-                </a>
-              } @else {
-                -
-              }
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+  <!-- Tab bar -->
+  <nav class="tabs">
+    <button class="tab-btn" [class.active]="activeTab() === 'requests'" (click)="setTab('requests')">
+      📋 Impressions
+    </button>
+    <button class="tab-btn" [class.active]="activeTab() === 'users'" (click)="setTab('users')">
+      👤 Utilisateurs
+    </button>
+    <button class="tab-btn" [class.active]="activeTab() === 'operations'" (click)="setTab('operations')">
+      💰 Opérations
+    </button>
+    <button class="tab-btn" [class.active]="activeTab() === 'filaments'" (click)="setTab('filaments')">
+      🧵 Filaments
+    </button>
+    <button class="tab-btn" [class.active]="activeTab() === 'printers'" (click)="setTab('printers')">
+      🖨 Imprimantes
+    </button>
+  </nav>
 
-  <section class="section">
-    <h2>Ajouter un compte</h2>
-    <form class="form-grid" [formGroup]="createUserForm" (ngSubmit)="onCreateUser()">
-      <input type="text" formControlName="username" placeholder="Username">
-      <input type="email" formControlName="email" placeholder="Email">
-      <input type="password" formControlName="password" placeholder="Mot de passe">
-      <label><input type="checkbox" formControlName="is_staff"> Admin</label>
-      <label><input type="checkbox" formControlName="is_active"> Actif</label>
-      <button type="submit">Ajouter</button>
-    </form>
-  </section>
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB: REQUESTS                                              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" [class.active]="activeTab() === 'requests'">
+    <section class="section">
+      <div class="section-header">
+        <h2>Impressions en attente</h2>
+        <span style="font-size:.82rem;color:var(--muted)">Cliquez un en-tête pour trier</span>
+      </div>
 
-  <section class="section">
-    <h2>Comptes utilisateurs</h2>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Crédit</th>
-            <th>Admin</th>
-            <th>Actif</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let user of users()">
-            <td>{{ user.username }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.credit }}</td>
-            <td>{{ user.is_staff ? 'Oui' : 'Non' }}</td>
-            <td>{{ user.is_active ? 'Oui' : 'Non' }}</td>
-            <td>
-              <button type="button" (click)="startEditUser(user)">Modifier</button>
-              <button type="button" (click)="onDeleteUser(user.id)">Supprimer</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+      <div class="search-row">
+        <input type="search" placeholder="Rechercher (id, fichier, utilisateur, statut)…"
+          [value]="searchQuery()" (input)="onSearchChange($event)" />
+      </div>
 
-  <section class="section">
-    <h2>Modifier un compte</h2>
-    <form class="form-grid" [formGroup]="editUserForm" (ngSubmit)="onUpdateUser()">
-      <input type="text" formControlName="username" placeholder="Username">
-      <input type="email" formControlName="email" placeholder="Email">
-      <input type="password" formControlName="password" placeholder="Nouveau mot de passe (optionnel)">
-      <label><input type="checkbox" formControlName="is_staff"> Admin</label>
-      <label><input type="checkbox" formControlName="is_active"> Actif</label>
-      <button type="submit">Enregistrer</button>
-    </form>
-  </section>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th class="sortable" (click)="onHeaderSort('id')">Id {{ sortIndicator('id') }}</th>
+              <th class="sortable" (click)="onHeaderSort('file')">Fichier {{ sortIndicator('file') }}</th>
+              <th class="sortable" (click)="onHeaderSort('user')">Utilisateur {{ sortIndicator('user') }}</th>
+              <th>Priorité</th>
+              <th class="sortable" (click)="onHeaderSort('created_at')">Date {{ sortIndicator('created_at') }}</th>
+              <th class="sortable" (click)="onHeaderSort('status')">Statut {{ sortIndicator('status') }}</th>
+              <th>Changer statut</th>
+              <th>Prix (€)</th>
+              <th>Téléchargement</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="sortedWaitingPrints().length === 0">
+              <td colspan="9" class="empty-cell">Aucune impression en attente.</td>
+            </tr>
+            <tr *ngFor="let item of sortedWaitingPrints()">
+              <td title="{{ item.id }}">{{ item.id | slice:0:8 }}…</td>
+              <td>{{ getFileName(item.file?.path) }}</td>
+              <td>{{ item.user }}</td>
+              <td><span class="badge" [ngClass]="'badge-priority-' + getUserPriority(item.user)">{{ getUserPriority(item.user) }}</span></td>
+              <td>{{ item.created_at | date:'dd/MM/yy HH:mm' }}</td>
+              <td><span class="badge" [ngClass]="getStatusBadgeClass(item.status)">{{ item.status }}</span></td>
+              <td>
+                <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                  <select [disabled]="isUpdatingRequest(item.id)"
+                    (change)="onSelectStatus(item.id, $event)">
+                    <option *ngFor="let s of statusOptions" [value]="s"
+                      [selected]="getPendingStatus(item.id, item.status) === s"
+                      [disabled]="!canTransition(item.status, s)">{{ s }}</option>
+                  </select>
+                  @if (getPendingStatus(item.id, item.status) === 'AWAITING_PAYMENT') {
+                    <input type="number" min="1" placeholder="Prix" style="width:72px"
+                      [value]="pendingPrice[item.id] ?? ''"
+                      (input)="onPriceInput(item.id, $event)" />
+                  }
+                  @if (hasPendingStatusChange(item.id, item.status)) {
+                    <button type="button" class="btn-primary btn-sm"
+                      [disabled]="isUpdatingRequest(item.id)"
+                      (click)="onApplyStatus(item)">✔ Appliquer</button>
+                  }
+                </div>
+              </td>
+              <td>
+                @if (item.price) { {{ item.price }} }
+                @else { <span class="empty-cell">—</span> }
+              </td>
+              <td>
+                @if (item.file?.path) {
+                  <a [href]="getDownloadUrl(item.file?.path)" target="_blank" rel="noopener noreferrer" download
+                    style="color:var(--accent);font-weight:600;font-size:.82rem">⬇ Télécharger</a>
+                } @else {
+                  <span class="empty-cell">—</span>
+                }
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB: USERS                                                 -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" [class.active]="activeTab() === 'users'">
+
+    <!-- Create user -->
+    <section class="section">
+      <div class="section-header"><h2>Ajouter un compte</h2></div>
+      <form [formGroup]="createUserForm" (ngSubmit)="onCreateUser()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" formControlName="username" placeholder="johndoe" />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" formControlName="email" placeholder="john@example.com" />
+          </div>
+          <div class="form-group">
+            <label>Mot de passe</label>
+            <input type="password" formControlName="password" placeholder="••••••••" />
+          </div>
+          <div class="form-group" style="justify-content:flex-end">
+            <div style="display:flex;gap:16px;flex-wrap:wrap;padding-bottom:2px">
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="is_staff" /> Admin
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="is_active" /> Actif
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions" style="margin-top:12px">
+          <button type="submit" class="btn-primary">+ Ajouter</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Users list -->
+    <section class="section">
+      <div class="section-header"><h2>Comptes utilisateurs</h2></div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Crédit</th>
+              <th>Priorité</th>
+              <th>Admin</th>
+              <th>Actif</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="users().length === 0">
+              <td colspan="7" class="empty-cell">Aucun utilisateur.</td>
+            </tr>
+            <tr *ngFor="let user of users()">
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.credit }}</td>
+              <td>{{ user.priority }}</td>
+              <td>{{ user.is_staff ? 'Oui' : 'Non' }}</td>
+              <td>{{ user.is_active ? 'Oui' : 'Non' }}</td>
+              <td>
+                <div style="display:flex;gap:6px">
+                  <button type="button" class="btn-ghost btn-sm" (click)="startEditUser(user)">✏ Modifier</button>
+                  <button type="button" class="btn-danger btn-sm" (click)="onDeleteUser(user.id)">🗑 Supprimer</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Edit user -->
+    <section class="section" [class.editing]="!!editingUserId()">
+      <div class="section-header">
+        <h2>{{ editingUserId() ? 'Modifier le compte' : 'Modifier un compte' }}</h2>
+        @if (editingUserId()) {
+          <button type="button" class="btn-ghost btn-sm" (click)="cancelEditUser()">Annuler</button>
+        }
+      </div>
+      <form [formGroup]="editUserForm" (ngSubmit)="onUpdateUser()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Username <span style="font-weight:400;text-transform:none">(optionnel)</span></label>
+            <input type="text" formControlName="username" />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" formControlName="email" />
+          </div>
+          <div class="form-group">
+            <label>Nouveau mot de passe <span style="font-weight:400;text-transform:none">(optionnel)</span></label>
+            <input type="password" formControlName="password" placeholder="Laisser vide pour ne pas changer" />
+          </div>
+          <div class="form-group">
+            <label>Priorité</label>
+            <select formControlName="priority">
+              <option *ngFor="let p of priorityOptions" [value]="p">{{ p }}</option>
+            </select>
+          </div>
+          <div class="form-group" style="justify-content:flex-end">
+            <div style="display:flex;gap:16px;flex-wrap:wrap;padding-bottom:2px">
+              <label class="checkbox-label"><input type="checkbox" formControlName="is_staff" /> Admin</label>
+              <label class="checkbox-label"><input type="checkbox" formControlName="is_active" /> Actif</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions" style="margin-top:12px">
+          <button type="submit" class="btn-primary" [disabled]="!editingUserId()">💾 Enregistrer</button>
+        </div>
+      </form>
+    </section>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB: OPERATIONS                                            -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" [class.active]="activeTab() === 'operations'">
+
+    <!-- Create operation -->
+    <section class="section">
+      <div class="section-header"><h2>Nouvelle opération</h2></div>
+      <form [formGroup]="createOperationForm" (ngSubmit)="onCreateOperation()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Bénéficiaire</label>
+            <select formControlName="beneficiary">
+              <option value="" disabled>Sélectionner un utilisateur…</option>
+              <option *ngFor="let u of users()" [value]="u.id">{{ u.email }} ({{ u.username }})</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Montant (crédits)</label>
+            <input type="number" formControlName="amount" placeholder="Ex: 50 ou -20" />
+          </div>
+          <div class="form-group">
+            <label>Type</label>
+            <select formControlName="operation_type">
+              <option *ngFor="let t of operationTypes" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Demande (UUID, optionnel)</label>
+            <input type="text" formControlName="request" placeholder="UUID de la demande" />
+          </div>
+          <div class="form-group form-full">
+            <label>Commentaire</label>
+            <input type="text" formControlName="comment" placeholder="Optionnel" />
+          </div>
+        </div>
+        <div class="form-actions" style="margin-top:12px">
+          <button type="submit" class="btn-primary">+ Créer opération</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Operations list -->
+    <section class="section">
+      <div class="section-header"><h2>Historique des opérations</h2></div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Id</th>
+              <th>Bénéficiaire</th>
+              <th>Agent</th>
+              <th>Montant</th>
+              <th>Type</th>
+              <th>Demande</th>
+              <th>Date</th>
+              <th>Commentaire</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="operations().length === 0">
+              <td colspan="8" class="empty-cell">Aucune opération.</td>
+            </tr>
+            <tr *ngFor="let op of operations()">
+              <td title="{{ op.id }}">{{ op.id | slice:0:8 }}…</td>
+              <td title="{{ op.beneficiary }}">{{ getUserEmail(op.beneficiary) }}</td>
+              <td title="{{ op.agent }}">{{ getUserEmail(op.agent) }}</td>
+              <td [style.color]="op.amount >= 0 ? 'var(--success)' : 'var(--danger)'" style="font-weight:700">
+                {{ op.amount >= 0 ? '+' : '' }}{{ op.amount }}
+              </td>
+              <td>{{ op.operation_type }}</td>
+              <td>{{ op.request ? (op.request | slice:0:8) + '…' : '—' }}</td>
+              <td>{{ op.created_at | date:'dd/MM/yy HH:mm' }}</td>
+              <td>{{ op.comment || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB: FILAMENTS                                             -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" [class.active]="activeTab() === 'filaments'">
+
+    <!-- Create / edit filament form -->
+    <section class="section" [class.editing]="!!editingFilamentId()">
+      <div class="section-header">
+        <h2>{{ editingFilamentId() ? 'Modifier le filament' : 'Ajouter un filament' }}</h2>
+        @if (editingFilamentId()) {
+          <button type="button" class="btn-ghost btn-sm" (click)="cancelEditFilament()">Annuler</button>
+        }
+      </div>
+      <form [formGroup]="filamentForm" (ngSubmit)="onSubmitFilament()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nom de couleur</label>
+            <input type="text" formControlName="color_name" placeholder="Blanc brillant" />
+          </div>
+          <div class="form-group">
+            <label>Couleur (hex)</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="color" formControlName="color" style="width:48px;flex-shrink:0" />
+              <input type="text" formControlName="color" placeholder="#ffffff" style="flex:1" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Type</label>
+            <select formControlName="type">
+              <option value="PLA">PLA</option>
+              <option value="PETG">PETG</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Quantité (g)</label>
+            <input type="number" formControlName="quantity" min="0" />
+          </div>
+          <div class="form-group">
+            <label>Prix (crédits)</label>
+            <input type="number" formControlName="price" min="0" />
+          </div>
+        </div>
+        <div class="form-actions" style="margin-top:12px">
+          <button type="submit" class="btn-primary">{{ editingFilamentId() ? '💾 Enregistrer' : '+ Ajouter' }}</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Filaments list -->
+    <section class="section">
+      <div class="section-header"><h2>Filaments disponibles</h2></div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Id</th>
+              <th>Couleur</th>
+              <th>Nom</th>
+              <th>Type</th>
+              <th>Quantité</th>
+              <th>Prix</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="filaments().length === 0">
+              <td colspan="7" class="empty-cell">Aucun filament.</td>
+            </tr>
+            <tr *ngFor="let f of filaments()">
+              <td>{{ f.id }}</td>
+              <td>
+                <div class="color-swatch">
+                  <span class="swatch" [style.background]="f.color"></span>
+                  {{ f.color }}
+                </div>
+              </td>
+              <td>{{ f.color_name }}</td>
+              <td>{{ f.type }}</td>
+              <td>{{ f.quantity }} g</td>
+              <td>{{ f.price }}</td>
+              <td>
+                <div style="display:flex;gap:6px">
+                  <button type="button" class="btn-ghost btn-sm" (click)="startEditFilament(f)">✏ Modifier</button>
+                  <button type="button" class="btn-danger btn-sm" (click)="onDeleteFilament(f.id)">🗑 Supprimer</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB: PRINTERS                                              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" [class.active]="activeTab() === 'printers'">
+    <section class="section">
+      <div class="section-header"><h2>Imprimantes</h2></div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Statut</th>
+              <th>Changer statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="printers().length === 0">
+              <td colspan="3" class="empty-cell">Aucune imprimante.</td>
+            </tr>
+            <tr *ngFor="let printer of printers()">
+              <td style="font-weight:600">{{ printer.name }}</td>
+              <td>
+                <span class="badge" [ngClass]="getPrinterBadgeClass(printer.status)">{{ printer.status }}</span>
+              </td>
+              <td>
+                <select [disabled]="isUpdatingPrinter(printer.name)"
+                  (change)="onPrinterStatusChange(printer, $event)">
+                  <option *ngFor="let s of printerStatuses" [value]="s"
+                    [selected]="printer.status === s">{{ s }}</option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
 </div>
