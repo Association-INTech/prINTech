@@ -38,13 +38,23 @@ class CreateUserView(generics.CreateAPIView):
         )
 
 
-class UserMeView(generics.RetrieveUpdateAPIView):
+class UserMeView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
     throttle_classes = [UserRateThrottle]
 
     def get_object(self):
         return self.request.user
+
+    def destroy(self, request, *args, **kwargs):
+        """Deletes ONLY profile picture, not the user account."""
+        user = self.get_object()
+        if user.profile_picture:
+            user.profile_picture.delete(save=False) 
+            user.profile_picture = None
+            user.save()
+            return Response({"message": "Photo de profil supprimée avec succès."}, status=status.HTTP_200_OK)
+        return Response({"error": "Aucune photo de profil à supprimer."}, status=status.HTTP_400_BAD_REQUEST)
 
 class ChangePasswordView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
@@ -199,15 +209,14 @@ class AdminRequestView(viewsets.ReadOnlyModelViewSet):
     permission_classes=[IsAdminUser]
 
     def get_queryset(self):
-        # Map textual priorities to numeric ranks (lower = higher priority)
         # BUREAU highest (0), project types equal (1), ADHERENT lowest (2)
         qs = Request.objects.all().annotate(
             priority_rank=Case(
-                When(user__priority=User.Priority.BUREAU, then=Value(0)),
-                When(user__priority=User.Priority.ROBOTECH, then=Value(1)),
-                When(user__priority=User.Priority.AUTOTECH, then=Value(1)),
-                When(user__priority=User.Priority.DRONE, then=Value(1)),
-                When(user__priority=User.Priority.ADHERENT, then=Value(2)),
+                When(user__role='BUREAU', then=Value(0)),
+                When(user__role='ROBOTECH', then=Value(1)),
+                When(user__role='AUTOTECH', then=Value(1)),
+                When(user__role='DRONE', then=Value(1)),
+                When(user__role='ADHERENT', then=Value(2)),
                 default=Value(3),
                 output_field=IntegerField(),
             )
