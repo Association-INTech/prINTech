@@ -152,7 +152,27 @@ Enfin pour la mise en commun du code, on a utilisé Git, et plus particulièreme
 
 # 5. Validation et tests
 
+
+Pour garantir la robustesse de l'application PrINTech, nous avons mis en place une stratégie de tests automatisés. L'effort principal a été concentré sur la validation fonctionnelle du backend (Django), complété par des mécanismes de tests d'intégration et d'interface (Playwright).
+
+## 5.1. Tests Backend (Django)
+
+Le backend constituant le cœur logique et financier de notre application (notamment avec la gestion du crédit des utilisateurs), nous avons conçu une suite de nombreux tests unitaires et d'intégration rigoureuse à l'aide du framework de test de *Django REST Framework* (`APITestCase`). Les tests se trouvent dans le fichier `PrINTech-Back/back/apps/api/tests.py` 
+
+### 5.1.1. Exemples:
+Une attention particulière a été portée à la sécurité et à l'étanchéité des droits entre les utilisateurs réguliers et les administrateurs du bureau INTech. 
+* **Accès aux ressources critiques** : Nous testons systématiquement qu'un utilisateur standard reçoit une erreur `HTTP_403_FORBIDDEN` lorsqu'il tente de modifier l'état d'une imprimante (endpoint `admin-detail`), alors qu'un jeton d'administrateur valide la requête avec un statut `HTTP_200_OK`.
+* **Calcul automatique de la consommation** : Les tests valident que l'API calcule correctement le poids total de plastique consommé en multipliant le nombre d'impressions demandées par le poids unitaire de la pièce.
+* **Débit du solde utilisateur** : Nous nous assurons qu'à la soumission d'un fichier STL valide, le crédit de l'étudiant est immédiatement débité au prorata de la quantité et du type de filament choisi (ex: passage d'une balance initiale de 100 unités à une valeur calculée résiduelle).
+* **Isolation des requêtes** : Nos cas de tests (`test_user_can_only_see_their_own_requests`) certifient qu'un utilisateur connecté ne peut en aucun cas interroger ou lister les fichiers et demandes d'un autre étudiant, prévenant ainsi toute fuite de données.
+
 ---
+
+## 5.2. Tests d'Interface (Playwright) et Validation Frontend
+
+Pour la partie émergée de l'iceberg (le Frontend), l'objectif initial intégrait le déploiement de tests de bout en bout (E2E) via l'outil **Playwright**. 
+
+Cependant, comme évoqué dans notre bilan de projet (Section 6.1.3), le retard accumulé sur l'apprentissage d'Angular et la complexité de l'interfaçage asynchrone ont limité la couverture finale de ces tests E2E. 
 
 \newpage
 
