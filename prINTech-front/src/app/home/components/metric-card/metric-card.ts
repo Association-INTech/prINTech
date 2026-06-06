@@ -20,5 +20,6 @@ export class MetricCard implements OnInit {
   Total_printers = this.homeService.total_printers
   Printer_statuses = this.homeService.printers_status
   Queue_size = this.homeService.queue_size
+  is_active = this.homeService.is_active
 
 }

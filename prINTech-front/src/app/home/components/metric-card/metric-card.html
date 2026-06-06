@@ -2,7 +2,7 @@
     <div class="metric-card">
       <div class="label">Crédit restant</div>
       <div class="value">{{UserCredit()}}€</div>
-      <div class="sub">Adhérent actif</div>
+      <div class="sub">Adhérent {{ is_active() ? 'actif' : 'inactif' }}</div>
     </div>
     <div class="metric-card">
       <div class="label">Imprimantes actives</div>
@@ -17,6 +17,6 @@
     <div class="metric-card">
       <div class="label">Travaux en file</div>
        <div class="value"> {{ Queue_size() }}</div>
-      <div class="sub">Attente estimée ~ 93 min</div> 
+      <div class="sub"></div> 
     </div>
   </div>
