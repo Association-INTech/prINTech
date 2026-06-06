@@ -135,11 +135,13 @@ export class AdminDashboard implements OnInit {
   private loadRequests(): void {
     this.adminService.getWaitingRequests().subscribe({
       next: (requests) => {
+        /*
         const waiting = requests.filter((r) =>
           ['SUBMITTED', 'AWAITING_PAYMENT', 'PENDING', 'PRINTING', 'AWAITING_PICKUP'].includes(r.status)
         );
+        */
         this.pendingStatus.set({});
-        this.waitingPrints.set(waiting);
+        this.waitingPrints.set(requests);
         this.applyPrintSort();
       },
       error: () => this.errorMessage.set('Impossible de charger les impressions en attente.'),
@@ -195,7 +197,7 @@ export class AdminDashboard implements OnInit {
     const needsPrice = newStatus === 'AWAITING_PAYMENT';
     const price = needsPrice ? this.pendingPrice[item.id] : undefined;
 
-    if (needsPrice && (!price || price <= 0)) {
+    if (needsPrice && (!price || price < 0)) {
       this.errorMessage.set('Un prix est requis pour passer en AWAITING_PAYMENT.');
       return;
     }

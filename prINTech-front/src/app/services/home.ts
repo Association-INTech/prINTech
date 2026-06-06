@@ -14,6 +14,7 @@ export class HomeService {
   username = signal<string>('John Doe');
   printers_status = signal<string>('Disponible');
   email = signal<string>('johndoe@gmail.com');
+  is_active = signal<boolean>(true);
   queue_size = signal<number>(67);
 
   getActivePrinters(){
@@ -39,17 +40,27 @@ export class HomeService {
         this.username.set(res.username)
         this.email.set(res.email)
         this.userCredit.set(res.credit)
+        this.is_active.set(res.is_active)
       }
     )
   }
 
-  GetQueue() {
+GetQueue() {
     this.http.get<Request[]>(`${this.ApiBase}/requests/`)
     .subscribe(
-    (res) => {this.queue_size.set(res.length)}
-    )
-  }
-
+      (res) => {
+        // Filter out requests that are done, cancelled, or failed
+        const inProgressRequests = res.filter(request => 
+          request.status !== 'PICKED_UP' && 
+          request.status !== 'CANCELED' && 
+          request.status !== 'FAILED'
+        );
+        
+        // Set the queue size to only show active requests
+        this.queue_size.set(inProgressRequests.length);
+      }
+    );
+  }  
 }
 
 export interface Printer {
@@ -62,6 +73,8 @@ export interface User {
   username: string,
   email: string,
   credit: number,
+  is_active: boolean;
+
 }
 
 export interface Request{
