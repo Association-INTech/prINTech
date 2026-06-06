@@ -1,18 +1,17 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, computed } from '@angular/core';
+import { AuthService } from './auth';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class AvatarStateService {
-  private readonly storageKey = 'profile_avatar_src';
+  private readonly auth = inject(AuthService);
   private readonly defaultAvatar = 'profile.svg';
 
-  readonly avatarSrc = signal<string>(
-    localStorage.getItem(this.storageKey) ?? this.defaultAvatar
-  );
+  readonly avatarSrc = computed(() => {
+    const pic = this.auth.currentUser()?.profile_picture;
+    return pic ? pic : this.defaultAvatar;
+  });
 
-  setAvatar(src: string): void {
-    this.avatarSrc.set(src);
-    localStorage.setItem(this.storageKey, src);
+  refresh(): void {
+    this.auth.loadCurrentUser().subscribe();
   }
 }

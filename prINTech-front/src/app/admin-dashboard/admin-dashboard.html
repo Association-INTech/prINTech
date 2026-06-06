@@ -69,7 +69,7 @@
             <tr *ngFor="let item of sortedWaitingPrints()">
               <td title="{{ item.id }}">{{ item.id | slice:0:8 }}…</td>
               <td>{{ getFileName(item.file?.path) }}</td>
-              <td>{{ item.user }}</td>
+              <td title="{{ item.user }}">{{ getUserEmail(item.user) }}</td>              
               <td><span class="badge" [ngClass]="'badge-priority-' + getUserPriority(item.user)">{{ getUserPriority(item.user) }}</span></td>
               <td>{{ item.created_at | date:'dd/MM/yy HH:mm' }}</td>
               <td><span class="badge" [ngClass]="getStatusBadgeClass(item.status)">{{ item.status }}</span></td>

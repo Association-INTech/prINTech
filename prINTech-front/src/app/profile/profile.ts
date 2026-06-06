@@ -1,5 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { HomeService } from '../services/home';
+import { Component, inject, computed } from '@angular/core';
+import { AuthService } from '../services/auth';
 import { ChangePassword } from './change-password/change-password';
 import { ProfilePicture } from './profile-picture/profile-picture';
 
@@ -9,13 +9,11 @@ import { ProfilePicture } from './profile-picture/profile-picture';
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
-export class Profile implements OnInit{
-  private readonly homeService = inject(HomeService)
-  ngOnInit(): void {
-    this.homeService.loadUserInfo();
-  }
+export class Profile {
+  private readonly auth = inject(AuthService);
 
-  username = this.homeService.username
-  email = this.homeService.email
-  credit = this.homeService.userCredit
+  username = computed(() => this.auth.currentUser()?.username ?? '');
+  email    = computed(() => this.auth.currentUser()?.email ?? '');
+  credit   = computed(() => this.auth.currentUser()?.credit ?? 0);
+  isAdmin  = computed(() => this.auth.currentUser()?.is_staff ?? false);
 }

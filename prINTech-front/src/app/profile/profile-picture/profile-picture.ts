@@ -18,7 +18,7 @@ export class ProfilePicture {
   successMessage = '';
   loading = false;
   private selectedFile: File | null = null;
-  private readonly uploadUrl = '/api/v1/user/me/profile-picture/';
+  private readonly uploadUrl = '/api/v1/user/me/';
 
   avatarSrc = this.avatarState.avatarSrc;
 
@@ -33,14 +33,6 @@ export class ProfilePicture {
       this.fileName = file.name;
       this.selectedFile = file;
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        const imageDataUrl = reader.result;
-        if (typeof imageDataUrl === 'string') {
-          this.avatarState.setAvatar(imageDataUrl);
-        }
-      };
-      reader.readAsDataURL(file);
 
       this.uploadSelectedFile();
       return;
@@ -60,14 +52,15 @@ export class ProfilePicture {
     this.loading = true;
 
     const formData = new FormData();
-    formData.append('thumbnail', this.selectedFile);
+    formData.append('profile_picture', this.selectedFile);
 
     this.http
-      .post(this.uploadUrl, formData)
+      .patch(this.uploadUrl, formData)
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: () => {
           this.successMessage = 'Photo envoyée avec succès.';
+          this.avatarState.refresh();
         },
         error: () => {
           this.errorMessage = 'Échec de l\'upload. Vérifie l\'IP ou le backend.';
