@@ -267,3 +267,5 @@ En effet, ce projet est un projet enrichissant pour un étudiant ingénieur dans
 \newline
 
 Ce projet, au-delà de la réalisation purement technique, est aussi une expérience d'équipe avec tout ses avantages et ses défauts qu'on a expérimenté (comme les retards et la mise en commun du code). Cela en fait donc une force pour tous nos futurs projets en groupe.
+
+---
