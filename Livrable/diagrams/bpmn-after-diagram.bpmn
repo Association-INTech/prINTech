@@ -13,7 +13,6 @@
         <flowNodeRef>Activity_0p0v089</flowNodeRef>
         <flowNodeRef>Gateway_1czvu7n</flowNodeRef>
         <flowNodeRef>Gateway_12cbbt2</flowNodeRef>
-        <flowNodeRef>Activity_0dpaspu</flowNodeRef>
         <flowNodeRef>Activity_0idlddy</flowNodeRef>
         <flowNodeRef>Activity_1dxkbqw</flowNodeRef>
         <flowNodeRef>Activity_127okf6</flowNodeRef>
@@ -34,6 +33,8 @@
         <flowNodeRef>Activity_1dcz8s2</flowNodeRef>
         <flowNodeRef>Activity_0m61fnb</flowNodeRef>
         <flowNodeRef>Activity_093xwnx</flowNodeRef>
+        <flowNodeRef>Activity_0qeh398</flowNodeRef>
+        <flowNodeRef>Activity_0dpaspu</flowNodeRef>
         <childLaneSet id="LaneSet_0wfs5om">
           <lane id="Lane_0gisy47" name="Opérateur ( Association InTech )">
             <flowNodeRef>Activity_1dxkbqw</flowNodeRef>
@@ -81,25 +82,27 @@
             <flowNodeRef>Activity_0p0v089</flowNodeRef>
             <flowNodeRef>Gateway_1czvu7n</flowNodeRef>
             <flowNodeRef>Gateway_12cbbt2</flowNodeRef>
-            <flowNodeRef>Activity_0dpaspu</flowNodeRef>
             <flowNodeRef>Event_18yyuts</flowNodeRef>
             <flowNodeRef>Activity_0e0zkxc</flowNodeRef>
             <flowNodeRef>Activity_165pyw1</flowNodeRef>
             <flowNodeRef>Activity_00eu04s</flowNodeRef>
             <flowNodeRef>Activity_1fux38k</flowNodeRef>
             <flowNodeRef>Activity_0m61fnb</flowNodeRef>
+            <flowNodeRef>Activity_0qeh398</flowNodeRef>
+            <flowNodeRef>Activity_0dpaspu</flowNodeRef>
             <childLaneSet id="LaneSet_08hhk6q">
               <lane id="Lane_0t6qfit">
                 <flowNodeRef>Activity_0p0v089</flowNodeRef>
                 <flowNodeRef>Gateway_1czvu7n</flowNodeRef>
                 <flowNodeRef>Gateway_12cbbt2</flowNodeRef>
-                <flowNodeRef>Activity_0dpaspu</flowNodeRef>
                 <flowNodeRef>Event_18yyuts</flowNodeRef>
                 <flowNodeRef>Activity_0e0zkxc</flowNodeRef>
                 <flowNodeRef>Activity_165pyw1</flowNodeRef>
                 <flowNodeRef>Activity_00eu04s</flowNodeRef>
                 <flowNodeRef>Activity_1fux38k</flowNodeRef>
                 <flowNodeRef>Activity_0m61fnb</flowNodeRef>
+                <flowNodeRef>Activity_0qeh398</flowNodeRef>
+                <flowNodeRef>Activity_0dpaspu</flowNodeRef>
               </lane>
             </childLaneSet>
           </lane>
@@ -124,10 +127,6 @@
       <outgoing>Flow_0j008cs</outgoing>
       <outgoing>Flow_0tqrgl8</outgoing>
     </exclusiveGateway>
-    <serviceTask id="Activity_0dpaspu" name="Annule la requête">
-      <incoming>Flow_0tqrgl8</incoming>
-      <outgoing>Flow_0rlsafp</outgoing>
-    </serviceTask>
     <userTask id="Activity_0idlddy" name="Paiement afin de recréditer le compte">
       <incoming>Flow_1vg43xc</incoming>
       <outgoing>Flow_07fyk72</outgoing>
@@ -147,7 +146,7 @@
     </exclusiveGateway>
     <userTask id="Activity_18bfk0c" name="Annule la requête">
       <incoming>Flow_0g2g0ln</incoming>
-      <outgoing>Flow_1v4ls0p</outgoing>
+      <outgoing>Flow_11qy4a3</outgoing>
     </userTask>
     <intermediateCatchEvent id="Event_18yyuts" name="Créer un délai de timeout pour éviter le flood">
       <incoming>Flow_1s0ets4</incoming>
@@ -160,7 +159,6 @@
     </serviceTask>
     <serviceTask id="Activity_165pyw1" name="Notifier l&#39;étudiant de l&#39;annulation de sa requête">
       <incoming>Flow_0rlsafp</incoming>
-      <incoming>Flow_1v4ls0p</incoming>
       <outgoing>Flow_1wtsbi0</outgoing>
     </serviceTask>
     <userTask id="Activity_0b9ngql" name="Cherche un/des bon(s) modèle(s) imprimable(s)">
@@ -220,7 +218,6 @@
     <sequenceFlow id="Flow_0katfdb" name="OUI" sourceRef="Gateway_1qe14yf" targetRef="Activity_127okf6" />
     <sequenceFlow id="Flow_0mq6v4v" sourceRef="Activity_127okf6" targetRef="Gateway_0khs5uj" />
     <sequenceFlow id="Flow_0g2g0ln" name="NON" sourceRef="Gateway_1qe14yf" targetRef="Activity_18bfk0c" />
-    <sequenceFlow id="Flow_1v4ls0p" sourceRef="Activity_18bfk0c" targetRef="Activity_165pyw1" />
     <sequenceFlow id="Flow_1s0ets4" sourceRef="Activity_1gmbuql" targetRef="Event_18yyuts" />
     <sequenceFlow id="Flow_1wtsbi0" sourceRef="Activity_165pyw1" targetRef="Activity_1gmbuql" />
     <sequenceFlow id="Flow_12txhya" sourceRef="Activity_0b9ngql" targetRef="Activity_1gmbuql" />
@@ -249,6 +246,17 @@
       <incoming>Flow_1thrgu2</incoming>
       <outgoing>Flow_1fkkjlf</outgoing>
     </userTask>
+    <sequenceFlow id="Flow_11qy4a3" sourceRef="Activity_18bfk0c" targetRef="Activity_0qeh398" />
+    <sequenceFlow id="Flow_0gvuic6" sourceRef="Activity_0qeh398" targetRef="Activity_0dpaspu" />
+    <serviceTask id="Activity_0qeh398" name="Rembourse le compte de l&#39;étudiant">
+      <incoming>Flow_11qy4a3</incoming>
+      <outgoing>Flow_0gvuic6</outgoing>
+    </serviceTask>
+    <serviceTask id="Activity_0dpaspu" name="Annule la requête">
+      <incoming>Flow_0tqrgl8</incoming>
+      <incoming>Flow_0gvuic6</incoming>
+      <outgoing>Flow_0rlsafp</outgoing>
+    </serviceTask>
   </process>
   <bpmndi:BPMNDiagram id="BpmnDiagram_1">
     <bpmndi:BPMNPlane id="BpmnPlane_1" bpmnElement="Collaboration_1904494">
@@ -302,10 +310,6 @@
           <omgdc:Bounds x="468" y="410" width="63" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1afup5z_di" bpmnElement="Activity_0dpaspu">
-        <omgdc:Bounds x="310" y="460" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_10frihd_di" bpmnElement="Activity_0idlddy">
         <omgdc:Bounds x="980" y="710" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -329,7 +333,7 @@
       <bpmndi:BPMNShape id="Event_1xd3leq_di" bpmnElement="Event_18yyuts">
         <omgdc:Bounds x="572" y="572" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds x="618" y="570" width="85" height="40" />
+          <omgdc:Bounds x="607" y="570" width="85" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1udez61_di" bpmnElement="Activity_0e0zkxc">
@@ -388,6 +392,13 @@
       <bpmndi:BPMNShape id="Activity_0b14vf6_di" bpmnElement="Activity_093xwnx">
         <omgdc:Bounds x="1530" y="240" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0tx8nhg_di" bpmnElement="Activity_0qeh398">
+        <omgdc:Bounds x="260" y="390" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1afup5z_di" bpmnElement="Activity_0dpaspu">
+        <omgdc:Bounds x="380" y="460" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1f8vy1i_di" bpmnElement="Flow_1f8vy1i">
         <omgdi:waypoint x="308" y="740" />
         <omgdi:waypoint x="380" y="740" />
@@ -434,16 +445,15 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0tqrgl8_di" bpmnElement="Flow_0tqrgl8">
         <omgdi:waypoint x="515" y="400" />
-        <omgdi:waypoint x="360" y="400" />
-        <omgdi:waypoint x="360" y="460" />
+        <omgdi:waypoint x="430" y="400" />
+        <omgdi:waypoint x="430" y="460" />
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds x="467" y="383" width="25" height="14" />
+          <omgdc:Bounds x="482" y="383" width="25" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0rlsafp_di" bpmnElement="Flow_0rlsafp">
-        <omgdi:waypoint x="340" y="540" />
-        <omgdi:waypoint x="340" y="600" />
-        <omgdi:waypoint x="380" y="600" />
+        <omgdi:waypoint x="430" y="540" />
+        <omgdi:waypoint x="430" y="560" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1a4wx38_di" bpmnElement="Flow_1a4wx38">
         <omgdi:waypoint x="790" y="350" />
@@ -480,12 +490,6 @@
         <bpmndi:BPMNLabel>
           <omgdc:Bounds x="955" y="155.5" width="25" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1v4ls0p_di" bpmnElement="Flow_1v4ls0p">
-        <omgdi:waypoint x="580" y="170" />
-        <omgdi:waypoint x="280" y="170" />
-        <omgdi:waypoint x="280" y="620" />
-        <omgdi:waypoint x="380" y="620" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1s0ets4_di" bpmnElement="Flow_1s0ets4">
         <omgdi:waypoint x="590" y="700" />
@@ -541,6 +545,16 @@
         <omgdi:waypoint x="1580" y="600" />
         <omgdi:waypoint x="1450" y="600" />
         <omgdi:waypoint x="1450" y="705" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11qy4a3_di" bpmnElement="Flow_11qy4a3">
+        <omgdi:waypoint x="580" y="170" />
+        <omgdi:waypoint x="310" y="170" />
+        <omgdi:waypoint x="310" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0gvuic6_di" bpmnElement="Flow_0gvuic6">
+        <omgdi:waypoint x="310" y="470" />
+        <omgdi:waypoint x="310" y="500" />
+        <omgdi:waypoint x="380" y="500" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Participant_1gljjvh_di" bpmnElement="Participant_1d9a7po" isHorizontal="true">
         <omgdc:Bounds x="730" y="970" width="300" height="60" />
