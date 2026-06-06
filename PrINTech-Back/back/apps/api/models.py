@@ -7,17 +7,22 @@ from django.core.validators import RegexValidator
 
 class User(AbstractUser):
     
-    class Priority(models.TextChoices):
+    class Role(models.TextChoices):
         ADHERENT = 'ADHERENT', 'Adherent'
         ROBOTECH = 'ROBOTECH', 'Robotech'
         AUTOTECH = 'AUTOTECH', 'Autotech'
         DRONE = 'DRONE', 'Drone'
         BUREAU = 'BUREAU', 'Bureau'
-        
+    
+    def profile_pic_path(instance, filename):
+        ext = filename.split('.')[-1]
+        return f'profile_pics/{instance.id}.{ext}'
+    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(blank=False, unique=True, null=False)
     credit = models.IntegerField(default=0)
-    priority = models.CharField(choices=Priority.choices, max_length=25, null=False, blank=False, default=Priority.ADHERENT)
+    role = models.CharField(choices=Role.choices, max_length=25, null=False, blank=False, default=Role.ADHERENT)
+    profile_picture = models.ImageField(upload_to=profile_pic_path, null=True, blank=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
