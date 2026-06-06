@@ -1,8 +1,11 @@
 <div class="page-content">
     <div class="title">Historique des impressions</div>
+    
     <div *ngIf="successMessage" class="feedback success">{{ successMessage }}</div>
     <div *ngIf="errorMessage" class="feedback error">{{ errorMessage }}</div>
+    
     <input type="search" id="print-search" placeholder="Filtrer par nom de fichier..." (input)="onSearch($event)">
+    
     <div class="table-wrapper">
         <table>
             <thead>
@@ -44,7 +47,7 @@
                                 class="pay-btn"
                                 [disabled]="isPaying(item.id)"
                                 (click)="onPay(item)">
-                                {{ isPaying(item.id) ? 'Paiement...' : 'Payer' }}
+                                {{ isPaying(item.id) ? 'Paiement...' : '💳 Payer' }}
                             </button>
 
                             <button

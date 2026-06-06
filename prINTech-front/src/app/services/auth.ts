@@ -16,8 +16,14 @@ export class AuthService {
     localStorage.getItem(this.accessTokenStorageKey)
   );
 
+  private readonly userStorageKey = 'auth_current_user';
   // Current user cached as a signal so UI can reactively depend on it
-  currentUser = signal<UserMeResponse | null>(null);
+  currentUser = signal<UserMeResponse | null>(
+    (() => {
+      const stored = localStorage.getItem(this.userStorageKey);
+      return stored ? JSON.parse(stored) : null;
+    })()
+  );
 
   readonly isAuthenticated = computed(() => this.token() !== null);
 
@@ -119,11 +125,18 @@ export class AuthService {
     this.token.set(null);
     localStorage.removeItem(this.accessTokenStorageKey);
     localStorage.removeItem(this.refreshTokenStorageKey);
+    localStorage.removeItem(this.userStorageKey);
   }
 
   loadCurrentUser(): Observable<UserMeResponse> {
     const obs = this.http.get<UserMeResponse>(`${this.apiBase}/user/me/`);
-    obs.subscribe({ next: (u) => this.currentUser.set(u), error: () => this.currentUser.set(null) });
+    obs.subscribe({
+      next: (u) => {
+        this.currentUser.set(u);
+        localStorage.setItem(this.userStorageKey, JSON.stringify(u));
+      },
+      error: () => this.currentUser.set(null)
+    });
     return obs;
   }
 }
@@ -158,4 +171,5 @@ interface UserMeResponse {
   email: string;
   credit: number;
   is_staff: boolean;
+  profile_picture: string | null; 
 }
