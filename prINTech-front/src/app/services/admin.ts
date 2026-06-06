@@ -130,6 +130,8 @@ export interface AdminUser {
   priority: string;
   is_staff: boolean;
   is_active: boolean;
+  role: string;
+
 }
 
 export interface AdminUserCreatePayload {
@@ -138,6 +140,7 @@ export interface AdminUserCreatePayload {
   password: string;
   is_staff: boolean;
   is_active: boolean;
+  role?: string;
 }
 
 export interface AdminUserUpdatePayload {
@@ -147,6 +150,7 @@ export interface AdminUserUpdatePayload {
   priority?: string;
   is_staff?: boolean;
   is_active?: boolean;
+  role?: string;
 }
 
 // ── Operation types ─────────────────────────────────────────────

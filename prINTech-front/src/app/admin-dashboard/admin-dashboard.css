@@ -273,12 +273,12 @@ button.btn-icon     { padding: 6px 8px; }
 .badge-down { background: var(--danger-lt);  color: var(--danger); }
 .badge-used { background: var(--warn-lt);    color: var(--warn); }
 
-/* Priority badges */
-.badge-priority-BUREAU   { background: #EDE9FE; color: #5B21B6; }
-.badge-priority-ROBOTECH { background: #DBEAFE; color: #1E40AF; }
-.badge-priority-AUTOTECH { background: #D1FAE5; color: #065F46; }
-.badge-priority-DRONE    { background: #FEF3C7; color: #92400E; }
-.badge-priority-ADHERENT { background: #F1F5F9; color: #475569; }
+/* Role badges */
+.badge-role-BUREAU   { background: #EDE9FE; color: #5B21B6; }
+.badge-role-ROBOTECH { background: #DBEAFE; color: #1E40AF; }
+.badge-role-AUTOTECH { background: #D1FAE5; color: #065F46; }
+.badge-role-DRONE    { background: #FEF3C7; color: #92400E; }
+.badge-role-ADHERENT { background: #F1F5F9; color: #475569; }
 
 /* ── Color swatch ─────────────────────────────────────────────── */
 .color-swatch {

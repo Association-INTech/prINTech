@@ -67,7 +67,7 @@ export class AdminDashboard implements OnInit {
   readonly users = signal<AdminUser[]>([]);
   readonly editingUserId = signal<string | null>(null);
 
-  readonly priorityOptions = ['ADHERENT', 'ROBOTECH', 'AUTOTECH', 'DRONE', 'BUREAU'];
+  readonly roleOptions = ['ADHERENT', 'ROBOTECH', 'AUTOTECH', 'DRONE', 'BUREAU'];
 
   readonly createUserForm = this.formBuilder.nonNullable.group({
     username: ['', [Validators.required]],
@@ -82,7 +82,7 @@ export class AdminDashboard implements OnInit {
     username: [''],
     email: ['', [Validators.required, Validators.email]],
     password: [''],
-    priority: ['ADHERENT'],
+    role: ['ADHERENT'],
     is_staff: [false],
     is_active: [true],
   });
@@ -322,7 +322,7 @@ export class AdminDashboard implements OnInit {
       username: user.username,
       email: user.email,
       password: '',
-      priority: (user as any).priority ?? 'ADHERENT',
+      role: (user as any).role ?? 'ADHERENT',
       is_staff: user.is_staff,
       is_active: user.is_active,
     });
@@ -331,7 +331,7 @@ export class AdminDashboard implements OnInit {
 
   cancelEditUser(): void {
     this.editingUserId.set(null);
-    this.editUserForm.reset({ id: '', username: '', email: '', password: '', priority: 'ADHERENT', is_staff: false, is_active: true });
+    this.editUserForm.reset({ id: '', username: '', email: '', password: '', role: 'ADHERENT', is_staff: false, is_active: true });
   }
 
   onUpdateUser(): void {
@@ -342,7 +342,7 @@ export class AdminDashboard implements OnInit {
     const formValue = this.editUserForm.getRawValue();
     const payload: AdminUserUpdatePayload = {
       email: formValue.email,
-      priority: formValue.priority,
+      role: formValue.role,
       is_staff: formValue.is_staff,
       is_active: formValue.is_active,
     };
@@ -504,10 +504,10 @@ export class AdminDashboard implements OnInit {
     return this.users().find((u) => u.id === userId)?.email ?? userId.slice(0, 8) + '…';
   }
 
-  getUserPriority(userId: string): string {
-    return this.users().find((u) => u.id === userId)?.priority ?? '—';
-  }
-
+  getUserRole(userId: string): string {
+  const user = this.users().find((u) => u.id === userId);
+  return user && 'role' in user ? (user as any).role : '—';
+}
   // Utilities 
   private readError(error: any, fallback: string): string {
     const data = error?.error;

@@ -1,8 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { finalize } from 'rxjs';
 import { Print as printService, Filament, PrintRequestResponse } from '../services/print';
-import { PrintRequestPayload } from '../services/print';
 
 @Component({
   selector: 'app-print',
@@ -10,48 +9,79 @@ import { PrintRequestPayload } from '../services/print';
   templateUrl: './print.html',
   styleUrl: './print.css',
 })
-export class Print {
+export class Print implements OnInit {
   private readonly printService = inject(printService);
+
   readonly loading = signal(false);
   readonly errorMessage = signal('');
   readonly successMessage = signal('');
   readonly filaments = signal<Filament[]>([]);
-  readonly selectedFilamentId = signal<number | null>(null);
-  readonly selectedQuantity = signal(1);
-
+  
+  readonly selectedMaterial = signal<string>('');
+  readonly selectedColor = signal<string>('');
+  readonly selectedQuantity = signal<number>(1);
+  
+  readonly isFileSelected = signal<boolean>(false);
   private selectedFile: File | null = null;
 
+  readonly availableMaterials = computed(() => {
+    return Array.from(new Set(this.filaments().map((f) => f.type)));
+  });
+
+  readonly availableColors = computed(() => {
+    const material = this.selectedMaterial();
+    if (!material) return [];
+    return Array.from(new Set(
+      this.filaments()
+        .filter((f) => f.type === material)
+        .map((f) => f.color_name)
+    ));
+  });
+
+  readonly selectedFilament = computed<Filament | null>(() => {
+    const material = this.selectedMaterial();
+    const color = this.selectedColor();
+    return this.filaments().find(f => f.type === material && f.color_name === color) ?? null;
+  });
+
+  readonly selectedFilamentId = computed<number | null>(() => {
+    return this.selectedFilament()?.id ?? null;
+  });
   ngOnInit(): void {
     this.loadFilaments();
   }
 
-  getTypes(): string[] {
-    const types = Array.from(new Set(this.filaments().map((f) => f.type)));
-    return types;
+  onMaterialChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    this.selectedMaterial.set(target.value);
+    
+    // Automatically match the first available color option for this new material
+    const colors = this.availableColors();
+    this.selectedColor.set(colors.length > 0 ? colors[0] : '');
   }
 
-  getColorsFor(type: string): string[] {
-    if (!type) return [];
-    const colors = this.filaments()
-      .filter((f) => f.type === type)
-      .map((f) => f.color_name);
-    return Array.from(new Set(colors));
+  onColorChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    this.selectedColor.set(target.value);
   }
 
-  SendRequest(
-    fileInput: HTMLInputElement,
-    material: string,
-    color: string,
-    quantity: number,
-    comment: string,
-  ): void {
-    if (this.loading()) {
-      return;
-    }
+  onQuantityChange(event: Event): void {
+    const value = Number((event.target as HTMLInputElement).value);
+    this.selectedQuantity.set(Math.max(1, value || 1));
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    this.selectedFile = file;
+    this.isFileSelected.set(file !== null);
+  }
+
+  SendRequest(fileInput: HTMLInputElement, comment: string): void {
+    if (this.loading()) return;
 
     const file = fileInput.files?.[0] ?? this.selectedFile;
-    const filamentId = this.findFilamentId(material, color);
-    const numberOfPrinting = Math.max(1, Number(quantity) || 1);
+    const filamentId = this.selectedFilamentId();
 
     this.errorMessage.set('');
     this.successMessage.set('');
@@ -73,48 +103,30 @@ export class Print {
         filament: filamentId,
         comment: comment.trim(),
         path: file,
-        number_of_printing: numberOfPrinting,
+        number_of_printing: this.selectedQuantity(),
       })
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (response: PrintRequestResponse) => {
-          const msg = `Demande envoyée avec succès. Statut: ${response.status}.`;
-          this.successMessage.set(msg);
-          // scroll to top so the banner is visible and auto-hide after a few seconds
-          try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
-          setTimeout(() => this.successMessage.set(''), 6000);
-          fileInput.value = '';
-          this.selectedFile = null;
-          this.selectedFilamentId.set(filamentId);
+          this.successMessage.set(`Demande envoyée avec succès. Statut: ${response.status}.`);
+          this.resetForm(fileInput);
         },
         error: () => {
-          const err = 'Impossible d\'envoyer la demande. Vérifiez le backend et les champs saisis.';
-          this.errorMessage.set(err);
-          try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+          this.errorMessage.set("Impossible d'envoyer la demande. Vérifiez le backend et les champs saisis.");
+          this.scrollToTop();
           setTimeout(() => this.errorMessage.set(''), 8000);
         },
       });
-  }
-
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.selectedFile = input.files?.[0] ?? null;
-  }
-
-  updateSelectedFilament(material: string, color: string): void {
-    this.selectedFilamentId.set(this.findFilamentId(material, color));
-  }
-
-  onQuantityChange(event: Event): void {
-    const value = Number((event.target as HTMLInputElement).value);
-    this.selectedQuantity.set(Math.max(1, value || 1));
   }
 
   private loadFilaments(): void {
     this.printService.getFilaments().subscribe({
       next: (filaments) => {
         this.filaments.set(filaments);
-        this.selectedFilamentId.set(this.findFilamentId('PLA', 'Noir'));
+        if (filaments.length > 0) {
+          this.selectedMaterial.set(filaments[0].type);
+          this.selectedColor.set(filaments[0].color_name);
+        }
       },
       error: () => {
         this.errorMessage.set('Impossible de charger les filaments depuis le backend.');
@@ -122,12 +134,16 @@ export class Print {
     });
   }
 
-  private findFilamentId(material: string, color: string): number | null {
-    const filament = this.filaments().find(
-      (item) => item.type === material && item.color_name === color,
-    );
-
-    return filament?.id ?? null;
+  private resetForm(fileInput: HTMLInputElement): void {
+    this.scrollToTop();
+    fileInput.value = '';
+    this.selectedFile = null;
+    this.isFileSelected.set(false);
+    this.selectedQuantity.set(1);
+    setTimeout(() => this.successMessage.set(''), 6000);
   }
 
+  private scrollToTop(): void {
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
+  }
 }

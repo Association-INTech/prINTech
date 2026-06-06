@@ -1,81 +1,99 @@
 <div *ngIf="successMessage()" class="top-banner top-banner--success" role="status" aria-live="polite">
-	Envoyé
+    {{ successMessage() }}
 </div>
 <div *ngIf="errorMessage()" class="top-banner top-banner--error" role="alert" aria-live="assertive">
-	{{ errorMessage() }}
+    {{ errorMessage() }}
 </div>
 
 <section class="print-page" aria-labelledby="print-title">
-	<header class="print-header">
-		<h1 id="print-title">Nouvelle impression</h1>
-		<p>Préparez votre demande d'impression 3D en quelques étapes.</p>
-	</header>
+    <header class="print-header">
+        <h1 id="print-title">Nouvelle impression</h1>
+        <p>Préparez votre demande d'impression 3D en quelques étapes.</p>
+    </header>
 
-	<div class="print-grid">
-		<article class="panel" aria-labelledby="file-title">
-			<h2 id="file-title">1. Fichier</h2>
-			<div class="upload-box">
-				<p class="upload-title">Déposez votre fichier STL</p>
-				<p class="upload-subtitle">Format accepté: .stl (taille max: 100 MB)</p>
-				<input #fileInput id="stl-file" type="file" accept=".stl" (change)="onFileSelected($event)" />
-				<p class="upload-subtitle">{{ fileInput.files?.[0]?.name || 'Aucun fichier sélectionné' }}</p>
-			</div>
-		</article>
+    <div class="print-grid">
+        <article class="panel" aria-labelledby="file-title">
+            <h2 id="file-title">1. Fichier</h2>
+            <div class="upload-box">
+                <p class="upload-title">Déposez votre fichier STL</p>
+                <p class="upload-subtitle">Format accepté: .stl (taille max: 100 MB)</p>
+                <input #fileInput id="stl-file" type="file" accept=".stl" (change)="onFileSelected($event)" />
+                <p class="upload-subtitle">{{ fileInput.files?.[0]?.name || 'Aucun fichier sélectionné' }}</p>
+            </div>
+        </article>
 
-		<article class="panel" aria-labelledby="settings-title">
-			<h2 id="settings-title">2. Paramètres</h2>
-			<div class="form-block">
-				<label for="material">Matériau</label>
-				<select #material id="material" (change)="updateSelectedFilament(material.value, color.value)">
-					<option *ngFor="let t of getTypes()" [value]="t">{{ t }}</option>
-				</select>
-			</div>
+        <article class="panel" aria-labelledby="settings-title">
+            <h2 id="settings-title">2. Paramètres</h2>
+            
+            <div class="form-block">
+                <label for="material">Matériau</label>
+                <select id="material" [value]="selectedMaterial()" (change)="onMaterialChange($event)">
+                    <option *ngFor="let t of availableMaterials()" [value]="t">{{ t }}</option>
+                </select>
+            </div>
 
-			<div class="form-row">
-				<div class="form-block">
-					<label for="color">Couleur</label>
-					<select #color id="color" (change)="updateSelectedFilament(material.value, color.value)">
-						<option *ngFor="let c of getColorsFor(material.value)" [value]="c">{{ c }}</option>
-					</select>
-				</div>
-				<div class="form-block">
-					<label for="quantity">Quantité</label>
-					<input #quantity id="quantity" type="number" min="1" [value]="selectedQuantity()" (input)="onQuantityChange($event)" />
-				</div>
-			</div>
+            <div class="form-row">
+                <div class="form-block">
+                    <label for="color">Couleur</label>
+                    <select id="color" [value]="selectedColor()" (change)="onColorChange($event)">
+                        <option *ngFor="let c of availableColors()" [value]="c">{{ c }}</option>
+                    </select>
+                </div>
+                <div class="form-block">
+                    <label for="quantity">Quantité</label>
+                    <input id="quantity" type="number" min="1" [value]="selectedQuantity()" (input)="onQuantityChange($event)" />
+                </div>
+            </div>
 
-			<div class="form-block">
-				<label for="notes">Commentaire</label>
-				<textarea #notes id="notes" rows="4" placeholder="Instructions supplémentaires"></textarea>
-			</div>
+            <div class="form-block">
+                <label for="notes">Commentaire</label>
+                <textarea #notes id="notes" rows="4" placeholder="Instructions supplémentaires"></textarea>
+            </div>
 
-			<p class="summary-note" *ngIf="selectedFilamentId() !== null">
-				Filament sélectionné: {{ selectedFilamentId() }}
-			</p>
-		</article>
+            <p class="summary-note" *ngIf="selectedFilamentId() !== null">
+                Filament ID sélectionné: {{ selectedFilamentId() }}
+            </p>
+        </article>
 
 		<article class="panel summary" aria-labelledby="summary-title">
-			<h2 id="summary-title">3. Récapitulatif</h2>
-			<ul>
-				<li><span>Imprimante</span><strong>Prusa i3 MK3</strong></li>
-				<li><span>Temps estimé</span><strong>5h 30</strong></li>
-				<li><span>Prix estimé</span><strong>12 crédits</strong></li>
-			</ul>
-			<p class="summary-note">Estimation indicative. Le prix final dépendra des paramètres validés.</p>
-		</article>
-	</div>
+            <h2 id="summary-title">3. Récapitulatif</h2>
+            <ul>
+                <li>
+                    <span>Fichier</span>
+                    <strong>{{ fileInput.files?.[0]?.name || 'Aucun fichier' }}</strong>
+                </li>
 
-	<footer class="actions">
-		<button type="button" class="ghost-btn">Annuler</button>
-			<button
-				type="button"
-				class="primary-btn"
-				(click)="SendRequest(fileInput, material.value, color.value, selectedQuantity(), notes.value)"
-				[disabled]="loading()"
-			>
-				{{ loading() ? 'Envoi...' : 'Envoyer la demande' }}
-			</button>
-	</footer>
+                <li>
+                    <span>Configuration</span>
+                    <strong *ngIf="selectedFilament(); else noFilament">
+                        {{ selectedFilament()?.type }} ({{ selectedFilament()?.color_name }})
+                    </strong>
+                    <ng-template #noFilament><strong>Sélection incomplète</strong></ng-template>
+                </li>
 
+                <li>
+                    <span>Quantité</span>
+                    <strong>x{{ selectedQuantity() }}</strong>
+                </li>
+            </ul>
+            
+            <p class="summary-note" *ngIf="!fileInput.files?.[0]">
+                Veuillez joindre un fichier STL pour compléter le récapitulatif.
+            </p>
+            <p class="summary-note" *ngIf="fileInput.files?.[0] && selectedFilament()">
+                Prêt pour l'envoi. Le prix sera renseigné après validation par Intech. Vous pouvez suivre l'état de votre impression dans l'historique.
+            </p>
+        </article>
+    </div>
 
+    <footer class="actions">
+        <button
+            type="button"
+            class="primary-btn"
+            (click)="SendRequest(fileInput, notes.value)"
+            [disabled]="loading()"
+        >
+            {{ loading() ? 'Envoi...' : 'Envoyer la demande' }}
+        </button>
+    </footer>
 </section>

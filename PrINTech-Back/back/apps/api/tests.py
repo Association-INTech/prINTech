@@ -191,6 +191,109 @@ class UserProfilePictureTests(APITestCase):
         response = self.client.patch(self.me_url, {'profile_picture': self.test_image}, format='multipart')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+class UserRoleAndPriorityTests(APITestCase):
+
+    def setUp(self):
+        # Create an Admin to access admin endpoints
+        self.admin = User.objects.create_user(
+            username='admin_boss', 
+            password='Password123!', 
+            email='admin@intech.com', 
+            is_staff=True
+        )
+        
+        # Create users with different roles
+        self.user_bureau = User.objects.create_user(
+            username='bureau_member', password='Password123!', email='bureau@intech.com', role='BUREAU'
+        )
+        self.user_robotech = User.objects.create_user(
+            username='robotech_member', password='Password123!', email='robotech@intech.com', role='ROBOTECH'
+        )
+        self.user_adherent = User.objects.create_user(
+            username='adherent_member', password='Password123!', email='adherent@intech.com', role='ADHERENT'
+        )
+        
+        # Create a shared dummy filament and file setup for requests
+        self.filament = Filament.objects.create(
+            color='#FFFFFF', color_name='Blanc', type='PLA', quantity=10
+        )
+        test_file = SimpleUploadedFile(name='role_test.stl', content=b'data', content_type='model/stl')
+        self.file_obj = File.objects.create(path=test_file, number_of_printing=1, filament=self.filament)
+
+        # Authenticate the client as admin for priority testing
+        refresh = RefreshToken.for_user(self.admin)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+        self.admin_request_list_url = reverse('admin-request-list')
+
+    def test_admin_request_list_priority_sorting(self):
+        """
+        Verify that the admin viewset orders requests primarily by priority rank:
+        BUREAU (0) > ROBOTECH/AUTOTECH/DRONE (1) > ADHERENT (2)
+        """
+        # Create requests in mixed/scrambled order of roles
+        req_adherent = Request.objects.create(user=self.user_adherent, status='SUBMITTED', comment="Adherent Req", file=self.file_obj)
+        req_bureau = Request.objects.create(user=self.user_bureau, status='SUBMITTED', comment="Bureau Req", file=self.file_obj)
+        req_robotech = Request.objects.create(user=self.user_robotech, status='SUBMITTED', comment="Robotech Req", file=self.file_obj)
+
+        response = self.client.get(self.admin_request_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        # Extract the comments in order from the response payload
+        returned_comments = [item['comment'] for item in response.data]
+        
+        # Assert specific priority rank hierarchy sorting
+        expected_order = ["Bureau Req", "Robotech Req", "Adherent Req"]
+        self.assertEqual(returned_comments, expected_order)
+
+    def test_default_role_is_adherent(self):
+        """Ensure a newly registered user defaults safely to the ADHERENT role."""
+        new_user = User.objects.create_user(
+            username='fresh_user', 
+            password='Password123!', 
+            email='fresh@intech.com'
+        )
+        self.assertEqual(new_user.role, User.Role.ADHERENT)
+
+
+class UserRoleTests(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='cel', 
+            password='Password123!', 
+            email='cel@intech.com',
+            role='ADHERENT'
+        )
+        self.admin = User.objects.create_user(
+            username='sek', 
+            password='Password123!', 
+            email='sek@intech.com', 
+            is_staff=True
+        )
+        
+        self.me_url = reverse('user_info')
+        self.admin_user_detail_url = reverse('admin-user-detail', args=[self.user.id])
+
+    def test_regular_user_cannot_change_own_role(self):
+        refresh = RefreshToken.for_user(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+        
+        response = self.client.patch(self.me_url, {'role': 'BUREAU'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.role, 'ADHERENT')
+
+    def test_admin_can_modify_user_role(self):
+        refresh = RefreshToken.for_user(self.admin)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+        
+        response = self.client.patch(self.admin_user_detail_url, {'role': 'ROBOTECH'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.role, 'ROBOTECH')
+
 class RequestViewSetTests(APITestCase):
     def setUp(self):
         self.initial_balance = 100
