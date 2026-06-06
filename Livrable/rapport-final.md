@@ -161,10 +161,13 @@ Le backend constituant le cœur logique et financier de notre application (notam
 
 ### 5.1.1. Exemples:
 Une attention particulière a été portée à la sécurité et à l'étanchéité des droits entre les utilisateurs réguliers et les administrateurs du bureau INTech. 
-* **Accès aux ressources critiques** : Nous testons systématiquement qu'un utilisateur standard reçoit une erreur `HTTP_403_FORBIDDEN` lorsqu'il tente de modifier l'état d'une imprimante (endpoint `admin-detail`), alors qu'un jeton d'administrateur valide la requête avec un statut `HTTP_200_OK`.
-* **Calcul automatique de la consommation** : Les tests valident que l'API calcule correctement le poids total de plastique consommé en multipliant le nombre d'impressions demandées par le poids unitaire de la pièce.
-* **Débit du solde utilisateur** : Nous nous assurons qu'à la soumission d'un fichier STL valide, le crédit de l'étudiant est immédiatement débité au prorata de la quantité et du type de filament choisi (ex: passage d'une balance initiale de 100 unités à une valeur calculée résiduelle).
-* **Isolation des requêtes** : Nos cas de tests (`test_user_can_only_see_their_own_requests`) certifient qu'un utilisateur connecté ne peut en aucun cas interroger ou lister les fichiers et demandes d'un autre étudiant, prévenant ainsi toute fuite de données.
+**Accès aux ressources critiques** : Nous testons systématiquement qu'un utilisateur standard reçoit une erreur `HTTP_403_FORBIDDEN` lorsqu'il tente de modifier l'état d'une imprimante (endpoint `admin-detail`), alors qu'un jeton d'administrateur valide la requête avec un statut `HTTP_200_OK`.
+
+**Calcul automatique de la consommation** : Les tests valident que l'API calcule correctement le poids total de plastique consommé en multipliant le nombre d'impressions demandées par le poids unitaire de la pièce.
+
+**Débit du solde utilisateur** : Nous nous assurons qu'à la soumission d'un fichier STL valide, le crédit de l'étudiant est immédiatement débité au prorata de la quantité et du type de filament choisi (ex: passage d'une balance initiale de 100 unités à une valeur calculée résiduelle).
+
+**Isolation des requêtes** : Nos cas de tests (`test_user_can_only_see_their_own_requests`) certifient qu'un utilisateur connecté ne peut en aucun cas interroger ou lister les fichiers et demandes d'un autre étudiant, prévenant ainsi toute fuite de données.
 
 ---
 
@@ -217,7 +220,7 @@ Cependant, comme évoqué dans notre bilan de projet (Section 6.1.3), le retard 
 
 ### 6.2.1. Plan de charges prévisionnel
 
-![Plan de Charge prévisionnel](plan-de-charge-previsionnel.pdf)
+![Plan de Charge prévisionnel](planChargeSuiviActivites.png)
 
 ---
 
