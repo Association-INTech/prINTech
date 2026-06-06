@@ -228,6 +228,8 @@ Cependant, comme évoqué dans notre bilan de projet (Section 6.1.3), le retard 
 
 ### 6.2.2. Plan de charges final
 
+![Plan de Charge final](planChargeSuiviActivites.png)
+
 ---
 
 \newpage
