@@ -48,11 +48,12 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "username", "password", "email", "credit", "is_staff", "profile_picture"]
+        fields = ["id", "username", "password", "email", "credit", "is_staff", "profile_picture","role"]
         extra_kwargs = {
             "password": {"write_only": True},
             "credit": {"read_only": True},
             "is_staff": {"read_only": True},
+            "role": {"read_only": True}
         }
 
 
@@ -61,7 +62,7 @@ class AdminUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "password", "credit", "is_staff", "is_active", "profile_picture"]
+        fields = ["id", "username", "email", "password", "credit", "is_staff", "is_active", "profile_picture", "role"]
         read_only_fields = ["id"]
 
     def validate_password(self, password):
