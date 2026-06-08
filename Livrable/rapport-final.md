@@ -21,20 +21,20 @@ toc-title: "Sommaire du Rapport Final"
 # 1. Introduction
 
 Depuis cette année, l'association INTech du campus rencontrait des difficultés de gestion des impressions 3D faites par les membres. En effet, depuis cette année, INTech offre aux membres du campus la possibilité d'imprimer leur modèle 3D en devenant adhérents suivant le processus décrit dans la figure 1.
-\newline
+
 Le processus commence lorsqu'un étudiant trouve un modèle 3D, le renomme à son nom (au format `NOM-PRENOM.stl`) et remplit un Google Form pour s'enregistrer dans un tableur, avant de lancer l'impression. 
 Si l'étudiant n'est pas présent à la fin du travail et que l'imprimante est requise pour une autre tâche, un opérateur de l'association retire la pièce et la stocke au local jusqu'au retour de l'étudiant qui vient ensuite la récupérer. 
 À la fin du mois, la phase de facturation s'enclenche : l'opérateur consulte le tableur Google Sheets pour calculer le montant total dû, crée un lien de paiement sur **HelloAsso** et envoie la facture à l'étudiant. 
 Si ce dernier paie dans les 7 jours, l'opérateur valide la transaction dans sa comptabilité, ce qui valide le succès du processus ; en revanche, s'il ne règle pas sa dette après plusieurs relances de 7 jours et que le plafond maximal d'avertissements est atteint, l'étudiant est inscrit sur liste noire, ce qui entraîne l'échec de la procédure.
-\newline
+
 Actuellement, le système de gestion possède des problèmes. Les adhérents doivent télécharger et paramétrer un logiciel appelé slicer qui permet de transformer un modèle 3D en série d'instructions pour les imprimantes 3D, appelé G-code. On demande ensuite aux adhérents de charger le G-code sur les imprimantes, de lancer les impressions et ensuite de remplir un Google Form avec le nom de leur fichier, le poids de l'impression et d'autres paramètres.  
-\newline
+
 Ce système implique beaucoup d'étapes manuelles qui peuvent mener à des erreurs et rendre la fraude facile. Il faut aussi former tout le monde qui devient adhérent à l'utilisation des imprimantes.
 
 ![Diagramme BPMN du fonctionnement pré-PrIntech](diagrams/bpmn-before-diagram.svg)
 
 Intervient alors le projet PrINTech consistant au développement d'une application web dynamique qui permette une gestion des impressions 3D de manière automatique.
-\newline
+
 Contrairement à la solution existante, ce projet a une vision plus long terme et facilite l'expansion à plus d'imprimantes ou de personnes et permet de réduire la charge de travail du bureau.
 
 ---
@@ -168,39 +168,39 @@ Dès que ces vérifications sont validées, le travail rejoint la file d'attente
 ## 4.1. Choix des technologies
 
 Les technologies pour développer une Application Web sont nombreuses. Pour faire la sélection des technologies, nous avons d'abord examiné lesquelles étaient capables de répondre à notre cahier des charges, puis ensuite sur les technologies auxquelles les membres de notre équipe avaient déjà de l'expérience. Sur la base de ces critères, nous avons sélectionné le stack suivant. D'abord pour le frontend :
-\newline
+
 - **Angular** : Pour la réalisation de l'interface utilisateur. Angular s'appuie sur l'architecture de composants et sur le langage **TypeScript**. Ce choix apporte un typage fort, une structure rigoureuse.
-\newline
+
 
 Ensuite pour le backend :
-\newline
+
 - **Django (Python)** : Utilisé pour développer le cœur logique du backend et l'API REST (via *Django REST Framework*).
-\newline
+
 - **uv** : Afin de gérer nos librairies et versions de python, on a utilisé uv. C'est un équivalent de poetry mais en plus optimisé car implémenté en Rust. On doit alors préciser avant chaque commande "uv run" afin que le processus passe bien par uv.
-\newline
+
 - **Swagger (OpenAPI)** : Intégré à notre backend pour la documentation et le test de l'API REST. Swagger génère automatiquement une interface web interactive à partir des routes de notre application Django. Cela permet aux développeurs frontend de comprendre instantanément les points de terminaison (*endpoints*), les paramètres attendus et les réponses de l'API, facilitant ainsi grandement la communication et l'intégration entre le frontend et le backend.
 - **PostgreSQL** : Ce système de gestion de base de données relationnelle (SGBDR) open-source a été retenu pour sa robustesse, sa conformité ACID et sa gestion fine des transactions financières (crédits, remboursements, opérations). Sa capacité à indexer efficacement les données structurées garantit des performances optimales lors de la montée en charge du système et du suivi des files d'attente de travaux.
-\newline
+
 - **Klipper** : comme firmware des imprimantes. Ce firmware communautaire vient remplacer celui du constructeur
-\newline
+
 - **Moonraker** : expose les API JSON-RPC de Klipper avec une API REST
-\newline
+
 - **FDM Monster** Cet orchestrateur open-source centralise la gestion d'une flotte d'imprimantes 3D. Connecté aux différentes instances Moonraker, il permet de piloter le parc, de centraliser le contrôle des machines et de gérer globalement les files d'attente d'impression.
-\newline
+
 
 ### Tests, Validation et Qualité Logicielle
 
 - **Tests natifs Django (TestCase)** : Intégrés directement au backend, le framework de test unitaire et d'intégration natif de Django permet de sécuriser l'intégrité de la base de données lors des transactions critiques. Ils valident de manière isolée les calculs de prix, l'exactitude des débits et remboursements de crédits, le respect des rôles utilisateurs pour la gestion des priorités, ainsi que les transitions de statut des requêtes d'impression (du dépôt initial jusqu'à la mise en file).
 - **Playwright** : Framework moderne retenu pour l'automatisation des tests de bout en bout (*End-to-End*). Complémentaire aux tests Django, Playwright nous permet de simuler le parcours complet d'un utilisateur sur un navigateur réel de manière isolée.
 
-\newline
+
 
 ### Conteneurisation et Infrastructure
 
 - **Docker & Docker Compose** : Afin de partitionner logiquement les différentes couches applicatives (Frontend, Backend, Base de données), nous avons conteneurisé chaque service. Technologie incontournable dans le milieu professionnel, Docker garantit que l'application s'exécute de manière strictement identique sur les machines de développement des développeurs et sur le serveur de production, simplifiant ainsi drastiquement la configuration de l'infrastructure.
 - **Nginx & Gunicorn** : Pour le déploiement en production, **Gunicorn** fait office de serveur d'application WSGI, chargé d'exécuter le code Python/Django en gérant efficacement les requêtes concurrentes via un système de processus de travail (*workers*). Il est placé derrière **Nginx**, configuré comme un proxy inverse (*reverse proxy*). Nginx assure la sécurité globale, gère les certificats SSL/TLS (HTTPS), sert directement les fichiers statiques et médias lourds (comme les fichiers STL stockés), et distribue la charge vers l'application backend.
 
-\newline
+
 
 ### Outils de développement et de collaboration
 
@@ -215,30 +215,28 @@ Ensuite pour le backend :
 ## 4.2. Réalisation
 
 
-\newline
+
 
 Pour la conteneurisation, il a fallu créer les conteneurs. Pour se faire, il faut configurer un fichier "docker-compose.yaml" afin qu'il créer un conteneur PostgreSQL configuré sur le bon port après la commande.
-\newline
+
 
 Enfin pour la mise en commun du code, on a utilisé Git, et plus particulièrement git flow qui permet de produire simplement un cadre de travail professionnel (avec les branches main, develop, features/... etc.) et des commandes qui facilitent son utilisation.
 
 Afin de valider l'expérience utilisateur et de documenter le rendu final de notre application PrIntech, cette section présente les principales interfaces développées. Les captures d'écran sont structurées selon les deux grands espaces de la plateforme : l'espace adhérent (client) et l'espace d'administration (opérateur).
 
-### 4.2.1. Espace Utilisateur et Authentification
+### 4.2.1. Espace Étudiant et Demandes d'Impression
 
-Cet espace regroupe les écrans accessibles par les étudiants du campus pour gérer leur compte et soumettre leurs impressions.
+* **Interface de Connexion** Cette interface épurée permet l'authentification sécurisée des utilisateurs (Fonctionnalité **F01**).  
+  ![Interface de connexion de l'application PrINTech](screenshots/login.png)
 
-* **Interface de Connexion** ![Interface de connexion](screenshots/login.png)  
-  Cette interface épurée permet l'authentification sécurisée des utilisateurs (Fonctionnalité **F01**).
+* **Page d'Accueil** Le tableau de bord principal de l'étudiant. Il offre une vue d'ensemble claire sur ses activités courantes et met en valeur son solde (Fonctionnalité **F03-6 : Crédit restant**).  
+  ![Page d'accueil de l'espace utilisateur](screenshots/home.png)
 
-* **Page d'Accueil** ![Page d'accueil](screenshots/home.png)  
-  Le tableau de bord principal de l'étudiant. Il offre une vue d'ensemble claire sur ses activités courantes, son solde mis en valeur (Fonctionnalité **F03-6 : Crédit restant**).
+* **Dépôt d'une demande d'impression** Formulaire intuitif dédié au dépôt des fichiers 3D (Fonctionnalité **F03-1 : Déposer un STL**). L'étudiant peut y téléverser son modèle, spécifier la quantité d'exemplaires souhaitée (**F03-7**) ainsi que le choix des matériaux avant l'envoi au serveur.  
+  ![Interface de création d'une requête d'impression](screenshots/request.png)
 
-* **Dépôt d'une demande d'impression** ![Création d'une requête](screenshots/request.png)  
-  Formulaire intuitif dédié au dépôt des fichiers 3D (Fonctionnalité **F03-1 : Déposer un STL**). L'étudiant peut y téléverser son modèle, spécifier la quantité d'exemplaires souhaitée (**F03-7**) ainsi que le choix des matériaux avant l'envoi au serveur.
-
-* **Historique des travaux** ![Historique utilisateur](screenshots/historique.png)  
-  Cette vue liste l'intégralité des commandes passées par l'étudiant. (**F03-4 : Position dans la file**).
+* **Historique des travaux** Cette vue liste l'intégralité des commandes passées par l'étudiant (Fonctionnalité **F03-4 : Position dans la file**).  
+  ![Historique utilisateur](screenshots/historique.png)
 
 ---
 
@@ -246,21 +244,20 @@ Cet espace regroupe les écrans accessibles par les étudiants du campus pour g�
 
 Réservé aux membres du bureau et aux opérateurs de l'association INTech (Fonctionnalité **F04**), cet espace permet un pilotage complet du service et du parc matériel.
 
-* **Gestion de la file des travaux** ![Administration des requêtes](screenshots/admin-requests.png)  
-  Interface maîtresse de l'opérateur (Fonctionnalité **F04-2 : Gestion des travaux**). Elle centralise les fichiers `.stl` soumis, permet d'assigner manuellement ou automatiquement une imprimante libre et d'appliquer la tarification calculée.
+* **Gestion de la file des travaux** Interface maîtresse de l'opérateur (Fonctionnalité **F04-2 : Gestion des travaux**). Elle centralise les fichiers `.stl` soumis, permet d'assigner manuellement ou automatiquement une imprimante libre et d'appliquer la tarification calculée.  
+  ![Administration des requêtes](screenshots/admin-requests.png)
 
-* **Suivi du parc d'imprimantes** ![Gestion des imprimantes](screenshots/admin-printers.png)  
-  Écran de supervision du statut des machines connectées. L'administrateur peut visualiser instantanément quelles machines sont disponibles (`UP`), occupées (`USED`) ou hors service (`DOWN`).
+* **Suivi du parc d'imprimantes** Écran de supervision du statut des machines connectées. L'administrateur peut visualiser instantanément quelles machines sont disponibles (`UP`), occupées (`USED`) ou hors service (`DOWN`).  
+  ![Gestion des imprimantes](screenshots/admin-printers.png)
 
-* **Gestion des stocks de consommables** ![Gestion des filaments](screenshots/admin-filaments.png)  
-  Vue dédiée au contrôle des stocks de plastique (Fonctionnalité **F07 : Gestion des filaments**). Elle permet d'enregistrer les nouvelles bobines, de surveiller la quantité de matière restante en grammes (**F07-2**).
+* **Gestion des stocks de consommables** Vue dédiée au contrôle des stocks de plastique (Fonctionnalité **F07 : Gestion des filaments**). Elle permet d'enregistrer les nouvelles bobines et de surveiller la quantité de matière restante en grammes (**F07-2**).  
+  ![Gestion des filaments](screenshots/admin-filaments.png)
 
-* **Suivi financier et des transactions** ![Historique des opérations financières](screenshots/admin-operations.png)  
-  Historique financier de la plateforme (Fonctionnalité **F04-4 : Gestion crédit**). Cet écran liste de manière chronologique tous les débits, les rechargements HelloAsso fructueux ainsi que les remboursements automatiques émis suite à une erreur d'impression.
+* **Suivi financier et des transactions** Historique financier de la plateforme (Fonctionnalité **F04-4 : Gestion crédit**). Cet écran liste de manière chronologique tous les débits, les rechargements HelloAsso fructueux ainsi que les remboursements automatiques émis suite à une erreur d'impression.  
+  ![Historique des opérations financières](screenshots/admin-operations.png)
 
-* **Administration des comptes utilisateurs** ![Gestion des utilisateurs](screenshots/admin-users.png)  
-  Interface de modération des profils (Fonctionnalité **F04-1**). Elle permet également de modifier les rôles (adhérents, bureau, membre projet) (**F03-5**).
----
+* **Administration des comptes utilisateurs** Interface de modération des profils (Fonctionnalité **F04-1**). Elle permet également de modifier les rôles (adhérents, bureau, membre projet) (**F03-5**).  
+  ![Gestion des utilisateurs](screenshots/admin-users.png)---
 
 \newpage
 
@@ -318,11 +315,11 @@ On a eu de nombreux retards sur le projet, notamment à cause de la participatio
 ### 6.1.3. Commentaires
 
 - **Choix du planning prévisionnel** :
-\newline
+
   - Angular est appris en parallele du projet. Le dev front ne commence qu'en fevrier.
   - Django est maitrise -> execution rapide. La partie Moonraker/Klipper est la plus incertaine.
   - la phase 3 est la plus longue a cause de l'apprentissage en cours.
-\newline
+
 - **Comparaison au planning réel** :
   - le projet a accumulé du retard notamment en raison d'autres dates importantes comme les projets Gate ou bien les partiels mais aussi car on a sous-estimé la complexité de certaines taches que nous verrons plus bas.
   - en réponse, on a ré-évalué le périmètre de notre projet afin d'en inclure à la date du rendu que les fonctionnalités nécessaires au vu du cahier des charges (Pas de tests e2e pour l'instant)
@@ -347,10 +344,10 @@ L'écart le plus marquant entre notre planification et la réalité réside dans
 ### 6.2.3. Commentaires
 
 Nous avons bien utilisé le temps imparti. Celui-ci nous a permis de nous former non seulement sur les technologies auxquelles nous étions assignées mais aussi à comprendre l'ensemble du code que ce soit le front ou le back.
-\newline
+
 
 Nous sommes ainsi parvenu à rendre notre profil beaucoup plus attractif avec une compréhension plus fine des abstractions des différentes technologies mais aussi une vision beaucoup moins étroite de notre champ d'action. 
-\newline
+
 Pour indication, Célian ne connaissait pas Django au démarrage du projet, Adam démarrait sur Angular et Yanis était surtout focalisé sur Django; maintenant, nous sommes tous en mesure de comprendre le code de l'autre et de le corriger à travers un système de PR (Pull Request) sur Git.
 
 ---
@@ -360,12 +357,12 @@ Pour indication, Célian ne connaissait pas Django au démarrage du projet, Adam
 ## 6.3. Difficultés rencontrées
 
 Notre projet, malgré un produit final assez satisfaisant, a été le théâtres de certaines difficultés qui nous ont poussé à modifier notre champ d'action :
-\newline
+
 
 - La mise en commun du travail a été plus nébuleuse que prévu (notamment après l'instauration de PR qui ont empêchés le bon fonctionnement de certaines commandes de git flow)
-\newline
+
 - les retards accumulés qui on sappé l'efficacité du projet malgré un démarrage rapide
-\newline
+
 - l'utilisation des APIs des imprimantes 3D : Notre objectif initial était de relier directement les imprimantes 3D à l'application grâce au logiciel FDM Monster. Cependant, cette configuration s'est révélée difficile en raison des systèmes propriétaires des machines. De plus, comme les imprimantes sont très sollicitées, nous avons temporairement configuré le site pour qu'un administrateur lance chaque impression manuellement. Nous continuons néanmoins à travailler sur l'automatisation de ce processus.
 
 ### 6.3.1 Fonctionalités réalisé ou pas
@@ -407,13 +404,13 @@ Notre projet, malgré un produit final assez satisfaisant, a été le théâtres
 # 7. Conclusion et perspective
 
 Malgré des difficultés, notre projet a produit une Application Web fonctionnelle selon les critères que nous nous étions imposés en préambule avec le cahier des charges.
-\newline
+
 
 Tout du moins, nous souhaiterions peaufiner ce projet au-delà du rendu final, que ce soit par la continuation de celui-ci par un autre groupe de projet informatique, ou bien par la maintenance de celui-ci par l'Association Intech elle-même. Il faudra donc le déployer ce qu'on a pas encore pu faire. On pense utilisé une machine virtuelle fournie par l'association Minet. À terme il pourra être réellement utilisé par l'association.
-\newline
+
 
 Ce projet est un projet enrichissant pour un étudiant ingénieur dans le développement informatique à travers l'utilisation d'outils et de technologies professionnels qui s'intègre pleinement dans le cadre de nos études et du campus avec Intech.
-\newline
+
 
 Ce projet, au-delà de la réalisation purement technique, est aussi une expérience d'équipe avec tout ses avantages et ses défauts qu'on a expérimenté (comme les retards et la mise en commun du code). Cela en fait donc une force pour tous nos futurs projets en groupe.
 
