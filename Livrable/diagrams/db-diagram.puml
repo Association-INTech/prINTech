@@ -12,93 +12,104 @@ skinparam backgroundColor white
 skinparam defaultFontName Segoe UI, Arial, sans-serif
 skinparam style strictuml
 
+package "User Environment" #DDDDDD {
 
-
-
-
-package "User Environment" #DDDDDD{
+    enum UserRole {
+        ADHERENT
+        ROBOTECH
+        AUTOTECH
+        DRONE
+        BUREAU
+    }
 
     enum RequestStatus {
+        SUBMITTED
+        AWAITING_PAYMENT
         PENDING
-        PROCESSING
-        COMPLETED
+        PRINTING
+        AWAITING_PICKUP
+        PICKED_UP
         FAILED
+        CANCELED
     }
+
     enum OperationType {
         CASH
         CARD
-        OTHER
+        PAYMENT
+        REFUND
     }
 
     entity "User" as user {
-      *id : UUID <<PK>>
-      --
-      *username : varchar(150) <<UNIQUE>>
-      *password : varchar(128)
-      *email : varchar(254) <<UNIQUE>>
-      credit : integer = 0
-      is_staff = false
-      is_superuser = false
-      ...
+        *id : UUID <<PK>>
+        --
+        *username : varchar(150) <<UNIQUE>>
+        *email : varchar(254) <<UNIQUE>>
+        credit : integer = 0
+        role : UserRole = ADHERENT
+        profile_picture : varchar(100)
     }
 
-    entity "Operation" as operation{
+    entity "File" as file {
         *id : UUID <<PK>>
         --
-        *beneficiary_id : UUID <<FK>>
-        *agent_id : UUID <<FK>>
-        *operation_type : OperationType
-        *amount : integer = 0
-        comment : text
-        created_at : DateTime
-    }
-    entity "File" as file{
-        *id : UUID <<PK>>
-        --
-        *user_id : UUID <<FK>>
+        filament_id : Bigint <<FK>>
         *path : varchar(100)
         number_of_printing : integer = 1 {>= 0}
         para_slicer : jsonb
     }
 
+    entity "Request" as request {
+        *id : UUID <<PK>>
+        --
+        *user_id : UUID <<FK>>
+        file_id : UUID <<FK>>
+        printer_id : varchar(25) <<FK>>
+        price : integer = 0 {>= 0}
+        comment : text
+        *created_at : DateTime
+        status : RequestStatus = SUBMITTED
+    }
 
-    entity "Request" as request{
-            *id : UUID <<PK>>
-            --
-            *file_id : UUID <<FK>>
-            *printer_id : Bigint <<FK>>
-            status : RequestStatus = PENDING
-            created_at : DateTime
+    entity "Operation" as operation {
+        *id : UUID <<PK>>
+        --
+        *beneficiary_id : UUID <<FK>>
+        *agent_id : UUID <<FK>>
+        request_id : UUID <<FK>>
+        *operation_type : OperationType
+        *amount : integer = 0
+        comment : text
+        *created_at : DateTime
     }
 }
-package "Material Assets" #DDDDDD{
+
+package "Material Assets" #DDDDDD {
     entity "Printer" as printer {
-            *id : Bigint <<PK>>
-            --
-            *model : PrinterModel
-            *status : PrinterStatus = DOWN
+        *name : varchar(25) <<PK>>
+        --
+        status : PrinterStatus = DOWN
     }
 
-    entity "Filament" as filament{
+    entity "Filament" as filament {
         *id : Bigint <<PK>>
         --
-        *colour : varchar(25)
+        color : varchar(7) = '#ffffff'
+        *color_name : text
         *type : FilamentType
-        *price : integer = 0 {>= 0}
         quantity : integer = 0 {>= 0}
+        price : integer = 0 {>= 0}
     }
 
     enum FilamentType {
         PLA
-        REINFORCED_PLA
         PETG
-        ABS
-        TPE/TPU
     }
 
-    enum PrinterModel {
-        Creality_K1C
-        Prusa MK3S
+    enum PrinterName {
+        CREALITY_K1C
+        SNAPMAKER_U1
+        PRUSA_MK3
     }
 
     enum PrinterStatus {
@@ -108,17 +119,22 @@ package "Material Assets" #DDDDDD{
     }
 }
 
+' Relationships
+user ||--o{ request : "places"
+user ||--o{ operation : "beneficiary"
+user ||--o{ operation : "agent"
 
+file ||--o{ request : "is printed in"
+filament ||--o{ file : "used by"
+printer ||--o{ request : "processes"
+request ||--o{ operation : "paid/refunded by"
 
-
-file }o-l- user : owns
-file ||-r- request : linked to
-"Material Assets" <--> "User Environment" : Interacts
-printer ||-- request : processes
-operation }o-- user : beneficiary or agent
-request .d.> RequestStatus : uses
+' Enum dependencies
+user ..> UserRole : uses
+request ..> RequestStatus : uses
+operation ..> OperationType : uses
 printer ..> PrinterStatus : uses
-printer ..> PrinterModel : uses
+printer ..> PrinterName : uses
 filament ..> FilamentType : uses
-operation .r.> OperationType : uses
+
 @enduml
