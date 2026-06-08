@@ -6,10 +6,20 @@ from django.core.validators import RegexValidator
 
 
 class User(AbstractUser):
+    
+    class Priority(models.TextChoices):
+        ADHERENT = 'ADHERENT', 'Adherent'
+        ROBOTECH = 'ROBOTECH', 'Robotech'
+        AUTOTECH = 'AUTOTECH', 'Autotech'
+        DRONE = 'DRONE', 'Drone'
+        BUREAU = 'BUREAU', 'Bureau'
+        
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(blank=False, unique=True, null=False)
     credit = models.IntegerField(default=0)
-
+    priority = models.CharField(choices=Priority.choices, max_length=25, null=False, blank=False, default=Priority.ADHERENT)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
 class Filament(models.Model):
 
@@ -25,6 +35,7 @@ class Filament(models.Model):
     color_name = models.TextField(null=False, blank=False)
     type = models.CharField(choices=Type.choices, max_length=25, null=False, blank=False)
     quantity = models.PositiveIntegerField(default=0)
+    price = models.PositiveIntegerField(default=0)
 
 
 class File(models.Model):
@@ -68,9 +79,10 @@ class Request(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE)
     file = models.ForeignKey(File, on_delete=models.CASCADE, null=True)
     printer = models.ForeignKey(Printer, on_delete=models.CASCADE, null=True)
+    price = models.PositiveIntegerField(default=0)
     comment = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(choices=Status.choices, max_length=25, null=False, blank=False, default=Status.PENDING)
+    status = models.CharField(choices=Status.choices, max_length=25, null=False, blank=False, default=Status.SUBMITTED)
 
     @property
     def is_paid(self):

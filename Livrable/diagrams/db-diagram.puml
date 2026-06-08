@@ -1,0 +1,140 @@
+@startuml
+title UML Diagram\nDatabase
+scale 1.4
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam nodesep 80
+skinparam ranksep 80
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam defaultFontName Segoe UI, Arial, sans-serif
+skinparam style strictuml
+
+package "User Environment" #DDDDDD {
+
+    enum UserRole {
+        ADHERENT
+        ROBOTECH
+        AUTOTECH
+        DRONE
+        BUREAU
+    }
+
+    enum RequestStatus {
+        SUBMITTED
+        AWAITING_PAYMENT
+        PENDING
+        PRINTING
+        AWAITING_PICKUP
+        PICKED_UP
+        FAILED
+        CANCELED
+    }
+
+    enum OperationType {
+        CASH
+        CARD
+        PAYMENT
+        REFUND
+    }
+
+    entity "User" as user {
+        *id : UUID <<PK>>
+        --
+        *username : varchar(150) <<UNIQUE>>
+        *email : varchar(254) <<UNIQUE>>
+        credit : integer = 0
+        role : UserRole = ADHERENT
+        profile_picture : varchar(100)
+    }
+
+    entity "File" as file {
+        *id : UUID <<PK>>
+        --
+        filament_id : Bigint <<FK>>
+        *path : varchar(100)
+        number_of_printing : integer = 1 {>= 0}
+        para_slicer : jsonb
+    }
+
+    entity "Request" as request {
+        *id : UUID <<PK>>
+        --
+        *user_id : UUID <<FK>>
+        file_id : UUID <<FK>>
+        printer_id : varchar(25) <<FK>>
+        price : integer = 0 {>= 0}
+        comment : text
+        *created_at : DateTime
+        status : RequestStatus = SUBMITTED
+    }
+
+    entity "Operation" as operation {
+        *id : UUID <<PK>>
+        --
+        *beneficiary_id : UUID <<FK>>
+        *agent_id : UUID <<FK>>
+        request_id : UUID <<FK>>
+        *operation_type : OperationType
+        *amount : integer = 0
+        comment : text
+        *created_at : DateTime
+    }
+}
+
+package "Material Assets" #DDDDDD {
+    entity "Printer" as printer {
+        *name : varchar(25) <<PK>>
+        --
+        status : PrinterStatus = DOWN
+    }
+
+    entity "Filament" as filament {
+        *id : Bigint <<PK>>
+        --
+        color : varchar(7) = '#ffffff'
+        *color_name : text
+        *type : FilamentType
+        quantity : integer = 0 {>= 0}
+        price : integer = 0 {>= 0}
+    }
+
+    enum FilamentType {
+        PLA
+        PETG
+    }
+
+    enum PrinterName {
+        CREALITY_K1C
+        SNAPMAKER_U1
+        PRUSA_MK3
+    }
+
+    enum PrinterStatus {
+        UP
+        DOWN
+        USED
+    }
+}
+
+' Relationships
+user ||--o{ request : "places"
+user ||--o{ operation : "beneficiary"
+user ||--o{ operation : "agent"
+
+file ||--o{ request : "is printed in"
+filament ||--o{ file : "used by"
+printer ||--o{ request : "processes"
+request ||--o{ operation : "paid/refunded by"
+
+' Enum dependencies
+user ..> UserRole : uses
+request ..> RequestStatus : uses
+operation ..> OperationType : uses
+printer ..> PrinterStatus : uses
+printer ..> PrinterName : uses
+filament ..> FilamentType : uses
+
+@enduml

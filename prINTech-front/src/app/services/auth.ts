@@ -16,14 +16,44 @@ export class AuthService {
     localStorage.getItem(this.accessTokenStorageKey)
   );
 
+  // Current user cached as a signal so UI can reactively depend on it
+  currentUser = signal<UserMeResponse | null>(null);
+
   readonly isAuthenticated = computed(() => this.token() !== null);
 
-  login(username: string, password: string): Observable<LoginResponse> {
-    const payload: LoginRequest = { username, password };
+  constructor() {
+    const token = this.token();
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token as string);
+        const now = Date.now() / 1000;
+        if (!decoded.exp || decoded.exp < now) {
+          this.clearToken();
+        } else {
+          this.loadCurrentUser().subscribe({ next: () => {}, error: () => {} });
+        }
+      } catch (e) {
+        this.clearToken();
+      }
+    }
+  }
+
+  login(email: string, password: string): Observable<LoginResponse> {
+    const payload: LoginRequest = { email, password };
 
     return this.http
       .post<LoginResponse>(`${this.apiBase}/token/`, payload)
-      .pipe(tap(({ access, refresh }) => this.setTokens(access, refresh)));
+      .pipe(
+        tap(({ access, refresh }) => {
+          this.setTokens(access, refresh);
+          // eagerly load current user
+          this.loadCurrentUser().subscribe({ next: () => {}, error: () => {} });
+        })
+      );
+  }
+
+  getCurrentUser(): Observable<UserMeResponse> {
+    return this.http.get<UserMeResponse>(`${this.apiBase}/user/me/`);
   }
 
   refreshToken(): Observable<RefreshResponse>{
@@ -52,6 +82,7 @@ export class AuthService {
   }
   logout(): void {
     this.clearToken();
+    this.currentUser.set(null);
   }
 
   getToken(): string | null {
@@ -89,11 +120,17 @@ export class AuthService {
     localStorage.removeItem(this.accessTokenStorageKey);
     localStorage.removeItem(this.refreshTokenStorageKey);
   }
+
+  loadCurrentUser(): Observable<UserMeResponse> {
+    const obs = this.http.get<UserMeResponse>(`${this.apiBase}/user/me/`);
+    obs.subscribe({ next: (u) => this.currentUser.set(u), error: () => this.currentUser.set(null) });
+    return obs;
+  }
 }
 
 
 interface LoginRequest {
-  username: string;
+  email: string;
   password: string;
 }
 
@@ -113,4 +150,12 @@ interface ChangePasswordRequest {
 
 interface ChangePasswordResponse {
   message: string;
+}
+
+interface UserMeResponse {
+  id: string;
+  username: string;
+  email: string;
+  credit: number;
+  is_staff: boolean;
 }

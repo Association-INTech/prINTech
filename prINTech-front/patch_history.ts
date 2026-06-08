@@ -18,12 +18,8 @@ export class History implements OnInit{
   filaments: Filament[] = [];
   SearchQuery = '';
 
-  errorMessage = '';
-  successMessage = '';
-  relaunchingIds = new Set<string>();
-  payingIds = new Set<string>(); // Track loading state for payments
-
   ngOnInit(): void {
+    console.log("HISTORY COMPONENT INIT");
     this.loadFilaments();
     this.loadHistory();
   }
@@ -43,6 +39,7 @@ export class History implements OnInit{
         return fileName.includes(query);
       });
     }
+    console.log("FILTERED HISTORY:", this.filteredHistory);
     this.cdr.detectChanges();
   }
 
@@ -52,7 +49,8 @@ export class History implements OnInit{
         this.filaments = filaments;
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
+        console.error("ERROR LOADING FILAMENTS:", err);
         this.filaments = [];
       },
     });
@@ -61,15 +59,14 @@ export class History implements OnInit{
   private loadHistory(): void {
     this.historyService.getHistory().subscribe({
       next: (response: any) => {
+        console.log("RAW HISTORY RESPONSE:", response);
         const items = response?.results ? response.results : (Array.isArray(response) ? response : []);
+        console.log("PROCESSED ITEMS:", items);
         this.fullHistory = items;
-        if (items.length === 0 && !Array.isArray(response)) {
-            this.errorMessage = 'Parsed items is empty but response was ' + JSON.stringify(response);
-        }
         this.applyFilters();
       },
       error: (err) => {
-        this.errorMessage = err.message || 'Error occurred';
+        console.error("ERROR LOADING HISTORY:", err);
         this.fullHistory = [];
         this.applyFilters();
       },
@@ -86,57 +83,5 @@ export class History implements OnInit{
   getFileName(path: string | null | undefined): string {
     if (!path) return '-';
     return path.split('/').pop() || path;
-  }
-
-  onRelaunch(item: HistoryItem): void {
-    if (this.relaunchingIds.has(item.id) || this.payingIds.has(item.id)) return;
-
-    this.errorMessage = '';
-    this.successMessage = '';
-    this.relaunchingIds.add(item.id);
-
-    this.historyService.relaunchRequest(item.id).subscribe({
-      next: () => {
-        this.successMessage = 'Demande relancée avec succès.';
-        this.relaunchingIds.delete(item.id);
-        this.loadHistory();
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.errorMessage = err?.error?.error || 'Impossible de relancer cette impression.';
-        this.relaunchingIds.delete(item.id);
-        this.cdr.detectChanges();
-      },
-    });
-  }
-
-  onPay(item: HistoryItem): void {
-    if (this.payingIds.has(item.id) || this.relaunchingIds.has(item.id)) return;
-
-    this.errorMessage = '';
-    this.successMessage = '';
-    this.payingIds.add(item.id);
-
-    this.historyService.payRequest(item.id).subscribe({
-      next: () => {
-        this.successMessage = 'Paiement effectué avec succès !';
-        this.payingIds.delete(item.id);
-        this.loadHistory();
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.errorMessage = err?.error?.error || 'Échec du paiement. Vérifiez votre solde.';
-        this.payingIds.delete(item.id);
-        this.cdr.detectChanges();
-      },
-    });
-  }
-
-  isRelaunching(id: string): boolean {
-    return this.relaunchingIds.has(id);
-  }
-
-  isPaying(id: string): boolean {
-    return this.payingIds.has(id);
   }
 }

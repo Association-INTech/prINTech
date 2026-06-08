@@ -12,8 +12,9 @@ export class HomeService {
   active_printers = signal<number>(0);
   total_printers = signal<number>(67);
   username = signal<string>('John Doe');
-  printers_status = signal<string>('Disponible')
-  email = signal<string>('johndoe@gmail.com')
+  printers_status = signal<string>('Disponible');
+  email = signal<string>('johndoe@gmail.com');
+  queue_size = signal<number>(67);
 
   getActivePrinters(){
     this.http.get<Printer[]>(`${this.ApiBase}/printers/`)
@@ -41,6 +42,14 @@ export class HomeService {
       }
     )
   }
+
+  GetQueue() {
+    this.http.get<Request[]>(`${this.ApiBase}/requests/`)
+    .subscribe(
+    (res) => {this.queue_size.set(res.length)}
+    )
+  }
+
 }
 
 export interface Printer {
@@ -54,3 +63,29 @@ export interface User {
   email: string,
   credit: number,
 }
+
+export interface Request{
+  id: string,
+  user: string,
+  file: {
+    path: string,
+    number_of_printing: number,
+    filament: number //weird as fuck
+    para_slicer: string
+  },
+  printer: string,
+  comment: string,
+  created_at: Date,
+  status: string,
+}
+
+// export interface Request{
+//   id: string,
+//   user: string,
+//   file_path: string,
+//   number: number,
+//   filament: string,
+//   comment: string,
+//   created_at: Date,
+//   status: string,
+// }

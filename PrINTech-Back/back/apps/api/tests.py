@@ -39,7 +39,7 @@ class RequestViewSetTests(APITestCase):
                 )
         
         self.req_usr1 = Request.objects.create(
-            user=self.user, status='AWAITING_PAYMENT', comment="Robotech", file=file
+            user=self.user, status='AWAITING_PAYMENT', price=10, comment="Robotech", file=file
         )
         self.req_usr2 = Request.objects.create(
             user=self.user2, status='SUBMITTED', comment="Autotech", file=file
@@ -99,8 +99,7 @@ class RequestViewSetTests(APITestCase):
         self.user.refresh_from_db()
         
         self.assertEqual(self.req_usr1.status, 'PENDING')
-        print_price=10 #TODO change to dynamic print price
-        expected_balance = self.initial_balance - print_price
+        expected_balance = self.initial_balance - self.req_usr1.price
         self.assertEqual(self.user.credit, expected_balance)        
         self.assertEqual(self.req_usr1.operation_set.filter(operation_type='PAYMENT').count(), 1)
 
@@ -138,6 +137,15 @@ class RequestViewSetTests(APITestCase):
         self.assertEqual(self.req_usr1.status, 'AWAITING_PAYMENT')
         self.user.refresh_from_db()
         self.assertEqual(self.user.credit, USER_BALANCE)
+
+    def test_pay_request_requires_price(self):
+        self.req_usr1.price = 0
+        self.req_usr1.save()
+
+        response = self.client.post(self.pay_url)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['error'], 'Request price is not set.')
         
     def test_cannot_pay_other_user_request(self):
         usr2_pay_url = reverse('request-pay', args=[self.req_usr2.id])
@@ -186,21 +194,35 @@ class AdminRequestViewTests(APITestCase):
         data = {'status': 'PRINTING'}
         response = self.client.patch(self.change_status_url, data)
         
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['error'], 'New requests must move to awaiting payment first.')
         self.print_req.refresh_from_db()
-        self.assertEqual(self.print_req.status, 'PRINTING')
+        self.assertEqual(self.print_req.status, 'SUBMITTED')
 
     def test_staff_change_status_auto(self):
-        statuses = Request.Status.values
-        initial_status = self.print_req.status 
-        expected_index = statuses.index(initial_status) + 1
-        expected_status = statuses[expected_index]
+        expected_status = Request.Status.AWAITING_PAYMENT
 
-        response = self.client.patch(self.change_status_url, {}) 
+        response = self.client.patch(self.change_status_url, {'price': 25}) 
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.print_req.refresh_from_db()
         self.assertEqual(self.print_req.status, expected_status)
+        self.assertEqual(self.print_req.price, 25)
+
+    def test_staff_cannot_auto_skip_payment(self):
+        self.print_req.status = Request.Status.AWAITING_PAYMENT
+        self.print_req.save()
+
+        response = self.client.patch(self.change_status_url, {})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['error'], 'Request is waiting for user payment.')
+
+    def test_staff_must_set_price_for_awaiting_payment(self):
+        response = self.client.patch(self.change_status_url, {'status': 'AWAITING_PAYMENT'})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['error'], 'A price is required before setting awaiting payment.')
 
     def test_staff_change_status_auto_limit(self):
         statuses = Request.Status.values
