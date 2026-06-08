@@ -47,7 +47,7 @@ Pour faciliter la lecture de ce rapport, cette section regroupe et définit les 
 ### Impression 3D et Matériaux
 * **Fichier STL (`.stl`)** : Format de fichier standard en impression 3D (Stéréolithographie). Il représente la géométrie de la surface d'un objet 3D sous forme de triangles.
 * **Slicer (Trancheur)** : Logiciel qui découpe un modèle 3D virtuel en fines couches horizontales et génère les instructions nécessaires à l'imprimante.
-* **G-code** : Langage de programmation numérique universel utilisé pour piloter les machines-outils et les imprimantes 3D ($X$, $Y$, $Z$).
+* **G-code** : Langage de programmation numérique universel utilisé pour piloter les machines-outils et les imprimantes 3D.
 * **Filament** : Le fil de plastique en bobine qui sert de "matière première" à l'imprimante 3D pour fabriquer les objets.
 * **PETG** : Un type de plastique très résistant (le même que celui des bouteilles d'eau, mais modifié), souvent utilisé pour des pièces qui doivent supporter des chocs ou rester en extérieur.
 * **PLA (Acide Polylactique)** : Plastique d'origine végétale couramment utilisé en impression 3D.
@@ -55,7 +55,7 @@ Pour faciliter la lecture de ce rapport, cette section regroupe et définit les 
 
 
 ### Technologies Web & Architecture
-* **Angular / AngularJS** : Framework côté client (Frontend) utilisé pour concevoir une interface utilisateur dynamique.
+* **Angular** : Framework côté client (Frontend) utilisé pour concevoir une interface utilisateur dynamique.
 * **Django** : Framework de haut niveau basé sur Python, utilisé pour le développement de la logique métier (Backend).
 * **API REST** : Style d'architecture logicielle permettant au Frontend et au Backend de communiquer via le protocole HTTP.
 * **PostgreSQL** : Système de gestion de base de données relationnelle open-source.
@@ -68,7 +68,7 @@ Pour faciliter la lecture de ce rapport, cette section regroupe et définit les 
 * **uv** : Gestionnaire de paquets et d'environnements Python extrêmement rapide écrit en Rust.
 * **Playwright** : Framework de test de bout en bout (E2E) permettant de simuler le comportement d'un utilisateur réel.
 
-/newpage
+\newpage
 # 2. Cahier des charges
 
 À la suite des rapports et des échanges menés avec le bureau et les membres actifs de l'association INTech, une analyse approfondie des besoins opérationnels a été réalisée. Le constat est simple : le volume croissant de demandes d'impression 3D sur le campus sature le modèle de gestion actuel, basé sur des processus manuels et des outils tiers (Google Forms, tableurs Sheets).
@@ -151,8 +151,6 @@ Le diagramme de séquence suivant détaille les phases d'inscription, de connexi
 
 ### Description du processus d'impression 3D
 
-### Description du processus d'impression 3D
-
 Le processus débute lorsqu'un étudiant dépose un modèle 3D sur la plateforme (**F03-1 : Déposer un STL**). Une fois la requête enregistrée dans l'interface d'administration (**F04-2 : Gestion des travaux**), le système évalue automatiquement les ressources nécessaires. Il vérifie d'une part la quantité de matière disponible (**F07-2 : Gestion des filaments**) et d'autre part le montant estimé de l'impression (**F03-3 : Estimation du coût**) par rapport aux ressources financières de l'utilisateur (**F03-6 : Crédit restant**). Si le plastique est manquant ou indisponible, la demande est arrêtée. Si l'utilisateur ne dispose pas de fonds suffisants, l'application le redirige vers le module externe afin de renflouer son compte (**F05-3 : Intégration HelloAsso**). 
 
 Dès que ces vérifications sont validées, le travail rejoint la file d'attente informatique et l'opérateur lui attribue une machine disponible (**F04-2 : Gestion des travaux**), tout en prenant en compte le rôle de l'utilisateur (**F03-5 : Priorité projets INTech**). L'application procède alors au prélèvement des fonds requis sur le compte de l'étudiant (**F04-4 : Gestion crédit**), met à jour le statut informatique de l'imprimante, et l'opérateur lance physiquement la fabrication de la pièce (**F03 : Gestion des impressions**). À la fin du cycle, deux situations peuvent se présenter :
@@ -171,12 +169,14 @@ Dès que ces vérifications sont validées, le travail rejoint la file d'attente
 
 Les technologies pour développer une Application Web sont nombreuses. Pour faire la sélection des technologies, nous avons d'abord examiné lesquelles étaient capables de répondre à notre cahier des charges, puis ensuite sur les technologies auxquelles les membres de notre équipe avaient déjà de l'expérience. Sur la base de ces critères, nous avons sélectionné le stack suivant. D'abord pour le frontend :
 \newline
-- **AngularJS** : Pour la réalisation de l'interface utilisateur. Contrairement à son ancêtre AngularJS (aujourd'hui obsolète), les versions modernes d'Angular s'appuient sur l'architecture de composants et sur le langage **TypeScript**. Ce choix apporte un typage fort, une structure rigoureuse et une excellente maintenabilité, indispensables pour concevoir un tableau de bord d'administration robuste et une expérience utilisateur fluide lors du dépôt de fichiers STL.
+- **Angular** : Pour la réalisation de l'interface utilisateur. Angular s'appuie sur l'architecture de composants et sur le langage **TypeScript**. Ce choix apporte un typage fort, une structure rigoureuse.
 \newline
 
 Ensuite pour le backend :
 \newline
-- **Django** : Utilisé pour développer le cœur logique du backend et l'API REST (via *Django REST Framework*).
+- **Django (Python)** : Utilisé pour développer le cœur logique du backend et l'API REST (via *Django REST Framework*).
+\newline
+- **uv** : Afin de gérer nos librairies et versions de python, on a utilisé uv. C'est un équivalent de poetry mais en plus optimisé car implémenté en Rust. On doit alors préciser avant chaque commande "uv run" afin que le processus passe bien par uv.
 \newline
 - **Swagger (OpenAPI)** : Intégré à notre backend pour la documentation et le test de l'API REST. Swagger génère automatiquement une interface web interactive à partir des routes de notre application Django. Cela permet aux développeurs frontend de comprendre instantanément les points de terminaison (*endpoints*), les paramètres attendus et les réponses de l'API, facilitant ainsi grandement la communication et l'intégration entre le frontend et le backend.
 - **PostgreSQL** : Ce système de gestion de base de données relationnelle (SGBDR) open-source a été retenu pour sa robustesse, sa conformité ACID et sa gestion fine des transactions financières (crédits, remboursements, opérations). Sa capacité à indexer efficacement les données structurées garantit des performances optimales lors de la montée en charge du système et du suivi des files d'attente de travaux.
@@ -185,6 +185,9 @@ Ensuite pour le backend :
 \newline
 - **Moonraker** : expose les API JSON-RPC de Klipper avec une API REST
 \newline
+- **FDM Monster** Cet orchestrateur open-source centralise la gestion d'une flotte d'imprimantes 3D. Connecté aux différentes instances Moonraker, il permet de piloter le parc, de centraliser le contrôle des machines et de gérer globalement les files d'attente d'impression.
+\newline
+
 ### Tests, Validation et Qualité Logicielle
 
 - **Tests natifs Django (TestCase)** : Intégrés directement au backend, le framework de test unitaire et d'intégration natif de Django permet de sécuriser l'intégrité de la base de données lors des transactions critiques. Ils valident de manière isolée les calculs de prix, l'exactitude des débits et remboursements de crédits, le respect des rôles utilisateurs pour la gestion des priorités, ainsi que les transitions de statut des requêtes d'impression (du dépôt initial jusqu'à la mise en file).
@@ -202,7 +205,7 @@ Ensuite pour le backend :
 ### Outils de développement et de collaboration
 
 * **Visual Studio Code (VS Code)** : Choisi comme environnement de développement intégré (IDE) principal par l'équipe. Il offre une intégration native de Git, et des extensions pour Python/Django et Angular.
-* **Git & GitFlow** : Pour la gestion de version, nous utilisons **Git** hébergé sur **GitHub**. Afin d'organiser le travail collaboratif de l'équipe sans bloquer la production, nous appliquons la méthodologie **GitFlow**. Cette approche structure notre dépôt en plusieurs branches strictes : `main` pour les versions stables, `develop` pour centraliser les fonctionnalités prêtes, et des branches éphémères `feature/` ou `bugfix/` isolées pour chaque développeur.
+* **Git & GitFlow** : Pour la gestion de version, nous utilisons **Git** hébergé sur **GitHub**. Afin d'organiser le travail collaboratif de l'équipe sans bloquer la production, nous appliquons la méthodologie **GitFlow**. Cette approche structure notre dépôt en plusieurs branches strictes : `main` pour les versions stables, `develop` pour centraliser les fonctionnalités prêtes, et des branches `feature/`  isolées pour chaque développeur.
 * **Discord & Webhooks GitHub** : Discord est notre outil central de communication d'équipe. Pour automatiser notre suivi de projet, nous y avons configuré des **webhooks GitHub**. À chaque fois qu'un développeur pousse du code (*push*), ouvre une demande de fusion (*pull request*) , une notification automatique est envoyée dans un salon dédié sur Discord. Cela permet un suivi de l'avancement facile.
 
 --- 
@@ -211,7 +214,7 @@ Ensuite pour le backend :
 
 ## 4.2. Réalisation
 
-Afin de gérer nos librairies et versions de python, on a utilisé uv. C'est un équivalent de poetry mais en plus optimisé car implémenté en Rust. On doit alors préciser avant chaque commande "uv run" afin que le processus passe bien par uv.
+
 \newline
 
 Pour la conteneurisation, il a fallu créer les conteneurs. Pour se faire, il faut configurer un fichier "docker-compose.yaml" afin qu'il créer un conteneur PostgreSQL configuré sur le bon port après la commande.
@@ -219,6 +222,44 @@ Pour la conteneurisation, il a fallu créer les conteneurs. Pour se faire, il fa
 
 Enfin pour la mise en commun du code, on a utilisé Git, et plus particulièrement git flow qui permet de produire simplement un cadre de travail professionnel (avec les branches main, develop, features/... etc.) et des commandes qui facilitent son utilisation.
 
+Afin de valider l'expérience utilisateur et de documenter le rendu final de notre application PrIntech, cette section présente les principales interfaces développées. Les captures d'écran sont structurées selon les deux grands espaces de la plateforme : l'espace adhérent (client) et l'espace d'administration (opérateur).
+
+### 4.2.1. Espace Utilisateur et Authentification
+
+Cet espace regroupe les écrans accessibles par les étudiants du campus pour gérer leur compte et soumettre leurs impressions.
+
+* **Interface de Connexion** ![Interface de connexion](screenshots/login.png)  
+  Cette interface épurée permet l'authentification sécurisée des utilisateurs (Fonctionnalité **F01**).
+
+* **Page d'Accueil** ![Page d'accueil](screenshots/home.png)  
+  Le tableau de bord principal de l'étudiant. Il offre une vue d'ensemble claire sur ses activités courantes, son solde mis en valeur (Fonctionnalité **F03-6 : Crédit restant**).
+
+* **Dépôt d'une demande d'impression** ![Création d'une requête](screenshots/request.png)  
+  Formulaire intuitif dédié au dépôt des fichiers 3D (Fonctionnalité **F03-1 : Déposer un STL**). L'étudiant peut y téléverser son modèle, spécifier la quantité d'exemplaires souhaitée (**F03-7**) ainsi que le choix des matériaux avant l'envoi au serveur.
+
+* **Historique des travaux** ![Historique utilisateur](screenshots/historique.png)  
+  Cette vue liste l'intégralité des commandes passées par l'étudiant. (**F03-4 : Position dans la file**).
+
+---
+
+### 4.2.2. Espace Administration et Gestion des Opérations
+
+Réservé aux membres du bureau et aux opérateurs de l'association INTech (Fonctionnalité **F04**), cet espace permet un pilotage complet du service et du parc matériel.
+
+* **Gestion de la file des travaux** ![Administration des requêtes](screenshots/admin-requests.png)  
+  Interface maîtresse de l'opérateur (Fonctionnalité **F04-2 : Gestion des travaux**). Elle centralise les fichiers `.stl` soumis, permet d'assigner manuellement ou automatiquement une imprimante libre et d'appliquer la tarification calculée.
+
+* **Suivi du parc d'imprimantes** ![Gestion des imprimantes](screenshots/admin-printers.png)  
+  Écran de supervision du statut des machines connectées. L'administrateur peut visualiser instantanément quelles machines sont disponibles (`UP`), occupées (`USED`) ou hors service (`DOWN`).
+
+* **Gestion des stocks de consommables** ![Gestion des filaments](screenshots/admin-filaments.png)  
+  Vue dédiée au contrôle des stocks de plastique (Fonctionnalité **F07 : Gestion des filaments**). Elle permet d'enregistrer les nouvelles bobines, de surveiller la quantité de matière restante en grammes (**F07-2**).
+
+* **Suivi financier et des transactions** ![Historique des opérations financières](screenshots/admin-operations.png)  
+  Historique financier de la plateforme (Fonctionnalité **F04-4 : Gestion crédit**). Cet écran liste de manière chronologique tous les débits, les rechargements HelloAsso fructueux ainsi que les remboursements automatiques émis suite à une erreur d'impression.
+
+* **Administration des comptes utilisateurs** ![Gestion des utilisateurs](screenshots/admin-users.png)  
+  Interface de modération des profils (Fonctionnalité **F04-1**). Elle permet également de modifier les rôles (adhérents, bureau, membre projet) (**F03-5**).
 ---
 
 \newpage
@@ -256,6 +297,8 @@ Cependant, comme évoqué dans notre bilan de projet (Section 6.1.3), le retard 
 
 ## 6.1. Plannings
 
+On a eu de nombreux retards sur le projet, notamment à cause de la participation de certains membres de notre équipe à la coupe de France de Robotique dans le cadre du GATE. On a également sous-estimé la difficulté d'apprentissage des technologies utilisés (Angular et Django). On était pas tous capable de faire à la fois du frontend et du backend ce qui a crée des complications. De plus Arnaud qui était censé implémenté la communication avec les imprimantes n'a pas réussi ce qui a fortement limité le projet.
+
 ### 6.1.1. Planning prévisionnel
 
 ![Planning prévisionnel du projet PrIntech](planning-previsionnel.pdf)
@@ -291,15 +334,11 @@ Cependant, comme évoqué dans notre bilan de projet (Section 6.1.3), le retard 
 
 ## 6.2. Plan de charges
 
-### 6.2.1. Plan de charges prévisionnel
+L'écart le plus marquant entre notre planification et la réalité réside dans la courbe d'apprentissage des technologies choisies (Angular et Django), qui s'est révélée bien plus longue et abrupte que prévu. N'ayant pas de compétences approfondies préalables sur ces frameworks, l'assimilation de concepts a pris plus de temps que prévu.
 
-![Plan de Charge prévisionnel](planChargeSuiviActivites.png)
+### 6.2.1. Plan de charges prévisionnel et final
 
----
-
-\newpage
-
-### 6.2.2. Plan de charges final
+![Plan de Charge](planChargeSuiviActivites.png)
 
 ---
 
@@ -329,6 +368,38 @@ Notre projet, malgré un produit final assez satisfaisant, a été le théâtres
 \newline
 - l'utilisation des APIs des imprimantes 3D : Notre objectif initial était de relier directement les imprimantes 3D à l'application grâce au logiciel FDM Monster. Cependant, cette configuration s'est révélée difficile en raison des systèmes propriétaires des machines. De plus, comme les imprimantes sont très sollicitées, nous avons temporairement configuré le site pour qu'un administrateur lance chaque impression manuellement. Nous continuons néanmoins à travailler sur l'automatisation de ce processus.
 
+### 6.3.1 Fonctionalités réalisé ou pas
+
+| ID | Fonctionnalité de l'application | Description technique | Priorité | Statut |
+| :--- | :--- | :--- | :---: | :---: |
+| **F01** | **Authentification** | Connexion et déconnexion. | Haute | **Réalisé** |
+| **F02** | **Gestion des profils** | Affichage et modification des informations utilisateurs. | Basse | **Réalisé** |
+| **F03** | **Gestion des impressions** | Flux complet d'impression 3D, du dépôt STL à la mise en file. | Haute | **Réalisé** |
+| **F03-1** | **Déposer un STL** | Upload d'un fichier STL. | Haute | **Réalisé** |
+| **F03-2** | **Slicer automatique** | Convertir le modèle en G-code via un slicer. | Moyenne | **Non réalisé** |
+| **F03-3** | **Estimation du coût** | Calculer le prix d'impression à partir des paramètres. | Basse | **Non réalisé** |
+| **F03-4** | **Position dans la file** | Afficher la place du travail dans la file. | Basse | **Non réalisé** |
+| **F03-5** | **Priorité projets INTech** | Rôle dédié pour prioriser les impressions. | Basse | **Réalisé** |
+| **F03-6** | **Crédit restant** | Afficher le crédit restant d'un utilisateur. | Basse | **Réalisé** |
+| **F03-7** | **Quantité d'impressions** | Indiquer le nombre d'exemplaires à imprimer. | Basse | **Réalisé** |
+| **F04** | **Espace administrateur** | Interface d'administration pour une gestion complète. | Moyenne | **Réalisé** |
+| **F04-1** | **Gestion des utilisateurs** | Créer, modifier et supprimer les utilisateurs. | Haute | **Réalisé** |
+| **F04-2** | **Gestion des travaux** | Créer, modifier et supprimer la file de travaux. | Moyenne | **Réalisé** |
+| **F04-3** | **Reprise des erreurs** | Déclarer un travail en erreur et le remettre en file. | Moyenne | **Non réalisé** |
+| **F04-4** | **Gestion crédit** | Gestion des crédits des utilisateurs (recharge). | Haute | **Réalisé** |
+| **F05** | **Intégrations** | SSO et notifications externes. | Optionnelle | **Non réalisé** |
+| **F05-1** | **Intégration CAS** | Inscription et connexion via le CAS de l'école. | Optionnelle | **Non réalisé** |
+| **F05-2** | **Intégration Discord** | Utiliser des webhooks pour les notifications. | Optionnelle | **Non réalisé** |
+| **F05-3** | **Intégration HelloAsso** | Créditer les comptes via HelloAsso. | Optionnelle | **Non réalisé** |
+| **F06** | **Impression technique** | Options avancées d'impression. | Optionnelle | **Non réalisé** |
+| **F06-1** | **Utilisation de supports** | Détecter la nécessité de supports. | Optionnelle | **Non réalisé** |
+| **F06-2** | **Paramétrage du slicer** | Permettre l'upload d'un JSON de paramètres. | Optionnelle | **Non réalisé** |
+| **F06-3** | **Choix des matériaux** | Choisir un plastique autre que le PLA. | Optionnelle | **Réalisé** |
+| **F07** | **Gestion des filaments** | Administration des filaments et du stock. | Optionnelle | **Réalisé** |
+| **F07-1** | **Activation des filaments** | Activer et désactiver des filaments. | Optionnelle | **Non réalisé** |
+| **F07-2** | **Gestion du filament** | Gérer la quantité de filament restant. | Optionnelle | **Réalisé** |
+| **F07-3** | **Gestion de consommation** | Rapport sur quantités, crédits et montant. | Optionnelle | **réalisé** |
+
 ---
 
 \newpage
@@ -338,8 +409,10 @@ Notre projet, malgré un produit final assez satisfaisant, a été le théâtres
 Malgré des difficultés, notre projet a produit une Application Web fonctionnelle selon les critères que nous nous étions imposés en préambule avec le cahier des charges.
 \newline
 
-Tout du moins, nous souhaiterions peaufiner ce projet au-delà du rendu final, que ce soit par la continuation de celui-ci par un autre groupe de projet informatique, ou bien par la maintenance de celui-ci par l'Association Intech elle-même.
-En effet, ce projet est un projet enrichissant pour un étudiant ingénieur dans le développement informatique à travers l'utilisation d'outils et de technologies professionnels qui s'intègre pleinement dans le cadre de nos études et du campus avec Intech.
+Tout du moins, nous souhaiterions peaufiner ce projet au-delà du rendu final, que ce soit par la continuation de celui-ci par un autre groupe de projet informatique, ou bien par la maintenance de celui-ci par l'Association Intech elle-même. Il faudra donc le déployer ce qu'on a pas encore pu faire. On pense utilisé une machine virtuelle fournie par l'association Minet. À terme il pourra être réellement utilisé par l'association.
+\newline
+
+Ce projet est un projet enrichissant pour un étudiant ingénieur dans le développement informatique à travers l'utilisation d'outils et de technologies professionnels qui s'intègre pleinement dans le cadre de nos études et du campus avec Intech.
 \newline
 
 Ce projet, au-delà de la réalisation purement technique, est aussi une expérience d'équipe avec tout ses avantages et ses défauts qu'on a expérimenté (comme les retards et la mise en commun du code). Cela en fait donc une force pour tous nos futurs projets en groupe.
