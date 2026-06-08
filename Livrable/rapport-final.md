@@ -1,6 +1,6 @@
 ---
 title: "Rapport de Projet : PrINTech"
-subtitle: "Encadrant : Mohamed SELLAMI | Version : 1.0"
+subtitle: "Encadrant : Mohamed SELLAMI | Version : 2.0"
 subject: "Livrable 3"
 author: |
   `\begin{tabular}{cc}
@@ -20,7 +20,12 @@ toc-title: "Sommaire du Rapport Final"
 
 # 1. Introduction
 
-Depuis cette année, l'association INTech du campus rencontrait des difficultés de gestion des impressions 3D faites par les membres. En effet, depuis cette année, INTech offre aux membres du campus la possibilité d'imprimer leur modèle 3D en devenant adhérents.
+Depuis cette année, l'association INTech du campus rencontrait des difficultés de gestion des impressions 3D faites par les membres. En effet, depuis cette année, INTech offre aux membres du campus la possibilité d'imprimer leur modèle 3D en devenant adhérents suivant le processus décrit dans la figure 1.
+\newline
+Le processus commence lorsqu'un étudiant trouve un modèle 3D, le renomme à son nom (au format `NOM-PRENOM.stl`) et remplit un Google Form pour s'enregistrer dans un tableur, avant de lancer l'impression. 
+Si l'étudiant n'est pas présent à la fin du travail et que l'imprimante est requise pour une autre tâche, un opérateur de l'association retire la pièce et la stocke au local jusqu'au retour de l'étudiant qui vient ensuite la récupérer. 
+À la fin du mois, la phase de facturation s'enclenche : l'opérateur consulte le tableur Google Sheets pour calculer le montant total dû, crée un lien de paiement sur **HelloAsso** et envoie la facture à l'étudiant. 
+Si ce dernier paie dans les 7 jours, l'opérateur valide la transaction dans sa comptabilité, ce qui valide le succès du processus ; en revanche, s'il ne règle pas sa dette après plusieurs relances de 7 jours et que le plafond maximal d'avertissements est atteint, l'étudiant est inscrit sur liste noire, ce qui entraîne l'échec de la procédure.
 \newline
 Actuellement, le système de gestion possède des problèmes. Les adhérents doivent télécharger et paramétrer un logiciel appelé slicer qui permet de transformer un modèle 3D en série d'instructions pour les imprimantes 3D, appelé G-code. On demande ensuite aux adhérents de charger le G-code sur les imprimantes, de lancer les impressions et ensuite de remplir un Google Form avec le nom de leur fichier, le poids de l'impression et d'autres paramètres.  
 \newline
@@ -35,14 +40,49 @@ Contrairement à la solution existante, ce projet a une vision plus long terme e
 ---
 
 \newpage
+## 1.1. Terminologie
 
+Pour faciliter la lecture de ce rapport, cette section regroupe et définit les termes techniques, les acronymes et les notions spécifiques au domaine de l'impression 3D et du développement web abordés dans ce document.
+
+### Impression 3D et Matériaux
+* **Fichier STL (`.stl`)** : Format de fichier standard en impression 3D (Stéréolithographie). Il représente la géométrie de la surface d'un objet 3D sous forme de triangles.
+* **Slicer (Trancheur)** : Logiciel qui découpe un modèle 3D virtuel en fines couches horizontales et génère les instructions nécessaires à l'imprimante.
+* **G-code** : Langage de programmation numérique universel utilisé pour piloter les machines-outils et les imprimantes 3D ($X$, $Y$, $Z$).
+* **Filament** : Le fil de plastique en bobine qui sert de "matière première" à l'imprimante 3D pour fabriquer les objets.
+* **PETG** : Un type de plastique très résistant (le même que celui des bouteilles d'eau, mais modifié), souvent utilisé pour des pièces qui doivent supporter des chocs ou rester en extérieur.
+* **PLA (Acide Polylactique)** : Plastique d'origine végétale couramment utilisé en impression 3D.
+* **Supports** : Structures temporaires imprimées en même temps que le modèle.
+
+
+### Technologies Web & Architecture
+* **Angular / AngularJS** : Framework côté client (Frontend) utilisé pour concevoir une interface utilisateur dynamique.
+* **Django** : Framework de haut niveau basé sur Python, utilisé pour le développement de la logique métier (Backend).
+* **API REST** : Style d'architecture logicielle permettant au Frontend et au Backend de communiquer via le protocole HTTP.
+* **PostgreSQL** : Système de gestion de base de données relationnelle open-source.
+* **Docker & Conteneurisation** : Technologie permettant d'isoler une application et ses dépendances dans un environnement virtuel appelé "conteneur".
+* **Nginx & Gunicorn** : Duo de production où Nginx sert de serveur proxy inverse et Gunicorn de serveur d'application WSGI pour exécuter le code Python.
+
+### Outils de Développement & Tests
+* **Git / Git Flow** : Git est le système de contrôle de version ; Git Flow est la méthodologie qui structure la collaboration (branches `main`, `develop`, `features/`).
+* **PR (Pull Request)** : Demande formelle de fusion de code soumise par un développeur pour relecture et validation.
+* **uv** : Gestionnaire de paquets et d'environnements Python extrêmement rapide écrit en Rust.
+* **Playwright** : Framework de test de bout en bout (E2E) permettant de simuler le comportement d'un utilisateur réel.
+
+/newpage
 # 2. Cahier des charges
+
+À la suite des rapports et des échanges menés avec le bureau et les membres actifs de l'association INTech, une analyse approfondie des besoins opérationnels a été réalisée. Le constat est simple : le volume croissant de demandes d'impression 3D sur le campus sature le modèle de gestion actuel, basé sur des processus manuels et des outils tiers (Google Forms, tableurs Sheets).
 
 ## 2.1. Description du sujet
 
 Notre projet consiste en la réalisation d'une Application Web dynamique. C'est-à-dire que le site doit être capable d'intéragir avec une base de donnée qu'on doit aussi implémenter. Ce site web permettra alors l'identification sécurisé des étudiants voulant imprimer des modèles 3D avec un système de gestion d'utilisateurs, de requêtes, et de gestion de queues.
+Cette plateforme aura pour objectifs principaux :
 
----
+* **L'authentification sécurisée** des étudiants du campus souhaitant utiliser les services d'impression 3D.
+* **La gestion des utilisateurs** en distinguant les rôles (adhérents, bureau, membre d'un projet) et leurs droits associés.
+* **Le traitement des requêtes** afin de centraliser, suivre et historiser toutes les demandes de fabrication soumises par les élèves.
+* **La gestion des crédits et de la tarification** afin de permettre de payer chaque impression
+* **Espace administrateur** Interface d'administration pour une gestion complète
 
 \newpage
 
@@ -50,21 +90,22 @@ Notre projet consiste en la réalisation d'une Application Web dynamique. C'est-
 Afin de répondre au sujet, l'application doit intégrer les fonctionnalités suivantes, classées par priorité de développement :
 
 | ID | Fonctionnalité de l'application | Description technique | Priorité |
-| :--- |:--------------------------------| :--- | :---: |
-| **F01** | **Authentification**            | Connexion et déconnexion via Django Auth. | Haute |
+| :--- |:--------------| :--------------------- | :---: |
+| **F01** | **Authentification**            | Connexion et déconnexion. | Haute |
 | **F02** | **Gestion des profils**         | Affichage et modification des informations utilisateurs. | Basse |
 | **F03** | **Gestion des impressions**     | Flux complet d'impression 3D, du dépôt STL à la mise en file. | Haute |
 | **F03-1** | **Déposer un STL**              | Upload d'un fichier STL. | Haute |
 | **F03-2** | **Slicer automatique**          | Convertir le modèle en G-code via un slicer. | Moyenne |
 | **F03-3** | **Estimation du coût**          | Calculer le prix d'impression à partir des paramètres. | Basse |
 | **F03-4** | **Position dans la file**       | Afficher la place du travail dans la file. | Basse |
-| **F03-5** | **Priorité projets INTech**     | Autoriser certains utilisateurs à prioriser leurs travaux. | Basse |
+| **F03-5** | **Priorité projets INTech**     | Chaque utilisateur à un rôle (adhérents, bureau, membre d'un projet) pour priiser  les impressions. | Basse |
 | **F03-6** | **Crédit restant**              | Afficher le crédit restant d'un utilisateur. | Basse |
 | **F03-7** | **Quantité d'impressions**      | Indiquer le nombre d'exemplaires à imprimer. | Basse |
 | **F04** | **Espace administrateur**       | Interface d'administration pour une gestion complète. | Moyenne |
 | **F04-1** | **Gestion des utilisateurs**    | Créer, modifier et supprimer les utilisateurs. | Haute |
 | **F04-2** | **Gestion des travaux**         | Créer, modifier et supprimer la file de travaux. | Moyenne |
 | **F04-3** | **Reprise des erreurs**         | Déclarer un travail en erreur et le remettre en file. | Moyenne |
+| **F04-4** | **Gestion crédit**              | Gestion des crédits des utilisateurs dont la recharge de crédits. | Haute |
 | **F05** | **Intégrations**                | SSO et notifications externes. | Pour aller plus loin |
 | **F05-1** | **Intégration CAS**             | Inscription et connexion via le CAS de l'école. | Pour aller plus loin |
 | **F05-2** | **Intégration Discord**         | Utiliser des webhooks pour les notifications. | Pour aller plus loin |
@@ -86,6 +127,8 @@ Afin de répondre au sujet, l'application doit intégrer les fonctionnalités su
 
 ## 3.1. Base de données
 
+Comme l'illustre ce schema, lorsqu'un User (caractérisé par un rôle applicatif et un solde de crédits) souhaite fabriquer un objet, il émet une demande d'impression (Request). Celle-ci encapsule un fichier numérique (File) contenant le modèle 3D et ses paramètres de découpage en format JSON (para_slicer), lui-même associé à un consommable précis (Filament) défini par son type (PLA ou PETG) et sa couleur. La demande est ensuite affectée à une machine (Printer) identifiée par son modèle et son état de disponibilité. Enfin, pour éradiquer les risques de fraude et automatiser la comptabilité, chaque transaction (recharge de compte par carte/espèces ou débit/remboursement lié à une impression) est tracée par l'entité Operation. Cette table lie un agent du bureau à un utilisateur bénéficiaire tout en restant historiquement connectée à la Request d'origine.
+
 ![Schema de base de données](diagrams/db-diagram.svg)
 
 ---
@@ -94,6 +137,10 @@ Afin de répondre au sujet, l'application doit intégrer les fonctionnalités su
 
 ## 3.2. Séquence de l'Authentification
 
+Pour sécuriser l'accès aux ressources de la plateforme et garantir que chaque étudiant interagit uniquement avec ses propres données, le projet implémente un flux d'authentification basé sur des jetons d'accès (JWT) via la librairie Django REST Framework SimpleJWT. Ce mécanisme élimine les failles de sécurité de l'ancien système et permet une communication fluide entre le Frontend Angular et l'API Backend.
+
+Le diagramme de séquence suivant détaille les phases d'inscription, de connexion et de renouvellement des jetons :
+
 ![Schema de l'authentification](diagrams/auth-diagram.svg)
 
 ---
@@ -101,6 +148,16 @@ Afin de répondre au sujet, l'application doit intégrer les fonctionnalités su
 \newpage
 
 ## 3.3. Processus d'impression 3D avec PrIntech
+
+### Description du processus d'impression 3D
+
+### Description du processus d'impression 3D
+
+Le processus débute lorsqu'un étudiant dépose un modèle 3D sur la plateforme (**F03-1 : Déposer un STL**). Une fois la requête enregistrée dans l'interface d'administration (**F04-2 : Gestion des travaux**), le système évalue automatiquement les ressources nécessaires. Il vérifie d'une part la quantité de matière disponible (**F07-2 : Gestion des filaments**) et d'autre part le montant estimé de l'impression (**F03-3 : Estimation du coût**) par rapport aux ressources financières de l'utilisateur (**F03-6 : Crédit restant**). Si le plastique est manquant ou indisponible, la demande est arrêtée. Si l'utilisateur ne dispose pas de fonds suffisants, l'application le redirige vers le module externe afin de renflouer son compte (**F05-3 : Intégration HelloAsso**). 
+
+Dès que ces vérifications sont validées, le travail rejoint la file d'attente informatique et l'opérateur lui attribue une machine disponible (**F04-2 : Gestion des travaux**), tout en prenant en compte le rôle de l'utilisateur (**F03-5 : Priorité projets INTech**). L'application procède alors au prélèvement des fonds requis sur le compte de l'étudiant (**F04-4 : Gestion crédit**), met à jour le statut informatique de l'imprimante, et l'opérateur lance physiquement la fabrication de la pièce (**F03 : Gestion des impressions**). À la fin du cycle, deux situations peuvent se présenter :
+* **En cas de succès :** l'opérateur valide la fin de la tâche (**F04-2 : Gestion des travaux**), l'imprimante repasse informatiquement à l'état disponible, le stock de plastique restant est ajusté (**F07-2 : Gestion des filaments**) et une alerte automatisée est envoyée à l'étudiant (**F05-2 : Intégration Discord**) pour qu'il vienne récupérer sa pièce.
+* **En cas d'échec :** l'opérateur déclare l'avarie sur l'interface (**F04-3 : Reprise des erreurs**), libérant immédiatement la machine. Le système réajuste alors automatiquement le solde de l'étudiant (**F04-4 : Gestion crédit**) tout en envoyant une notification pour l'avertir du problème (**F05-2 : Intégration Discord**).
 
 ![Diagramme BPMN du fonctionnement post-PrIntech](diagrams/bpmn-after-diagram.svg)
 
@@ -114,23 +171,39 @@ Afin de répondre au sujet, l'application doit intégrer les fonctionnalités su
 
 Les technologies pour développer une Application Web sont nombreuses. Pour faire la sélection des technologies, nous avons d'abord examiné lesquelles étaient capables de répondre à notre cahier des charges, puis ensuite sur les technologies auxquelles les membres de notre équipe avaient déjà de l'expérience. Sur la base de ces critères, nous avons sélectionné le stack suivant. D'abord pour le frontend :
 \newline
-- **AngularJS** : pour réaliser le frontend
+- **AngularJS** : Pour la réalisation de l'interface utilisateur. Contrairement à son ancêtre AngularJS (aujourd'hui obsolète), les versions modernes d'Angular s'appuient sur l'architecture de composants et sur le langage **TypeScript**. Ce choix apporte un typage fort, une structure rigoureuse et une excellente maintenabilité, indispensables pour concevoir un tableau de bord d'administration robuste et une expérience utilisateur fluide lors du dépôt de fichiers STL.
 \newline
 
 Ensuite pour le backend :
 \newline
-- **Django** : pour réaliser le backend et l'API REST
+- **Django** : Utilisé pour développer le cœur logique du backend et l'API REST (via *Django REST Framework*).
 \newline
-- **PostgreSQL** : pour la base de données de l'application
+- **Swagger (OpenAPI)** : Intégré à notre backend pour la documentation et le test de l'API REST. Swagger génère automatiquement une interface web interactive à partir des routes de notre application Django. Cela permet aux développeurs frontend de comprendre instantanément les points de terminaison (*endpoints*), les paramètres attendus et les réponses de l'API, facilitant ainsi grandement la communication et l'intégration entre le frontend et le backend.
+- **PostgreSQL** : Ce système de gestion de base de données relationnelle (SGBDR) open-source a été retenu pour sa robustesse, sa conformité ACID et sa gestion fine des transactions financières (crédits, remboursements, opérations). Sa capacité à indexer efficacement les données structurées garantit des performances optimales lors de la montée en charge du système et du suivi des files d'attente de travaux.
 \newline
 - **Klipper** : comme firmware des imprimantes. Ce firmware communautaire vient remplacer celui du constructeur
 \newline
 - **Moonraker** : expose les API JSON-RPC de Klipper avec une API REST
 \newline
+### Tests, Validation et Qualité Logicielle
 
-Afin de partitionner logiquement les différentes couches (Frontend, Backend, et la Base De Données), nous avons utilisé **Docker** puisque c'est une technologie largement utilisée professionnellement qui permet la conteneurisation puis ensuite simplifie le déploiement.
+- **Tests natifs Django (TestCase)** : Intégrés directement au backend, le framework de test unitaire et d'intégration natif de Django permet de sécuriser l'intégrité de la base de données lors des transactions critiques. Ils valident de manière isolée les calculs de prix, l'exactitude des débits et remboursements de crédits, le respect des rôles utilisateurs pour la gestion des priorités, ainsi que les transitions de statut des requêtes d'impression (du dépôt initial jusqu'à la mise en file).
+- **Playwright** : Framework moderne retenu pour l'automatisation des tests de bout en bout (*End-to-End*). Complémentaire aux tests Django, Playwright nous permet de simuler le parcours complet d'un utilisateur sur un navigateur réel de manière isolée.
+
 \newline
-Finalement, le déploiement sera assuré par **Nginx** avec **Gunicorn**.
+
+### Conteneurisation et Infrastructure
+
+- **Docker & Docker Compose** : Afin de partitionner logiquement les différentes couches applicatives (Frontend, Backend, Base de données), nous avons conteneurisé chaque service. Technologie incontournable dans le milieu professionnel, Docker garantit que l'application s'exécute de manière strictement identique sur les machines de développement des développeurs et sur le serveur de production, simplifiant ainsi drastiquement la configuration de l'infrastructure.
+- **Nginx & Gunicorn** : Pour le déploiement en production, **Gunicorn** fait office de serveur d'application WSGI, chargé d'exécuter le code Python/Django en gérant efficacement les requêtes concurrentes via un système de processus de travail (*workers*). Il est placé derrière **Nginx**, configuré comme un proxy inverse (*reverse proxy*). Nginx assure la sécurité globale, gère les certificats SSL/TLS (HTTPS), sert directement les fichiers statiques et médias lourds (comme les fichiers STL stockés), et distribue la charge vers l'application backend.
+
+\newline
+
+### Outils de développement et de collaboration
+
+* **Visual Studio Code (VS Code)** : Choisi comme environnement de développement intégré (IDE) principal par l'équipe. Il offre une intégration native de Git, et des extensions pour Python/Django et Angular.
+* **Git & GitFlow** : Pour la gestion de version, nous utilisons **Git** hébergé sur **GitHub**. Afin d'organiser le travail collaboratif de l'équipe sans bloquer la production, nous appliquons la méthodologie **GitFlow**. Cette approche structure notre dépôt en plusieurs branches strictes : `main` pour les versions stables, `develop` pour centraliser les fonctionnalités prêtes, et des branches éphémères `feature/` ou `bugfix/` isolées pour chaque développeur.
+* **Discord & Webhooks GitHub** : Discord est notre outil central de communication d'équipe. Pour automatiser notre suivi de projet, nous y avons configuré des **webhooks GitHub**. À chaque fois qu'un développeur pousse du code (*push*), ouvre une demande de fusion (*pull request*) , une notification automatique est envoyée dans un salon dédié sur Discord. Cela permet un suivi de l'avancement facile.
 
 --- 
 
@@ -227,8 +300,6 @@ Cependant, comme évoqué dans notre bilan de projet (Section 6.1.3), le retard 
 \newpage
 
 ### 6.2.2. Plan de charges final
-
-![Plan de Charge final](planChargeSuiviActivites.png)
 
 ---
 
