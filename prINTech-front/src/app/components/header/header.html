@@ -1,0 +1,16 @@
+<nav class="navbar">
+  <div class="logo">
+    <img src="logo.png" alt="prINTech" class="logo-img" routerLink="">
+  </div>
+
+  <div class="nav-links">
+    <a routerLink="">Accueil</a>
+    <a routerLink="/print">Imprimer</a>
+    <a routerLink="/history">Historique</a>
+    <a *ngIf="isAdmin()" routerLink="/admin/dashboard">Admin</a>
+  </div>
+
+  <div class="nav-right">
+    <img [src]="avatarSrc()" alt="profil" class="avatar" routerLink="/profile">
+  </div>
+</nav>

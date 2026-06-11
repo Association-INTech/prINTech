@@ -1,0 +1,186 @@
+.page-content {
+	max-width: 1100px;
+	margin: 0 auto;
+	padding: 24px 12px 32px;
+	display: grid;
+	gap: 12px;
+}
+
+.greeting {
+	font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+	font-weight: 800;
+	line-height: 1.2;
+	color: #095c9c;
+}
+
+.subgreeting {
+	margin: 0;
+	color: #4b5563;
+	font-size: 1rem;
+}
+
+.cta-btn {
+	justify-self: start;
+	margin-top: 10px;
+	margin-bottom: 8px;
+	padding: 11px 18px;
+	border: 2px solid transparent;
+	border-radius: 999px;
+	background: #095c9c;
+	color: #ffffff;
+	font-size: 0.95rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.cta-btn:hover {
+	background: #074b7d;
+	transform: translateY(-1px);
+}
+
+.cta-btn:focus-visible {
+	outline: none;
+	border-color: #f8cc08;
+}
+
+.empty-state {
+	margin-top: 8px;
+	border: 1px dashed #98a7cb;
+	border-radius: 12px;
+	background: #f8fbff;
+	color: #1f2937;
+	padding: 14px 16px;
+}
+
+.link {
+	color: #095c9c;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.link:hover {
+	text-decoration: underline;
+}
+
+.printers-section {
+	margin-top: 18px;
+	padding-top: 10px;
+	display: grid;
+	gap: 14px;
+}
+
+.section-head h2 {
+	margin: 0;
+	font-size: clamp(1.3rem, 2.2vw, 1.8rem);
+	color: #095c9c;
+	font-weight: 800;
+}
+
+.section-head p {
+	margin: 6px 0 0;
+	color: #4b5563;
+}
+
+.printers-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 20px;
+}
+
+.printer-card {
+	background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+	border: 1px solid #dfe6f2;
+	border-radius: 14px;
+	box-shadow: 0 12px 28px rgba(9, 92, 156, 0.1);
+	overflow: hidden;
+	display: grid;
+	grid-template-columns: minmax(320px, 36%) minmax(0, 1fr);
+	grid-template-areas: 'media content';
+	min-height: 320px;
+}
+
+.printer-card:nth-child(even) {
+	grid-template-columns: minmax(0, 1fr) minmax(320px, 36%);
+	grid-template-areas: 'content media';
+}
+
+.printer-image {
+	grid-area: media;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	background: #f6f9ff;
+	padding: 14px;
+	border: none;
+	border-radius: 0;
+	box-sizing: border-box;
+}
+
+.printer-content {
+	grid-area: content;
+	padding: 24px 28px 22px;
+	display: grid;
+	gap: 10px;
+	align-content: center;
+	min-width: 0;
+	border-left: 1px solid #e5eaf3;
+}
+
+.printer-card:nth-child(even) .printer-content {
+	border-left: none;
+	border-right: 1px solid #e5eaf3;
+}
+
+.printer-content h3 {
+	margin: 0;
+	font-size: clamp(1.2rem, 2vw, wait now that im looking at it theres a 1.55rem);
+	color: #111111;
+	font-weight: 800;
+}
+
+.printer-content p {
+	margin: 0;
+	color: #475569;
+	line-height: 1.55;
+	font-size: 1rem;
+}
+
+.printer-content ul {
+	margin: 6px 0 0;
+	padding-left: 20px;
+	color: #1f2937;
+	display: grid;
+	gap: 6px;
+}
+
+@media (max-width: 960px) {
+	.printers-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.printer-card,
+	.printer-card:nth-child(even) {
+		grid-template-columns: 1fr;
+		grid-template-areas:
+			'media'
+			'content';
+		min-height: auto;
+	}
+
+	.printer-image {
+		height: 260px;
+	}
+
+	.printer-content {
+		padding: 18px 18px 20px;
+		border-left: none;
+		border-right: none;
+	}
+}
+
+@media (max-width: 640px) {
+	.page-content {
+		padding-inline: 4px;
+	}
+}

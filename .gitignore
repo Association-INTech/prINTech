@@ -1,6 +1,10 @@
 *.py[cod]
 __pycache__
 
+
+*:Zone.Identifier
+
+
 # C extensions
 *.so
 
@@ -25,8 +29,9 @@ _static
 _template
 
 # env
-.env
+PrINTech-Back/.env
 .venv
+.env
 
 #ide
 .idea

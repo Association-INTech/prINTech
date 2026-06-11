@@ -1,0 +1,26 @@
+<div class="profile-picture-widget" aria-label="Photo de profil">
+  <input type="file" class="file-input" (change)="onFileSelected($event)" #fileUpload accept="image/*" />
+
+  <div class="avatar-wrapper">
+    <img class="avatar-pic" [src]="avatarSrc()" alt="Photo de profil" />
+    <img class="avatar-frame" src="profile.svg" alt="" />
+  </div>
+
+  <div class="file-upload">
+    <p class="file-name">{{ fileName || 'Aucun fichier sélectionné' }}</p>
+
+    <div class="actions">
+      <button type="button" class="upload-btn" (click)="fileUpload.click()" [disabled]="loading">
+        {{ loading ? 'Envoi...' : 'Changer la photo' }}
+      </button>
+    </div>
+
+    @if (errorMessage) {
+      <p class="message error">{{ errorMessage }}</p>
+    }
+
+    @if (successMessage) {
+      <p class="message success">{{ successMessage }}</p>
+    }
+  </div>
+</div>

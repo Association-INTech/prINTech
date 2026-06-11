@@ -1,0 +1,188 @@
+.profile-page {
+	max-width: 1100px;
+	margin: 0 auto;
+	padding: 24px 12px 32px;
+	display: grid;
+	gap: 16px;
+}
+
+.profile-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	background: #ffffff;
+	border: 1px solid #d8deea;
+	border-radius: 14px;
+	padding: 18px 20px;
+	box-shadow: 0 8px 24px rgba(9, 92, 156, 0.08);
+}
+
+.profile-header h1 {
+	margin: 0;
+	font-size: clamp(1.4rem, 2.4vw, 2rem);
+	font-weight: 800;
+	color: #095c9c;
+}
+
+.profile-header p {
+	margin: 6px 0 0;
+	color: #475569;
+}
+
+.status-pill {
+	padding: 6px 12px;
+	border-radius: 999px;
+	font-size: 0.78rem;
+	font-weight: 700;
+	background: #eaf7ef;
+	color: #136a39;
+	border: 1px solid #b7e1c5;
+	white-space: nowrap;
+}
+
+.profile-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 16px;
+}
+
+.profile-grid > .profile-card:first-child {
+	grid-column: 1 / -1;
+}
+
+app-change-password {
+	grid-column: 1 / -1;
+}
+
+.profile-card {
+	background: #ffffff;
+	border: 1px solid #d8deea;
+	border-radius: 14px;
+	padding: 18px 20px;
+	box-shadow: 0 8px 24px rgba(9, 92, 156, 0.08);
+	display: grid;
+	gap: 12px;
+}
+
+.profile-card h2 {
+	margin: 0;
+	font-size: 1.05rem;
+	font-weight: 800;
+	color: #111827;
+}
+
+.info-list {
+	display: grid;
+	gap: 10px;
+}
+
+.info-item,
+.pref-item {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 10px 0;
+	border-bottom: 1px solid #eef2f7;
+}
+
+.info-item:last-child,
+.pref-item:last-child {
+	border-bottom: none;
+}
+
+.avatar-block {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+}
+
+.avatar-placeholder {
+	width: 84px;
+	height: 84px;
+	border-radius: 999px;
+	background: #f8fbff;
+	border: 1px solid #d8deea;
+	color: #095c9c;
+	font-weight: 800;
+	font-size: 1.2rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.actions-row {
+	padding-top: 6px;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.action-btn {
+	padding: 10px 16px;
+	border: 2px solid transparent;
+	border-radius: 999px;
+	background: #095c9c;
+	color: #ffffff;
+	text-decoration: none;
+	font-size: 0.9rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.action-btn:hover {
+	background: #074b7d;
+	text-decoration: none;
+	transform: translateY(-1px);
+}
+
+.action-btn:focus-visible {
+	outline: none;
+	border-color: #f8cc08;
+}
+
+.label {
+	font-size: 0.84rem;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	color: #5f6f92;
+	text-transform: uppercase;
+}
+
+.value {
+	font-size: 0.95rem;
+	font-weight: 700;
+	color: #1f2937;
+	text-align: right;
+}
+
+@media (max-width: 900px) {
+	.profile-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.profile-grid > .profile-card:first-child {
+		grid-column: auto;
+	}
+
+	app-change-password {
+		grid-column: auto;
+	}
+
+	.profile-header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.avatar-block {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
+
+@media (max-width: 640px) {
+	.profile-page {
+		padding-inline: 4px;
+	}
+}
