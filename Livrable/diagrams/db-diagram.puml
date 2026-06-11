@@ -1,5 +1,5 @@
 @startuml
-title UML Diagram\nDatabase
+title UML Diagram\nDatabase Printech
 scale 1.4
 hide circle
 skinparam linetype ortho
@@ -14,7 +14,7 @@ skinparam style strictuml
 
 package "User Environment" #DDDDDD {
 
-    enum UserRole {
+    enum UserRole <<enumeration>> {
         ADHERENT
         ROBOTECH
         AUTOTECH
@@ -22,7 +22,7 @@ package "User Environment" #DDDDDD {
         BUREAU
     }
 
-    enum RequestStatus {
+    enum RequestStatus <<enumeration>> {
         SUBMITTED
         AWAITING_PAYMENT
         PENDING
@@ -33,7 +33,7 @@ package "User Environment" #DDDDDD {
         CANCELED
     }
 
-    enum OperationType {
+    enum OperationType <<enumeration>> {
         CASH
         CARD
         PAYMENT
@@ -101,18 +101,18 @@ package "Material Assets" #DDDDDD {
         price : integer = 0 {>= 0}
     }
 
-    enum FilamentType {
+    enum FilamentType <<enumeration>> {
         PLA
         PETG
     }
 
-    enum PrinterName {
+    enum PrinterName <<enumeration>> {
         CREALITY_K1C
         SNAPMAKER_U1
         PRUSA_MK3
     }
 
-    enum PrinterStatus {
+    enum PrinterStatus <<enumeration>> {
         UP
         DOWN
         USED
@@ -121,20 +121,20 @@ package "Material Assets" #DDDDDD {
 
 ' Relationships
 user ||--o{ request : "places"
-user ||--o{ operation : "beneficiary"
+
 user ||--o{ operation : "agent"
 
 file ||--o{ request : "is printed in"
-filament ||--o{ file : "used by"
-printer ||--o{ request : "processes"
+filament ||-r-o{ file : "used by"
+printer ||-r-o{ request : "processes"
 request ||--o{ operation : "paid/refunded by"
 
 ' Enum dependencies
 user ..> UserRole : uses
 request ..> RequestStatus : uses
 operation ..> OperationType : uses
-printer ..> PrinterStatus : uses
-printer ..> PrinterName : uses
-filament ..> FilamentType : uses
+printer .u.> PrinterStatus : uses
+printer .l.> PrinterName : uses
+filament .l.> FilamentType : uses
 
 @enduml
