@@ -17,7 +17,7 @@ export interface HistoryFile {
 export interface HistoryItem {
     id: string;
     user: string;
-    file: HistoryFile;
+    file: HistoryFile | null;
     printer: string | null;
     comment: string;
     created_at: string;

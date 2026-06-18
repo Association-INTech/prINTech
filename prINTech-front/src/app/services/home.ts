@@ -12,8 +12,10 @@ export class HomeService {
   active_printers = signal<number>(0);
   total_printers = signal<number>(67);
   username = signal<string>('John Doe');
-  printers_status = signal<string>('Disponible')
-  email = signal<string>('johndoe@gmail.com')
+  printers_status = signal<string>('Disponible');
+  email = signal<string>('johndoe@gmail.com');
+  is_active = signal<boolean>(true);
+  queue_size = signal<number>(67);
 
   getActivePrinters(){
     this.http.get<Printer[]>(`${this.ApiBase}/printers/`)
@@ -38,9 +40,27 @@ export class HomeService {
         this.username.set(res.username)
         this.email.set(res.email)
         this.userCredit.set(res.credit)
+        this.is_active.set(res.is_active)
       }
     )
   }
+
+GetQueue() {
+    this.http.get<Request[]>(`${this.ApiBase}/requests/`)
+    .subscribe(
+      (res) => {
+        // Filter out requests that are done, cancelled, or failed
+        const inProgressRequests = res.filter(request => 
+          request.status !== 'PICKED_UP' && 
+          request.status !== 'CANCELED' && 
+          request.status !== 'FAILED'
+        );
+        
+        // Set the queue size to only show active requests
+        this.queue_size.set(inProgressRequests.length);
+      }
+    );
+  }  
 }
 
 export interface Printer {
@@ -53,4 +73,32 @@ export interface User {
   username: string,
   email: string,
   credit: number,
+  is_active: boolean;
+
 }
+
+export interface Request{
+  id: string,
+  user: string,
+  file: {
+    path: string,
+    number_of_printing: number,
+    filament: number //weird as fuck
+    para_slicer: string
+  },
+  printer: string,
+  comment: string,
+  created_at: Date,
+  status: string,
+}
+
+// export interface Request{
+//   id: string,
+//   user: string,
+//   file_path: string,
+//   number: number,
+//   filament: string,
+//   comment: string,
+//   created_at: Date,
+//   status: string,
+// }
