@@ -11,7 +11,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly accessTokenStorageKey = 'auth_access_token';
   private readonly refreshTokenStorageKey = 'auth_refresh_token';
-  private readonly apiBase = '/api/v1';
+  private readonly apiBase = 'http://127.0.0.1:8000/api/v1';
   private readonly token = signal<string | null>(
     localStorage.getItem(this.accessTokenStorageKey)
   );

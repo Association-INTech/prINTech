@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { finalize } from 'rxjs';
 import { Print as printService, Filament, PrintRequestResponse } from '../services/print';
+import { HomeService as homeService } from '../services/home';
+import { Printer } from '../services/home';
 
 @Component({
   selector: 'app-print',
@@ -11,15 +13,19 @@ import { Print as printService, Filament, PrintRequestResponse } from '../servic
 })
 export class Print implements OnInit {
   private readonly printService = inject(printService);
+  private readonly homeService = inject(homeService); 
 
   readonly loading = signal(false);
   readonly errorMessage = signal('');
   readonly successMessage = signal('');
   readonly filaments = signal<Filament[]>([]);
+  readonly printers = signal<Printer[]>([]);
   
   readonly selectedMaterial = signal<string>('');
   readonly selectedColor = signal<string>('');
   readonly selectedQuantity = signal<number>(1);
+  readonly selectedPrinter = signal<string>('');
+
   
   readonly isFileSelected = signal<boolean>(false);
   private selectedFile: File | null = null;
@@ -47,9 +53,15 @@ export class Print implements OnInit {
   readonly selectedFilamentId = computed<number | null>(() => {
     return this.selectedFilament()?.id ?? null;
   });
+
   ngOnInit(): void {
     this.loadFilaments();
+    this.loadPrinters(); 
   }
+
+  readonly selectedPrinterName = computed<string | null>(() => {
+    return this.selectedPrinter(); 
+  });
 
   onMaterialChange(event: Event): void {
     const target = event.target as HTMLSelectElement;
@@ -75,6 +87,11 @@ export class Print implements OnInit {
     const file = input.files?.[0] ?? null;
     this.selectedFile = file;
     this.isFileSelected.set(file !== null);
+  }
+  
+  onPrinterChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    this.selectedPrinter.set(target.value);
   }
 
   SendRequest(fileInput: HTMLInputElement, comment: string): void {
@@ -104,6 +121,7 @@ export class Print implements OnInit {
         comment: comment.trim(),
         path: file,
         number_of_printing: this.selectedQuantity(),
+        printer: this.selectedPrinter() || null,
       })
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
@@ -134,6 +152,18 @@ export class Print implements OnInit {
     });
   }
 
+  private loadPrinters(): void {
+  this.homeService.getPrinters().subscribe({
+    next: (res) => {
+      // On garde uniquement les imprimantes disponibles ("UP")
+      const availablePrinters = res.filter((p) => p.status === 'UP');
+      this.printers.set(availablePrinters);
+    },
+    error: (err) => {
+      console.error('Erreur chargement imprimantes:', err);
+    }
+  });
+}
   private resetForm(fileInput: HTMLInputElement): void {
     this.scrollToTop();
     fileInput.value = '';

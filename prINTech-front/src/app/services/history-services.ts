@@ -15,7 +15,7 @@ export interface Filament {
   providedIn: 'root',
 })
 export class HistoryServices {
-  private readonly apiBase = '/api/v1';
+  private readonly apiBase = 'http://127.0.0.1:8000/api/v1';
   private readonly http = inject(HttpClient)
 
   getHistory(): Observable<HistoryItem[]> {

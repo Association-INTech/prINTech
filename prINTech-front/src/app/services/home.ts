@@ -1,12 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal, } from '@angular/core';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HomeService {
   private readonly http = inject(HttpClient)
-  private readonly ApiBase = '/api/v1'
+  private readonly ApiBase = 'http://127.0.0.1:8000/api/v1'
 
   userCredit = signal<number | null>(null);
   active_printers = signal<number>(0);
@@ -31,6 +32,10 @@ export class HomeService {
         }
       }
     )
+  }
+
+  getPrinters(): Observable<Printer[]> {
+    return this.http.get<Printer[]>(`${this.ApiBase}/printers/`);
   }
 
   loadUserInfo(){
