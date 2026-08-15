@@ -14,7 +14,7 @@
                     <th>Modèle 3D</th>
                     <th>Imprimante 3D</th>
                     <th>Matériau</th>
-                    <th>Date</th>
+                    <th (click)="onHeaderSort('created_at')" style="cursor: pointer;">Date {{ sortIndicator('created_at') }}</th>
                     <th>Statut</th>
                     <th>Action</th>
                 </tr>

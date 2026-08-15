@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, signal } from '@angular/core';
 import { HistoryServices, Filament, Printer } from '../services/history-services';
 import { HistoryItem } from './history.model';
 
@@ -19,6 +19,9 @@ export class History implements OnInit{
   printers: Printer[] = []; 
   SearchQuery = '';
 
+  readonly sortColumn = signal<'created_at'>('created_at');
+  readonly sortDirection = signal<'asc' | 'desc'>('desc');
+
   errorMessage = '';
   successMessage = '';
   relaunchingIds = new Set<string>();
@@ -37,14 +40,25 @@ export class History implements OnInit{
 
   private applyFilters(): void {
     const query = this.SearchQuery.toLowerCase();
-    if (!query) {
-      this.filteredHistory = this.fullHistory;
-    } else {
-      this.filteredHistory = this.fullHistory.filter(item => {
-        const fileName = this.getFileName(item.file?.path).toLowerCase();
-        return fileName.includes(query);
-      });
-    }
+    
+    //Filtrage par recherche
+    let filtered = !query 
+      ? [...this.fullHistory] 
+      : this.fullHistory.filter(item => {
+          const fileName = this.getFileName(item.file?.path).toLowerCase();
+          return fileName.includes(query);
+        });
+
+    //Tri par Date (created_at)
+    const direction = this.sortDirection();
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      const res = dateA - dateB;
+      return direction === 'asc' ? res : -res;
+    });
+
+    this.filteredHistory = filtered;
     this.cdr.detectChanges();
   }
 
@@ -151,6 +165,21 @@ export class History implements OnInit{
         this.cdr.detectChanges();
       },
     });
+  }
+
+  onHeaderSort(column: 'created_at'): void {
+    if (this.sortColumn() === column) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
+    }
+    this.applyFilters();
+  }
+
+  sortIndicator(column: 'created_at'): string {
+    if (this.sortColumn() !== column) return '';
+    return this.sortDirection() === 'asc' ? ' ↑' : ' ↓';
   }
 
   isRelaunching(id: string): boolean {
