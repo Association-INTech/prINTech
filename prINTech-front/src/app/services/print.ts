@@ -45,7 +45,7 @@ export interface Filament {
 
 export interface PrintRequestPayload {
   filament: number;
-  comment: string;
+  comment: string | null;
   path: File;
   number_of_printing: number;
   printer: string | null; 

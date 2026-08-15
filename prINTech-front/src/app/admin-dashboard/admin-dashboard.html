@@ -60,11 +60,13 @@
               <th>Changer statut</th>
               <th>Prix (€)</th>
               <th>Téléchargement</th>
+              <th class="sortable" (click)="onHeaderSort('printer')">Printer {{ sortIndicator('printer') }}</th>
+              <th class="sortable" (click)="onHeaderSort('commentaire')">Commentaire</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngIf="sortedWaitingPrints().length === 0">
-              <td colspan="9" class="empty-cell">Aucune impression en attente.</td>
+              <td colspan="11" class="empty-cell">Aucune impression en attente.</td>
             </tr>
             <tr *ngFor="let item of sortedWaitingPrints()">
               <td title="{{ item.id }}">{{ item.id | slice:0:8 }}…</td>
@@ -104,6 +106,12 @@
                 } @else {
                   <span class="empty-cell">—</span>
                 }
+              </td>
+              <td>
+                {{ getPrinterName(item.printer) }}
+              </td>
+              <td title="{{ item.comment }}">
+                {{ item.comment || '—' }}
               </td>
             </tr>
           </tbody>

@@ -11,6 +11,11 @@ export interface Filament {
   quantity: number;
 }
 
+export interface Printer {
+  name: string; 
+  status: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -24,6 +29,10 @@ export class HistoryServices {
 
   getFilaments(): Observable<Filament[]> {
     return this.http.get<Filament[]>(`${this.apiBase}/filaments/`)
+  }
+  
+  getPrinters(): Observable<Printer[]> {
+    return this.http.get<Printer[]>(`${this.apiBase}/printers/`)
   }
 
   relaunchRequest(requestId: string): Observable<HistoryItem> {

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
-import { HistoryServices, Filament } from '../services/history-services';
+import { HistoryServices, Filament, Printer } from '../services/history-services';
 import { HistoryItem } from './history.model';
 
 @Component({
@@ -16,6 +16,7 @@ export class History implements OnInit{
   fullHistory: HistoryItem[] = [];
   filteredHistory: HistoryItem[] = [];
   filaments: Filament[] = [];
+  printers: Printer[] = []; 
   SearchQuery = '';
 
   errorMessage = '';
@@ -26,6 +27,7 @@ export class History implements OnInit{
   ngOnInit(): void {
     this.loadFilaments();
     this.loadHistory();
+    this.loadPrinters(); 
   }
 
   onSearch(event: Event) {
@@ -58,6 +60,18 @@ export class History implements OnInit{
     });
   }
 
+  private loadPrinters(): void {
+  this.historyService.getPrinters().subscribe({
+    next: (printers) => {
+      this.printers = printers;
+      this.cdr.detectChanges();
+    },
+    error: () => {
+        this.printers = [];
+      },
+  });
+}
+
   private loadHistory(): void {
     this.historyService.getHistory().subscribe({
       next: (response: any) => {
@@ -86,6 +100,13 @@ export class History implements OnInit{
   getFileName(path: string | null | undefined): string {
     if (!path) return '-';
     return path.split('/').pop() || path;
+  }
+
+  getPrinterName(printerName: string | null | undefined): string {
+    if (!printerName) return '-';
+    // Recherche l'imprimante par son nom dans la liste des imprimantes
+    const printer = this.printers.find(p => String(p.name) === String(printerName));
+    return printer ? printer.name : `ID: ${printerName}`;
   }
 
   onRelaunch(item: HistoryItem): void {

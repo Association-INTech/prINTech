@@ -28,7 +28,7 @@
                 <tr *ngFor="let item of filteredHistory">
                     <td title="{{ item.id }}">{{ item.id | slice:0:8 }}</td>
                     <td class="file-name">{{ getFileName(item.file?.path) }}</td>
-                    <td>{{ item.printer || '-' }}</td>
+                    <td>{{ getPrinterName(item.printer) }}</td>
                     <td>{{ getFilamentName(item.file?.filament) }}</td>
                     <td>{{ item.created_at | date:'short' }}</td>
                     <td>

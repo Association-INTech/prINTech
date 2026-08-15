@@ -52,7 +52,7 @@ class File(models.Model):
 
 
 class Printer(models.Model):
-
+    
     class Status(models.TextChoices):
         UP = 'UP'
         DOWN = 'DOWN'

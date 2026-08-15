@@ -502,6 +502,14 @@ export class AdminDashboard implements OnInit {
     return 'badge-down';
   }
 
+  getPrinterName(printer: string | Printer | null | undefined): string {
+  if (!printer) return '-';
+  if (typeof printer === 'object' && printer.name) return printer.name;
+  // Recherche par nom dans le signal printers
+  const found = this.printers().find(p => String(p.name) === printer);
+  return found ? found.name : String(printer);
+  }
+
   getUserEmail(userId: string): string {
     return this.users().find((u) => u.id === userId)?.email ?? userId.slice(0, 8) + '…';
   }

@@ -49,7 +49,7 @@
                 <label for="printer">Imprimante souhaitée</label>
                 <select id="printer" [value]="selectedPrinter()" (change)="onPrinterChange($event)">
                     <option value="">Aucune préférence</option>
-                    <option *ngFor="let p of printers()" [value]="p.id">{{ p.name }}</option>
+                    <option *ngFor="let p of printers()" [value]="p.name">{{ p.name }}</option>
                 </select>
             </div>
 

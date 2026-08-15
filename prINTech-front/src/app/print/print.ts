@@ -164,12 +164,14 @@ export class Print implements OnInit {
     }
   });
 }
+
   private resetForm(fileInput: HTMLInputElement): void {
     this.scrollToTop();
     fileInput.value = '';
     this.selectedFile = null;
     this.isFileSelected.set(false);
     this.selectedQuantity.set(1);
+    this.selectedPrinter.set('')
     setTimeout(() => this.successMessage.set(''), 6000);
   }
 

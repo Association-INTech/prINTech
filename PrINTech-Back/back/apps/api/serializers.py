@@ -115,10 +115,19 @@ class RequestSerializer(serializers.ModelSerializer):
     filament = serializers.PrimaryKeyRelatedField(
         write_only=True, queryset=Filament.objects.all(), required=True
     )
+    
+    # PERMET D'ACCEPTER LE NOM DE L'IMPRIMANTE EN POST / ET DE L'AFFICHER EN GET
+    printer = serializers.SlugRelatedField(
+        slug_field='name',
+        queryset=Printer.objects.all(),
+        required=False,
+        allow_null=True
+    )
+
     class Meta:
         model = Request
         fields = ['id', 'user', 'file', 'printer', 'price', 'filament', 'comment', 'created_at','status',"path","number_of_printing", "para_slicer"] 
-        read_only_fields = ['id', 'user','file', 'printer', 'price', 'created_at', 'status']
+        read_only_fields = ['id', 'user','file', 'price', 'created_at', 'status']
         
     def create(self, validated_data):
             path = validated_data.pop('path')
