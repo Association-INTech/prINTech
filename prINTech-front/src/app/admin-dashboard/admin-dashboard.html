@@ -56,12 +56,12 @@
               <th class="sortable" (click)="onHeaderSort('user')">Utilisateur {{ sortIndicator('user') }}</th>
               <th>Priorité</th>
               <th class="sortable" (click)="onHeaderSort('created_at')">Date {{ sortIndicator('created_at') }}</th>
-              <th class="sortable" (click)="onHeaderSort('status')">Statut {{ sortIndicator('status') }}</th>
-              <th>Changer statut</th>
               <th>Prix (€)</th>
               <th>Téléchargement</th>
               <th class="sortable" (click)="onHeaderSort('printer')">Printer {{ sortIndicator('printer') }}</th>
-              <th class="sortable" (click)="onHeaderSort('commentaire')">Commentaire</th>
+              <th>Commentaire</th>
+              <th class="sortable" (click)="onHeaderSort('status')">Statut {{ sortIndicator('status') }}</th>
+              <th>Changer statut</th>
             </tr>
           </thead>
           <tbody>
@@ -70,10 +70,34 @@
             </tr>
             <tr *ngFor="let item of sortedWaitingPrints()">
               <td title="{{ item.id }}">{{ item.id | slice:0:8 }}…</td>
-              <td>{{ getFileName(item.file?.path) }}</td>
-              <td title="{{ item.user }}">{{ getUserEmail(item.user) }}</td>              
+              <td class="cell-file">
+                <div class="file-box">{{ getFileName(item.file?.path) }}</div>
+              </td>
+              <td class="cell-user">
+                <div class="user-box">{{ getUserEmail(item.user) }}</div>
+              </td>              
               <td><span class="badge" [ngClass]="'badge-role-' + getUserRole(item.user)">{{ getUserRole(item.user) }}</span></td>
               <td>{{ item.created_at | date:'dd/MM/yy HH:mm' }}</td>
+              <td>
+                @if (item.price) { {{ item.price }} }
+                @else { <span class="empty-cell">—</span> }
+              </td>
+              <td>
+                @if (item.file?.path) {
+                  <a [href]="getDownloadUrl(item.file?.path)" target="_blank" rel="noopener noreferrer" download
+                    style="color:var(--accent);font-weight:600;font-size:.82rem">⬇ Télécharger</a>
+                } @else {
+                  <span class="empty-cell">—</span>
+                }
+              </td>
+              <td>
+                {{ getPrinterName(item.printer) }}
+              </td>
+              <td class="cell-comment">
+                <div class="comment-box">
+                  {{ item.comment || '—' }}
+                </div>
+              </td>
               <td><span class="badge" [ngClass]="getStatusBadgeClass(item.status)">{{ item.status }}</span></td>
               <td>
                 <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
@@ -94,24 +118,6 @@
                       (click)="onApplyStatus(item)">✔ Appliquer</button>
                   }
                 </div>
-              </td>
-              <td>
-                @if (item.price) { {{ item.price }} }
-                @else { <span class="empty-cell">—</span> }
-              </td>
-              <td>
-                @if (item.file?.path) {
-                  <a [href]="getDownloadUrl(item.file?.path)" target="_blank" rel="noopener noreferrer" download
-                    style="color:var(--accent);font-weight:600;font-size:.82rem">⬇ Télécharger</a>
-                } @else {
-                  <span class="empty-cell">—</span>
-                }
-              </td>
-              <td>
-                {{ getPrinterName(item.printer) }}
-              </td>
-              <td title="{{ item.comment }}">
-                {{ item.comment || '—' }}
               </td>
             </tr>
           </tbody>

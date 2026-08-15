@@ -232,24 +232,31 @@ class AdminRequestView(viewsets.ReadOnlyModelViewSet):
         current_status = str(print_request.status)
         statuses = Request.Status.values
 
-        if current_status == Request.Status.SUBMITTED and new_status and new_status != Request.Status.AWAITING_PAYMENT:
-            return Response(
-                {'error': 'New requests must move to awaiting payment first.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # Statuts autorisés à tout moment pour abandonner ou rejeter la demande
+        CANCELLATION_STATUSES = [Request.Status.CANCELED, Request.Status.FAILED]
 
+        # 1. Verification SUBMITTED (sauf si annulation/échec)
+        if current_status == Request.Status.SUBMITTED and new_status and new_status != Request.Status.AWAITING_PAYMENT:
+            if new_status not in CANCELLATION_STATUSES:
+                return Response(
+                    {'error': 'New requests must move to awaiting payment first.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        # 2. Verification AWAITING_PAYMENT (sauf si annulation/échec)
         if current_status == Request.Status.AWAITING_PAYMENT:
             if not new_status:
                 return Response(
                     {'error': 'Request is waiting for user payment.'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            if new_status != Request.Status.AWAITING_PAYMENT:
+            if new_status != Request.Status.AWAITING_PAYMENT and new_status not in CANCELLATION_STATUSES:
                 return Response(
                     {'error': 'Request must be paid before advancing status.'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
+        # 3. Validation du prix (uniquement nécessaire si on passe en AWAITING_PAYMENT)
         if current_status in [Request.Status.SUBMITTED, Request.Status.AWAITING_PAYMENT] and new_status == Request.Status.AWAITING_PAYMENT:
             if price is None:
                 return Response(
@@ -273,13 +280,13 @@ class AdminRequestView(viewsets.ReadOnlyModelViewSet):
 
             print_request.price = price
 
+        # 4. Progression automatique (si aucun statut n'est fourni)
         if not new_status:
             current_index = statuses.index(current_status)
 
             if current_status == Request.Status.SUBMITTED:
                 new_status = Request.Status.AWAITING_PAYMENT
             else:
-                # Cannot autochange to ERROR/CANCELED.
                 ERROR_STATUS_COUNT = 2
                 if current_index < len(statuses) - ERROR_STATUS_COUNT - 1:
                     new_status = statuses[current_index + 1]
@@ -317,7 +324,6 @@ class AdminRequestView(viewsets.ReadOnlyModelViewSet):
                 {'error': f'Invalid status: {new_status}'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
 
         print_request.status = new_status
         print_request.save() 

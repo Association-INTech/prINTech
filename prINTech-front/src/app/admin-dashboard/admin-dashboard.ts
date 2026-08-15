@@ -45,8 +45,7 @@ export class AdminDashboard implements OnInit {
   // Requests
   readonly waitingPrints = signal<PrintRequest[]>([]);
   readonly sortedWaitingPrints = signal<PrintRequest[]>([]);
-  readonly sortColumn = signal<'id' | 'file' | 'user' | 'created_at' | 'status'>('created_at');
-  readonly sortDirection = signal<'asc' | 'desc'>('desc');
+  readonly sortColumn = signal<'id' | 'file' | 'user' | 'created_at' | 'status' | 'printer' | 'comment'>('created_at');  readonly sortDirection = signal<'asc' | 'desc'>('desc');
   readonly searchQuery = signal('');
   updatingRequestIds = new Set<string>();
   readonly pendingStatus = signal<Record<string, PrintRequestStatus>>({});
@@ -148,7 +147,7 @@ export class AdminDashboard implements OnInit {
     });
   }
 
-  onHeaderSort(column: 'id' | 'file' | 'user' | 'created_at' | 'status'): void {
+  onHeaderSort(column: 'id' | 'file' | 'user' | 'created_at' | 'status' | 'printer' | 'comment'): void {
     if (this.sortColumn() === column) {
       this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
     } else {
@@ -158,7 +157,7 @@ export class AdminDashboard implements OnInit {
     this.applyPrintSort();
   }
 
-  sortIndicator(column: 'id' | 'file' | 'user' | 'created_at' | 'status'): string {
+  sortIndicator(column: 'id' | 'file' | 'user' | 'created_at' | 'status' | 'printer' | 'comment'): string {
     if (this.sortColumn() !== column) return '';
     return this.sortDirection() === 'asc' ? '↑' : '↓';
   }
@@ -226,19 +225,31 @@ export class AdminDashboard implements OnInit {
   }
 
   canTransition(current: PrintRequestStatus, next: PrintRequestStatus): boolean {
-    if (current === next) return true;
+    if (current === next) return false;
+    // Statuts finaux : aucune transition possible
+  
+    if (['PICKED_UP', 'FAILED', 'CANCELED'].includes(current)) {
+    return false;
+    }
+
+    // CANCELED et FAILED sont toujours autorisés avant la finalisation
+    if (next === 'CANCELED' || next === 'FAILED') {
+    return true;
+    }
+
     const transitions: Record<PrintRequestStatus, PrintRequestStatus[]> = {
-      SUBMITTED: ['AWAITING_PAYMENT', 'FAILED', 'CANCELED'],
-      AWAITING_PAYMENT: ['PENDING', 'FAILED', 'CANCELED'],
-      PENDING: ['PRINTING', 'FAILED', 'CANCELED'],
-      PRINTING: ['AWAITING_PICKUP', 'FAILED'],
-      AWAITING_PICKUP: ['PICKED_UP', 'FAILED'],
+      SUBMITTED: ['AWAITING_PAYMENT'],
+      AWAITING_PAYMENT: ['PENDING'],
+      PENDING: ['PRINTING'],
+      PRINTING: ['AWAITING_PICKUP'],
+      AWAITING_PICKUP: ['PICKED_UP'],
       PICKED_UP: [],
       FAILED: [],
       CANCELED: [],
     };
-    return transitions[current].includes(next);
-  }
+
+      return transitions[current].includes(next);
+    }
 
   getFileName(path?: string | null): string {
     if (!path) return '-';
@@ -504,7 +515,6 @@ export class AdminDashboard implements OnInit {
 
   getPrinterName(printer: string | Printer | null | undefined): string {
   if (!printer) return '-';
-  if (typeof printer === 'object' && printer.name) return printer.name;
   // Recherche par nom dans le signal printers
   const found = this.printers().find(p => String(p.name) === printer);
   return found ? found.name : String(printer);

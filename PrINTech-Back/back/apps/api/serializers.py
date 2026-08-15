@@ -127,8 +127,13 @@ class RequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Request
         fields = ['id', 'user', 'file', 'printer', 'price', 'filament', 'comment', 'created_at','status',"path","number_of_printing", "para_slicer"] 
-        read_only_fields = ['id', 'user','file', 'price', 'created_at', 'status']
-        
+        read_only_fields = ['id', 'user','file', 'created_at']
+
+    def validate(self, data):
+        if data.get('status') == 'AWAITING_PAYMENT' and not data.get('price'):
+            raise serializers.ValidationError({"price": "Un prix est requis pour AWAITING_PAYMENT."})
+        return data
+         
     def create(self, validated_data):
             path = validated_data.pop('path')
             number_of_printing = validated_data.pop('number_of_printing')
