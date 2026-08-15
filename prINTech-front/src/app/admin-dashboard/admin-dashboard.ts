@@ -134,16 +134,12 @@ export class AdminDashboard implements OnInit {
   private loadRequests(): void {
     this.adminService.getWaitingRequests().subscribe({
       next: (requests) => {
-        /*
-        const waiting = requests.filter((r) =>
-          ['SUBMITTED', 'AWAITING_PAYMENT', 'PENDING', 'PRINTING', 'AWAITING_PICKUP'].includes(r.status)
-        );
-        */
+        const rawList = Array.isArray(requests) ? requests : ((requests as any)?.results || []);
         this.pendingStatus.set({});
-        this.waitingPrints.set(requests);
+        this.waitingPrints.set(rawList);
         this.applyPrintSort();
       },
-      error: () => this.errorMessage.set('Impossible de charger les impressions en attente.'),
+      error: () => this.errorMessage.set('Impossible de charger les impressions.'),
     });
   }
 
@@ -269,35 +265,83 @@ export class AdminDashboard implements OnInit {
     return 'badge-failed';
   }
 
+  // Filter status 
+  readonly statusFilter = signal<string>('BASIC');
+  setStatusFilter(status: string): void {
+    this.statusFilter.set(status);
+    this.applyPrintSort();
+  }
+
   private applyPrintSort(): void {
     const query = this.searchQuery();
-    const filtered = !query
-      ? this.waitingPrints()
-      : this.waitingPrints().filter((item) => {
-          const id = item.id.toLowerCase();
-          const file = this.getFileName(item.file?.path).toLowerCase();
-          const user = item.user.toLowerCase();
-          const st = item.status.toLowerCase();
-          return id.includes(query) || file.includes(query) || user.includes(query) || st.includes(query);
-        });
+    const currentFilter = this.statusFilter();
 
+    // 1. Filtrage par statut
+    let filtered = this.waitingPrints();
+    if (currentFilter === 'BASIC') {
+      filtered = filtered.filter((item) => {
+        const st = item.status;
+        return st == 'SUBMITTED' || st == 'PENDING' || st == 'PRINTING';
+      });
+    } else {
+      // Filtre strict si un statut spécifique est cliqué
+      filtered = filtered.filter((item) => item.status === currentFilter);
+    }
+
+    // 2. Filtrage par recherche
+    if (query) {
+      filtered = filtered.filter((item) => {
+        const id = (item.id || '').toLowerCase();
+        const file = this.getFileName(item.file?.path).toLowerCase();
+        const user = this.getUserEmail(item.user).toLowerCase();
+        const st = (item.status || '').toLowerCase();
+        const printer = this.getPrinterName((item as any).printer).toLowerCase();
+        const comment = ((item as any).comment || '').toLowerCase();
+
+        return (
+          id.includes(query) ||
+          file.includes(query) ||
+          user.includes(query) ||
+          st.includes(query) ||
+          printer.includes(query) ||
+          comment.includes(query)
+        );
+      });
+    }
+
+    // 3. Tri sur TOUTES les colonnes
     const sorted = [...filtered];
     const column = this.sortColumn();
     const direction = this.sortDirection();
 
     sorted.sort((a, b) => {
       let result = 0;
-      if (column === 'created_at') {
-        result = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-      } else if (column === 'status') {
-        result = a.status.localeCompare(b.status);
-      } else if (column === 'user') {
-        result = a.user.localeCompare(b.user);
-      } else if (column === 'file') {
-        result = this.getFileName(a.file?.path).localeCompare(this.getFileName(b.file?.path));
-      } else {
-        result = a.id.localeCompare(b.id);
+
+      switch (column) {
+        case 'created_at':
+          result = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          break;
+        case 'status':
+          result = (a.status || '').localeCompare(b.status || '');
+          break;
+        case 'user':
+          result = this.getUserEmail(a.user).localeCompare(this.getUserEmail(b.user));
+          break;
+        case 'file':
+          result = this.getFileName(a.file?.path).localeCompare(this.getFileName(b.file?.path));
+          break;
+        case 'printer':
+          result = this.getPrinterName((a as any).printer).localeCompare(this.getPrinterName((b as any).printer));
+          break;
+        case 'comment':
+          result = ((a as any).comment || '').localeCompare((b as any).comment || '');
+          break;
+        case 'id':
+        default:
+          result = (a.id || '').localeCompare(b.id || '');
+          break;
       }
+
       return direction === 'asc' ? result : -result;
     });
 
