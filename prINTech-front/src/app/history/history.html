@@ -4,8 +4,15 @@
     <div *ngIf="successMessage" class="feedback success">{{ successMessage }}</div>
     <div *ngIf="errorMessage" class="feedback error">{{ errorMessage }}</div>
     
-    <input type="search" id="print-search" placeholder="Filtrer par nom de fichier..." (input)="onSearch($event)">
-    
+    <div class="history-controls"><input type="search" id="print-search" placeholder="Filtrer par nom de fichier..." (input)="onSearch($event)">
+    <div class="status-filters">
+        <button class="filter-btn" (click)="setStatusFilter('ONGOING')">ONGOING</button>
+        <button class="filter-btn" (click)="setStatusFilter('PICKED_UP')">PICKED UP</button>
+        <button class="filter-btn" (click)="setStatusFilter('CANCELED')">CANCELED</button>
+        <button class="filter-btn" (click)="setStatusFilter('FAILED')">FAILED</button>
+    </div>
+    </div>
+
     <div class="table-wrapper">
         <table>
             <thead>
@@ -35,7 +42,7 @@
                         <span class="status" [ngClass]="{
                             'status-queued': item.status === 'SUBMITTED' || item.status === 'PENDING',
                             'status-payment': item.status === 'AWAITING_PAYMENT',
-                            'status-printed': item.status === 'DONE',
+                            'status-printed': item.status === 'PICKED_UP',
                             'status-failed': item.status === 'FAILED' || item.status === 'CANCELED'
                         }">{{ item.status }}</span>
                     </td>

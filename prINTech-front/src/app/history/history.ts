@@ -38,10 +38,18 @@ export class History implements OnInit{
     this.applyFilters();
   }
 
+  // Filter status 
+  readonly statusFilter = signal<string>('ONGOING');
+  setStatusFilter(status: string): void {
+    this.statusFilter.set(status);
+    this.applyFilters();
+  }
+
   private applyFilters(): void {
     const query = this.SearchQuery.toLowerCase();
+    const currentFilter = this.statusFilter();
     
-    //Filtrage par recherche
+    // 1. Filtrage par recherche (nom de fichier)
     let filtered = !query 
       ? [...this.fullHistory] 
       : this.fullHistory.filter(item => {
@@ -49,7 +57,17 @@ export class History implements OnInit{
           return fileName.includes(query);
         });
 
-    //Tri par Date (created_at)
+    // 2. Filtrage par statut
+    if (currentFilter === 'ONGOING') {
+      filtered = filtered.filter((item) => {
+        const st = item.status;
+        return st === 'SUBMITTED' || st === 'AWAITING_PAYMENT' || st==='PENDING' || st === 'PRINTING' || st === 'AWAITING_PICKUP';
+      });
+    } else if (currentFilter !== 'ALL') {
+      filtered = filtered.filter((item) => item.status === currentFilter);
+    }
+
+    // 3. Tri par Date (created_at)
     const direction = this.sortDirection();
     filtered.sort((a, b) => {
       const dateA = new Date(a.created_at).getTime();

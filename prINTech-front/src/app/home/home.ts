@@ -15,6 +15,7 @@ export class Home implements OnInit{
 
   ngOnInit(): void {
     this.homeService.getActivePrinters();
+    this.homeService.GetQueue(); 
   }
 
   Username = this.homeService.username
