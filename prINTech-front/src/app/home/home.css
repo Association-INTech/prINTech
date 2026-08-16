@@ -1,186 +1,237 @@
 .page-content {
-	max-width: 1100px;
-	margin: 0 auto;
-	padding: 24px 12px 32px;
-	display: grid;
-	gap: 12px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 12px 32px;
+    display: grid;
+    gap: 12px;
 }
 
+/* --- Keyframes d'apparition --- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Application de l'animation d'entrée sur les éléments --- */
+.greeting,
+.subgreeting,
+.cta-btn,
+.section-head,
+.printer-card {
+    opacity: 0;
+    animation: fadeIn 0.45s ease-out forwards;
+}
+
+/* Délais d'apparition séquentiels */
+.greeting     { animation-delay: 0.05s; }
+.subgreeting  { animation-delay: 0.12s; }
+.cta-btn      { animation-delay: 0.18s; }
+.section-head { animation-delay: 0.30s; }
+
+/* Cascade pour les cartes d'imprimantes */
+.printer-card:nth-child(1) { animation-delay: 0.38s; }
+.printer-card:nth-child(2) { animation-delay: 0.48s; }
+.printer-card:nth-child(3) { animation-delay: 0.58s; }
+
+/* --- Styles des textes et éléments --- */
 .greeting {
-	font-size: clamp(1.6rem, 2.5vw, 2.2rem);
-	font-weight: 800;
-	line-height: 1.2;
-	color: #095c9c;
+    font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+    font-weight: 800;
+    line-height: 1.2;
+    color: #095c9c;
 }
 
 .subgreeting {
-	margin: 0;
-	color: #4b5563;
-	font-size: 1rem;
+    margin: 0;
+    color: #4b5563;
+    font-size: 1rem;
 }
 
 .cta-btn {
-	justify-self: start;
-	margin-top: 10px;
-	margin-bottom: 8px;
-	padding: 11px 18px;
-	border: 2px solid transparent;
-	border-radius: 999px;
-	background: #095c9c;
-	color: #ffffff;
-	font-size: 0.95rem;
-	font-weight: 700;
-	cursor: pointer;
-	transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease;
+    justify-self: start;
+    margin-top: 10px;
+    margin-bottom: 8px;
+    padding: 11px 18px;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: #095c9c;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .cta-btn:hover {
-	background: #074b7d;
-	transform: translateY(-1px);
+    background: #074b7d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(9, 92, 156, 0.25);
 }
 
 .cta-btn:focus-visible {
-	outline: none;
-	border-color: #f8cc08;
+    outline: none;
+    border-color: #f8cc08;
 }
 
 .empty-state {
-	margin-top: 8px;
-	border: 1px dashed #98a7cb;
-	border-radius: 12px;
-	background: #f8fbff;
-	color: #1f2937;
-	padding: 14px 16px;
+    margin-top: 8px;
+    border: 1px dashed #98a7cb;
+    border-radius: 12px;
+    background: #f8fbff;
+    color: #1f2937;
+    padding: 14px 16px;
 }
 
 .link {
-	color: #095c9c;
-	font-weight: 700;
-	cursor: pointer;
+    color: #095c9c;
+    font-weight: 700;
+    cursor: pointer;
 }
 
 .link:hover {
-	text-decoration: underline;
+    text-decoration: underline;
 }
 
 .printers-section {
-	margin-top: 18px;
-	padding-top: 10px;
-	display: grid;
-	gap: 14px;
+    margin-top: 18px;
+    padding-top: 10px;
+    display: grid;
+    gap: 14px;
 }
 
 .section-head h2 {
-	margin: 0;
-	font-size: clamp(1.3rem, 2.2vw, 1.8rem);
-	color: #095c9c;
-	font-weight: 800;
+    margin: 0;
+    font-size: clamp(1.3rem, 2.2vw, 1.8rem);
+    color: #095c9c;
+    font-weight: 800;
 }
 
 .section-head p {
-	margin: 6px 0 0;
-	color: #4b5563;
+    margin: 6px 0 0;
+    color: #4b5563;
 }
 
 .printers-grid {
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
 }
 
+/* --- Style & Effets Hover sur les Cartes d'Imprimantes --- */
 .printer-card {
-	background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-	border: 1px solid #dfe6f2;
-	border-radius: 14px;
-	box-shadow: 0 12px 28px rgba(9, 92, 156, 0.1);
-	overflow: hidden;
-	display: grid;
-	grid-template-columns: minmax(320px, 36%) minmax(0, 1fr);
-	grid-template-areas: 'media content';
-	min-height: 320px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    border: 1px solid #dfe6f2;
+    border-radius: 14px;
+    box-shadow: 0 8px 20px rgba(9, 92, 156, 0.06);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(320px, 36%) minmax(0, 1fr);
+    grid-template-areas: 'media content';
+    min-height: 320px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+/* Effet au survol des cartes */
+.printer-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 32px rgba(9, 92, 156, 0.14);
+    border-color: #cbd7e9;
 }
 
 .printer-card:nth-child(even) {
-	grid-template-columns: minmax(0, 1fr) minmax(320px, 36%);
-	grid-template-areas: 'content media';
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 36%);
+    grid-template-areas: 'content media';
 }
 
 .printer-image {
-	grid-area: media;
-	width: 100%;
-	height: 100%;
-	object-fit: contain;
-	background: #f6f9ff;
-	padding: 14px;
-	border: none;
-	border-radius: 0;
-	box-sizing: border-box;
+    grid-area: media;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #f6f9ff;
+    padding: 14px;
+    border: none;
+    border-radius: 0;
+    box-sizing: border-box;
+    transition: transform 0.3s ease;
+}
+
+/* Léger zoom sur l'image lors du survol de la carte */
+.printer-card:hover .printer-image {
+    transform: scale(1.03);
 }
 
 .printer-content {
-	grid-area: content;
-	padding: 24px 28px 22px;
-	display: grid;
-	gap: 10px;
-	align-content: center;
-	min-width: 0;
-	border-left: 1px solid #e5eaf3;
+    grid-area: content;
+    padding: 24px 28px 22px;
+    display: grid;
+    gap: 10px;
+    align-content: center;
+    min-width: 0;
+    border-left: 1px solid #e5eaf3;
 }
 
 .printer-card:nth-child(even) .printer-content {
-	border-left: none;
-	border-right: 1px solid #e5eaf3;
+    border-left: none;
+    border-right: 1px solid #e5eaf3;
 }
 
 .printer-content h3 {
-	margin: 0;
-	font-size: clamp(1.2rem, 2vw, wait now that im looking at it theres a 1.55rem);
-	color: #111111;
-	font-weight: 800;
+    margin: 0;
+    font-size: clamp(1.2rem, 2vw, 1.55rem); /* Corrected clamp syntax */
+    color: #111111;
+    font-weight: 800;
 }
 
 .printer-content p {
-	margin: 0;
-	color: #475569;
-	line-height: 1.55;
-	font-size: 1rem;
+    margin: 0;
+    color: #475569;
+    line-height: 1.55;
+    font-size: 1rem;
 }
 
 .printer-content ul {
-	margin: 6px 0 0;
-	padding-left: 20px;
-	color: #1f2937;
-	display: grid;
-	gap: 6px;
+    margin: 6px 0 0;
+    padding-left: 20px;
+    color: #1f2937;
+    display: grid;
+    gap: 6px;
 }
 
+/* --- Responsive --- */
 @media (max-width: 960px) {
-	.printers-grid {
-		grid-template-columns: 1fr;
-	}
+    .printers-grid {
+        grid-template-columns: 1fr;
+    }
 
-	.printer-card,
-	.printer-card:nth-child(even) {
-		grid-template-columns: 1fr;
-		grid-template-areas:
-			'media'
-			'content';
-		min-height: auto;
-	}
+    .printer-card,
+    .printer-card:nth-child(even) {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            'media'
+            'content';
+        min-height: auto;
+    }
 
-	.printer-image {
-		height: 260px;
-	}
+    .printer-image {
+        height: 260px;
+    }
 
-	.printer-content {
-		padding: 18px 18px 20px;
-		border-left: none;
-		border-right: none;
-	}
+    .printer-content {
+        padding: 18px 18px 20px;
+        border-left: none;
+        border-right: none;
+    }
 }
 
 @media (max-width: 640px) {
-	.page-content {
-		padding-inline: 4px;
-	}
+    .page-content {
+        padding-inline: 4px;
+    }
 }
