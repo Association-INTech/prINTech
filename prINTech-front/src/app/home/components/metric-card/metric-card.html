@@ -3,6 +3,9 @@
       <div class="label">Crédit restant</div>
       <div class="value">{{UserCredit()}}€</div>
       <div class="sub">Adhérent {{ is_active() ? 'actif' : 'inactif' }}</div>
+      <button class="reload-btn" type="button" routerLink="./profile">
+        + Recharger
+      </button>
     </div>
     <div class="metric-card">
       <div class="label">Imprimantes actives</div>
@@ -18,5 +21,8 @@
       <div class="label">Travaux en file</div>
        <div class="value"> {{ Queue_size() }}</div>
       <div class="sub"></div> 
+      <button class="reload-btn" type="button" routerLink="./history">
+        + Consulter
+      </button>
     </div>
   </div>
