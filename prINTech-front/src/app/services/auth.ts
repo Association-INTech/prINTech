@@ -36,7 +36,11 @@ export class AuthService {
         if (!decoded.exp || decoded.exp < now) {
           this.clearToken();
         } else {
-          this.loadCurrentUser().subscribe({ next: () => {}, error: () => {} });
+          this.loadCurrentUser().subscribe({
+            error: (err) => {
+              if (err.status === 401 || err.status === 403) 
+                {this.logout();} 
+            }});
         }
       } catch (e) {
         this.clearToken();
@@ -135,8 +139,12 @@ export class AuthService {
         this.currentUser.set(u);
         localStorage.setItem(this.userStorageKey, JSON.stringify(u));
       },
-      error: () => this.currentUser.set(null)
-    });
+      error: (err) => {
+        // On ne déconnecte QUE si le token est invalide (401/403)
+        if (err.status === 401 || err.status === 403) {
+          this.logout();
+        }
+    }});
     return obs;
   }
 }

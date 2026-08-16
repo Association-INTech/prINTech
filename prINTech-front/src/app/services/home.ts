@@ -1,20 +1,23 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal, } from '@angular/core';
+import { inject, Injectable, signal, computed} from '@angular/core';
 import { Observable } from 'rxjs';
+import { AuthService } from './auth';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HomeService {
   private readonly http = inject(HttpClient)
+  private readonly authService = inject(AuthService);
   private readonly ApiBase = 'http://127.0.0.1:8000/api/v1'
 
-  userCredit = signal<number | null>(null);
+  username = computed(() => this.authService.currentUser()?.username ?? 'John Doe');
+  email = computed(() => this.authService.currentUser()?.email ?? 'johndoe@gmail.com');
+  userCredit = computed(() => this.authService.currentUser()?.credit ?? null);
+
   active_printers = signal<number>(0);
   total_printers = signal<number>(67);
-  username = signal<string>('John Doe');
   printers_status = signal<string>('Disponible');
-  email = signal<string>('johndoe@gmail.com');
   is_active = signal<boolean>(true);
   queue_size = signal<number>(67);
 
@@ -39,15 +42,6 @@ export class HomeService {
   }
 
   loadUserInfo(){
-    this.http.get< User >(`${this.ApiBase}/user/me`)
-    .subscribe(
-      (res) => {
-        this.username.set(res.username)
-        this.email.set(res.email)
-        this.userCredit.set(res.credit)
-        this.is_active.set(res.is_active)
-      }
-    )
   }
 
 GetQueue() {
