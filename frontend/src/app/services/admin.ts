@@ -25,6 +25,14 @@ export class AdminService {
     );
   }
 
+  downloadFile(fileId: string): Observable<Blob> {
+    return this.http.get(`${this.apiBase}/files/${fileId}/download/`, { responseType: 'blob' });
+  }
+
+  refundRequest(requestId: string): Observable<PrintRequest> {
+    return this.http.post<PrintRequest>(`${this.apiBase}/admin/requests/${requestId}/refund/`, {});
+  }
+
   // ── Users ───────────────────────────────────────────────────
   getUsers(): Observable<AdminUser[]> {
     return this.http
@@ -103,6 +111,7 @@ export type PrintRequestStatus =
   | 'AWAITING_PICKUP'
   | 'PICKED_UP'
   | 'FAILED'
+  | 'REFUNDED'
   | 'CANCELED';
 
 export interface PrintRequest {
@@ -114,7 +123,9 @@ export interface PrintRequest {
   comment: string | null;
   printer: string | null;
   file: {
-    path: string;
+    id: string;
+    path: string | null;
+    download_url: string;
     number_of_printing: number;
     filament: number | null;
     para_slicer: unknown;

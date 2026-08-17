@@ -3,8 +3,10 @@ export type HistoryStatus =
     | 'AWAITING_PAYMENT'
     | 'PENDING'
     | 'PRINTING'
-    | 'DONE'
+    | 'AWAITING_PICKUP'
+    | 'PICKED_UP'
     | 'FAILED'
+    | 'REFUNDED'
     | 'CANCELED';
 
 export interface HistoryFile {

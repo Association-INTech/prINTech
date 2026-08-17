@@ -10,48 +10,27 @@ export class AuthService {
   
   private readonly http = inject(HttpClient);
   private readonly accessTokenStorageKey = 'auth_access_token';
-  private readonly refreshTokenStorageKey = 'auth_refresh_token';
   private readonly apiBase = '/api/v1';
-  private readonly token = signal<string | null>(
-    localStorage.getItem(this.accessTokenStorageKey)
-  );
+  private readonly token = signal<string | null>(null);
 
   private readonly userStorageKey = 'auth_current_user';
   // Current user cached as a signal so UI can reactively depend on it
-  currentUser = signal<UserMeResponse | null>(
-    (() => {
-      const stored = localStorage.getItem(this.userStorageKey);
-      return stored ? JSON.parse(stored) : null;
-    })()
-  );
+  currentUser = signal<UserMeResponse | null>(null);
 
   readonly isAuthenticated = computed(() => this.token() !== null);
 
   constructor() {
-    const token = this.token();
-    if (token) {
-      try {
-        const decoded: any = jwtDecode(token as string);
-        const now = Date.now() / 1000;
-        if (!decoded.exp || decoded.exp < now) {
-          this.clearToken();
-        } else {
-          this.loadCurrentUser().subscribe({ next: () => {}, error: () => {} });
-        }
-      } catch (e) {
-        this.clearToken();
-      }
-    }
+    this.clearPersistentAuthCache();
   }
 
   login(email: string, password: string): Observable<LoginResponse> {
     const payload: LoginRequest = { email, password };
 
     return this.http
-      .post<LoginResponse>(`${this.apiBase}/token/`, payload)
+      .post<LoginResponse>(`${this.apiBase}/token/`, payload, { withCredentials: true })
       .pipe(
-        tap(({ access, refresh }) => {
-          this.setTokens(access, refresh);
+        tap(({ access }) => {
+          this.setAccessToken(access);
           // eagerly load current user
           this.loadCurrentUser().subscribe({ next: () => {}, error: () => {} });
         })
@@ -63,11 +42,9 @@ export class AuthService {
   }
 
   refreshToken(): Observable<RefreshResponse>{
-    const refresh = localStorage.getItem(this.refreshTokenStorageKey);
-    if (!refresh) throw new Error('no refresh token');
     return this.http
-      .post<RefreshResponse>(`${this.apiBase}/token/refresh/`, { refresh })
-      .pipe(tap(({ access }) => this.setTokens(access, refresh)));
+      .post<RefreshResponse>(`${this.apiBase}/token/refresh/`, {}, { withCredentials: true })
+      .pipe(tap(({ access }) => this.setAccessToken(access)));
   }
 
   change_password(
@@ -87,6 +64,10 @@ export class AuthService {
     );
   }
   logout(): void {
+    this.http.post(`${this.apiBase}/token/logout/`, {}, { withCredentials: true }).subscribe({
+      next: () => {},
+      error: () => {},
+    });
     this.clearToken();
     this.currentUser.set(null);
   }
@@ -99,14 +80,12 @@ export class AuthService {
     const token = this.token();
 
     if (token == null) {
-      console.warn('no token')
       return false;
     }
 
     const decodedToken = jwtDecode(token);
 
     if (!decodedToken.exp) {
-      console.warn('invalid token')
       return false;
     }
     const currentTime = Date.now() / 1000;
@@ -115,17 +94,19 @@ export class AuthService {
     return (!isExpired);
   }
 
-  private setTokens(accessToken: string, refreshToken: string): void {
+  private setAccessToken(accessToken: string): void {
     this.token.set(accessToken);
-    localStorage.setItem(this.accessTokenStorageKey, accessToken);
-    localStorage.setItem(this.refreshTokenStorageKey, refreshToken);
   }
 
   private clearToken(): void {
     this.token.set(null);
+  }
+
+  private clearPersistentAuthCache(): void {
     localStorage.removeItem(this.accessTokenStorageKey);
-    localStorage.removeItem(this.refreshTokenStorageKey);
     localStorage.removeItem(this.userStorageKey);
+    sessionStorage.removeItem(this.accessTokenStorageKey);
+    sessionStorage.removeItem(this.userStorageKey);
   }
 
   loadCurrentUser(): Observable<UserMeResponse> {
@@ -133,9 +114,10 @@ export class AuthService {
     obs.subscribe({
       next: (u) => {
         this.currentUser.set(u);
-        localStorage.setItem(this.userStorageKey, JSON.stringify(u));
       },
-      error: () => this.currentUser.set(null)
+      error: () => {
+        this.currentUser.set(null);
+      }
     });
     return obs;
   }
@@ -149,7 +131,6 @@ interface LoginRequest {
 
 interface LoginResponse {
   access: string;
-  refresh: string;
 }
 
 interface RefreshResponse {

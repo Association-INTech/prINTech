@@ -35,7 +35,8 @@
                         <span class="status" [ngClass]="{
                             'status-queued': item.status === 'SUBMITTED' || item.status === 'PENDING',
                             'status-payment': item.status === 'AWAITING_PAYMENT',
-                            'status-printed': item.status === 'DONE',
+                            'status-progress': item.status === 'PRINTING' || item.status === 'AWAITING_PICKUP',
+                            'status-printed': item.status === 'PICKED_UP' || item.status === 'REFUNDED',
                             'status-failed': item.status === 'FAILED' || item.status === 'CANCELED'
                         }">{{ item.status }}</span>
                     </td>
