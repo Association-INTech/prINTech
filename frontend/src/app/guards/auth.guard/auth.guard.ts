@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router'
+import { catchError, map, of, switchMap } from 'rxjs';
 import { AuthService } from '../../services/auth';
 
 export const authGuard: CanActivateFn = (route, state) => {
@@ -10,5 +11,9 @@ export const authGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
+  return authService.refreshToken().pipe(
+    switchMap(() => authService.loadCurrentUser()),
+    map(() => true),
+    catchError(() => of(router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } })))
+  );
 }

@@ -16,7 +16,7 @@ import {
   OperationCreatePayload,
 } from '../services/admin';
 
-type TabId = 'requests' | 'users' | 'operations' | 'filaments' | 'printers';
+type TabId = 'requests' | 'refunds' | 'users' | 'operations' | 'filaments' | 'printers';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -45,16 +45,21 @@ export class AdminDashboard implements OnInit {
   // Requests
   readonly waitingPrints = signal<PrintRequest[]>([]);
   readonly sortedWaitingPrints = signal<PrintRequest[]>([]);
+  readonly refundPrints = signal<PrintRequest[]>([]);
+  readonly sortedRefundPrints = signal<PrintRequest[]>([]);
   readonly sortColumn = signal<'id' | 'file' | 'user' | 'created_at' | 'status'>('created_at');
   readonly sortDirection = signal<'asc' | 'desc'>('desc');
   readonly searchQuery = signal('');
+  readonly refundSearchQuery = signal('');
+  readonly refundSortColumn = signal<'id' | 'file' | 'user' | 'created_at' | 'status'>('created_at');
+  readonly refundSortDirection = signal<'asc' | 'desc'>('desc');
   updatingRequestIds = new Set<string>();
+  refundingRequestIds = new Set<string>();
   readonly pendingStatus = signal<Record<string, PrintRequestStatus>>({});
   pendingPrice: Record<string, number | undefined> = {};
 
   readonly statusOptions: PrintRequestStatus[] = [
     'SUBMITTED',
-    'AWAITING_PAYMENT',
     'PENDING',
     'PRINTING',
     'AWAITING_PICKUP',
@@ -90,7 +95,7 @@ export class AdminDashboard implements OnInit {
   // Operations 
   readonly operations = signal<Operation[]>([]);
 
-  readonly operationTypes = ['CASH', 'CARD', 'PAYMENT', 'REFUND'];
+  readonly operationTypes = ['CASH', 'CARD'];
 
   readonly createOperationForm = this.formBuilder.nonNullable.group({
     beneficiary: ['', [Validators.required]],
@@ -109,7 +114,7 @@ export class AdminDashboard implements OnInit {
     color_name: ['', [Validators.required]],
     type: ['PLA', [Validators.required]],
     quantity: [0, [Validators.required, Validators.min(0)]],
-    price: [0, [Validators.required, Validators.min(0)]],
+    price: [1, [Validators.required, Validators.min(1)]],
   });
 
   // Printers 
@@ -140,9 +145,12 @@ export class AdminDashboard implements OnInit {
           ['SUBMITTED', 'AWAITING_PAYMENT', 'PENDING', 'PRINTING', 'AWAITING_PICKUP'].includes(r.status)
         );
         */
+        const refundStatuses: PrintRequestStatus[] = ['FAILED', 'REFUNDED'];
         this.pendingStatus.set({});
-        this.waitingPrints.set(requests);
+        this.waitingPrints.set(requests.filter((request) => !refundStatuses.includes(request.status)));
+        this.refundPrints.set(requests.filter((request) => refundStatuses.includes(request.status)));
         this.applyPrintSort();
+        this.applyRefundSort();
       },
       error: () => this.errorMessage.set('Impossible de charger les impressions en attente.'),
     });
@@ -163,9 +171,29 @@ export class AdminDashboard implements OnInit {
     return this.sortDirection() === 'asc' ? '↑' : '↓';
   }
 
+  onRefundHeaderSort(column: 'id' | 'file' | 'user' | 'created_at' | 'status'): void {
+    if (this.refundSortColumn() === column) {
+      this.refundSortDirection.set(this.refundSortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.refundSortColumn.set(column);
+      this.refundSortDirection.set('asc');
+    }
+    this.applyRefundSort();
+  }
+
+  refundSortIndicator(column: 'id' | 'file' | 'user' | 'created_at' | 'status'): string {
+    if (this.refundSortColumn() !== column) return '';
+    return this.refundSortDirection() === 'asc' ? '↑' : '↓';
+  }
+
   onSearchChange(event: Event): void {
     this.searchQuery.set((event.target as HTMLInputElement).value.trim().toLowerCase());
     this.applyPrintSort();
+  }
+
+  onRefundSearchChange(event: Event): void {
+    this.refundSearchQuery.set((event.target as HTMLInputElement).value.trim().toLowerCase());
+    this.applyRefundSort();
   }
 
   onPriceInput(requestId: string, event: Event): void {
@@ -194,18 +222,10 @@ export class AdminDashboard implements OnInit {
     if (!newStatus || newStatus === item.status || !this.canTransition(item.status, newStatus)) return;
     if (this.updatingRequestIds.has(item.id)) return;
 
-    const needsPrice = newStatus === 'AWAITING_PAYMENT';
-    const price = needsPrice ? this.pendingPrice[item.id] : undefined;
-
-    if (needsPrice && (!price || price < 0)) {
-      this.errorMessage.set('Un prix est requis pour passer en AWAITING_PAYMENT.');
-      return;
-    }
-
     this.updatingRequestIds.add(item.id);
     this.errorMessage.set('');
 
-    this.adminService.changeRequestStatus(item.id, newStatus, price).subscribe({
+    this.adminService.changeRequestStatus(item.id, newStatus).subscribe({
       next: () => {
         this.successMessage.set('Statut mis à jour.');
         this.pendingStatus.update(map => { const m = { ...map }; delete m[item.id]; return m; });
@@ -228,13 +248,14 @@ export class AdminDashboard implements OnInit {
   canTransition(current: PrintRequestStatus, next: PrintRequestStatus): boolean {
     if (current === next) return true;
     const transitions: Record<PrintRequestStatus, PrintRequestStatus[]> = {
-      SUBMITTED: ['AWAITING_PAYMENT', 'FAILED', 'CANCELED'],
+      SUBMITTED: ['PENDING', 'FAILED', 'CANCELED'],
       AWAITING_PAYMENT: ['PENDING', 'FAILED', 'CANCELED'],
       PENDING: ['PRINTING', 'FAILED', 'CANCELED'],
       PRINTING: ['AWAITING_PICKUP', 'FAILED'],
       AWAITING_PICKUP: ['PICKED_UP', 'FAILED'],
       PICKED_UP: [],
       FAILED: [],
+      REFUNDED: [],
       CANCELED: [],
     };
     return transitions[current].includes(next);
@@ -251,35 +272,85 @@ export class AdminDashboard implements OnInit {
     return path.startsWith('/') ? path : `/${path}`;
   }
 
+  downloadFile(item: PrintRequest): void {
+    if (!item.file?.id) return;
+
+    this.adminService.downloadFile(item.file.id).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = this.getFileName(item.file?.path);
+        link.click();
+        URL.revokeObjectURL(url);
+      },
+      error: (err) => this.errorMessage.set(this.readError(err, 'Téléchargement du fichier impossible.')),
+    });
+  }
+
+  getStatusLabel(status: PrintRequestStatus): string {
+    const labels: Record<PrintRequestStatus, string> = {
+      SUBMITTED: 'En attente de traitement',
+      AWAITING_PAYMENT: 'En attente de paiement',
+      PENDING: "En attente d'impression",
+      PRINTING: 'Impression en cours',
+      AWAITING_PICKUP: 'En attente de retrait',
+      PICKED_UP: 'Récupérée',
+      FAILED: 'En attente de remboursement',
+      REFUNDED: 'Remboursée',
+      CANCELED: 'Annulée',
+    };
+    return labels[status];
+  }
+
   getStatusBadgeClass(status: PrintRequestStatus): string {
     if (['SUBMITTED', 'AWAITING_PAYMENT', 'PENDING'].includes(status)) return 'badge-queued';
     if (['PRINTING', 'AWAITING_PICKUP'].includes(status)) return 'badge-progress';
-    if (status === 'PICKED_UP') return 'badge-done';
+    if (['PICKED_UP', 'REFUNDED'].includes(status)) return 'badge-done';
     return 'badge-failed';
   }
 
   private applyPrintSort(): void {
-    const query = this.searchQuery();
+    this.sortedWaitingPrints.set(this.sortRequests(
+      this.waitingPrints(),
+      this.searchQuery(),
+      this.sortColumn(),
+      this.sortDirection()
+    ));
+  }
+
+  private applyRefundSort(): void {
+    this.sortedRefundPrints.set(this.sortRequests(
+      this.refundPrints(),
+      this.refundSearchQuery(),
+      this.refundSortColumn(),
+      this.refundSortDirection()
+    ));
+  }
+
+  private sortRequests(
+    requests: PrintRequest[],
+    query: string,
+    column: 'id' | 'file' | 'user' | 'created_at' | 'status',
+    direction: 'asc' | 'desc'
+  ): PrintRequest[] {
     const filtered = !query
-      ? this.waitingPrints()
-      : this.waitingPrints().filter((item) => {
+      ? requests
+      : requests.filter((item) => {
           const id = item.id.toLowerCase();
           const file = this.getFileName(item.file?.path).toLowerCase();
           const user = item.user.toLowerCase();
-          const st = item.status.toLowerCase();
+          const st = this.getStatusLabel(item.status).toLowerCase();
           return id.includes(query) || file.includes(query) || user.includes(query) || st.includes(query);
         });
 
     const sorted = [...filtered];
-    const column = this.sortColumn();
-    const direction = this.sortDirection();
-
     sorted.sort((a, b) => {
       let result = 0;
       if (column === 'created_at') {
         result = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
       } else if (column === 'status') {
-        result = a.status.localeCompare(b.status);
+        result = this.getStatusLabel(a.status).localeCompare(this.getStatusLabel(b.status));
       } else if (column === 'user') {
         result = a.user.localeCompare(b.user);
       } else if (column === 'file') {
@@ -290,7 +361,7 @@ export class AdminDashboard implements OnInit {
       return direction === 'asc' ? result : -result;
     });
 
-    this.sortedWaitingPrints.set(sorted);
+    return sorted;
   }
 
   // Users
@@ -426,7 +497,7 @@ export class AdminDashboard implements OnInit {
 
   cancelEditFilament(): void {
     this.editingFilamentId.set(null);
-    this.filamentForm.reset({ color: '#ffffff', color_name: '', type: 'PLA', quantity: 0, price: 0 });
+    this.filamentForm.reset({ color: '#ffffff', color_name: '', type: 'PLA', quantity: 0, price: 1 });
   }
 
   onSubmitFilament(): void {
@@ -510,6 +581,35 @@ export class AdminDashboard implements OnInit {
   const user = this.users().find((u) => u.id === userId);
   return user && 'role' in user ? (user as any).role : '—';
 }
+  canRefund(item: PrintRequest): boolean {
+    return item.status === 'FAILED';
+  }
+
+  isRefundingRequest(requestId: string): boolean {
+    return this.refundingRequestIds.has(requestId);
+  }
+
+  onRefund(item: PrintRequest): void {
+    if (!this.canRefund(item) || this.refundingRequestIds.has(item.id)) return;
+
+    this.refundingRequestIds.add(item.id);
+    this.errorMessage.set('');
+
+    this.adminService.refundRequest(item.id).subscribe({
+      next: () => {
+        this.successMessage.set('Demande remboursée.');
+        this.refundingRequestIds.delete(item.id);
+        this.loadRequests();
+        this.loadOperations();
+        this.loadUsers();
+      },
+      error: (err) => {
+        this.errorMessage.set(this.readError(err, 'Remboursement impossible.'));
+        this.refundingRequestIds.delete(item.id);
+      },
+    });
+  }
+
   // Utilities 
   private readError(error: any, fallback: string): string {
     const data = error?.error;

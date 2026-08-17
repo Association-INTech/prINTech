@@ -108,11 +108,11 @@ export class Print implements OnInit {
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (response: PrintRequestResponse) => {
-          this.successMessage.set(`Demande envoyée avec succès. Statut: ${response.status}.`);
+          this.successMessage.set(`Demande payée et envoyée avec succès. Statut: ${response.status}.`);
           this.resetForm(fileInput);
         },
-        error: () => {
-          this.errorMessage.set("Impossible d'envoyer la demande. Vérifiez le backend et les champs saisis.");
+        error: (err) => {
+          this.errorMessage.set(this.readError(err, "Impossible d'envoyer la demande. Vérifiez votre solde et les champs saisis."));
           this.scrollToTop();
           setTimeout(() => this.errorMessage.set(''), 8000);
         },
@@ -132,6 +132,20 @@ export class Print implements OnInit {
         this.errorMessage.set('Impossible de charger les filaments depuis le backend.');
       },
     });
+  }
+
+  private readError(error: any, fallback: string): string {
+    const data = error?.error;
+    if (typeof data === 'string') return data;
+    if (Array.isArray(data) && data.length > 0) return String(data[0]);
+    if (data?.detail) return data.detail;
+    if (data?.error) return data.error;
+    if (data?.non_field_errors?.length) return data.non_field_errors[0];
+    const firstKey = data && typeof data === 'object' ? Object.keys(data)[0] : null;
+    if (firstKey && Array.isArray(data[firstKey]) && data[firstKey][0]) {
+      return `${firstKey}: ${data[firstKey][0]}`;
+    }
+    return fallback;
   }
 
   private resetForm(fileInput: HTMLInputElement): void {

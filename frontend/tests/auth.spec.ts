@@ -8,26 +8,28 @@ test.describe('Authentication Flow', () => {
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          access: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyBleHAiOjQxMDI0NDQ4MDAsInVzZXJfaWQiOjF9.signature',
+          access: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQxMDI0NDQ4MDAsInVzZXJfaWQiOiIxIn0.signature',
           refresh: 'mock-refresh-token'
         })
       });
     });
 
-    await page.route('**/api/v1/user/me/', async (route) => {
+    await page.route('**/api/v1/user/me**', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          id: 1,
+          id: '1',
+          username: 'testuser',
           email: 'testuser@example.com',
-          is_staff: false
+          credit: 42,
+          is_staff: false,
+          profile_picture: null
         })
       });
     });
 
-    // Mock the print-jobs endpoint accessed immediately by the HomeComponent on redirect
-    await page.route('**/api/v1/print-jobs/', async (route) => {
+    await page.route('**/api/v1/printers/', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',

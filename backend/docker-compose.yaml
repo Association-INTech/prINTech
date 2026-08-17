@@ -1,14 +1,14 @@
 services:
   db:
-    image: "postgres:latest"
+    image: "${POSTGRES_IMAGE:?Set POSTGRES_IMAGE to a pinned postgres image tag or digest}"
     container_name: back_db
     restart: unless-stopped
     environment:
-      - POSTGRES_PASSWORD=back
-      - POSTGRES_USER=back
-      - POSTGRES_DB=back
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in backend/.env}
+      POSTGRES_USER: ${POSTGRES_USER:-back}
+      POSTGRES_DB: ${POSTGRES_DB:-back}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - back_db:/var/lib/postgresql/
 

@@ -11,6 +11,7 @@
   </div>
 
   <div class="nav-right">
+    <button *ngIf="showLogout()" type="button" class="logout-btn" (click)="logout()">Déconnexion</button>
     <img [src]="avatarSrc()" alt="profil" class="avatar" routerLink="/profile">
   </div>
 </nav>

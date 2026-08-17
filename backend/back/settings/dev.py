@@ -1,5 +1,13 @@
 from os import environ
-from pathlib import Path
+
+from django.core.exceptions import ImproperlyConfigured
+from django.core.management.utils import get_random_secret_key
+
+if environ.get('DJANGO_ENV', '').lower() == 'production':
+    raise ImproperlyConfigured('back.settings.dev must not be used with DJANGO_ENV=production')
+
+if not environ.get('DJANGO_SECRET_KEY'):
+    environ['DJANGO_SECRET_KEY'] = get_random_secret_key()
 
 from .base import *
 
@@ -16,7 +24,7 @@ DATABASES = {
     }
 }
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [host.strip() for host in environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,[::1]').split(',') if host.strip()]
 
 INSTALLED_APPS += [
     'debug_toolbar',
@@ -26,4 +34,6 @@ DEBUG_TOOLBAR_PATCH_SETTINGS = False
 MIDDLEWARE += [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
-INTERNAL_IPS = ['127.0.0.1', '0.0.0.0']
+INTERNAL_IPS = ['127.0.0.1']
+
+ALLOW_PUBLIC_SIGNUP = environ.get('DJANGO_ALLOW_PUBLIC_SIGNUP', 'true').lower() == 'true'

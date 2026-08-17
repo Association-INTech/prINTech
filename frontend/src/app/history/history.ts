@@ -21,7 +21,7 @@ export class History implements OnInit{
   errorMessage = '';
   successMessage = '';
   relaunchingIds = new Set<string>();
-  payingIds = new Set<string>(); // Track loading state for payments
+  payingIds = new Set<string>();
 
   ngOnInit(): void {
     this.loadFilaments();
@@ -63,9 +63,6 @@ export class History implements OnInit{
       next: (response: any) => {
         const items = response?.results ? response.results : (Array.isArray(response) ? response : []);
         this.fullHistory = items;
-        if (items.length === 0 && !Array.isArray(response)) {
-            this.errorMessage = 'Parsed items is empty but response was ' + JSON.stringify(response);
-        }
         this.applyFilters();
       },
       error: (err) => {

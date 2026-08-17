@@ -18,6 +18,9 @@
     <button class="tab-btn" [class.active]="activeTab() === 'requests'" (click)="setTab('requests')">
       📋 Impressions
     </button>
+    <button class="tab-btn" [class.active]="activeTab() === 'refunds'" (click)="setTab('refunds')">
+      ↩ Remboursements
+    </button>
     <button class="tab-btn" [class.active]="activeTab() === 'users'" (click)="setTab('users')">
       👤 Utilisateurs
     </button>
@@ -72,20 +75,15 @@
               <td title="{{ item.user }}">{{ getUserEmail(item.user) }}</td>              
               <td><span class="badge" [ngClass]="'badge-role-' + getUserRole(item.user)">{{ getUserRole(item.user) }}</span></td>
               <td>{{ item.created_at | date:'dd/MM/yy HH:mm' }}</td>
-              <td><span class="badge" [ngClass]="getStatusBadgeClass(item.status)">{{ item.status }}</span></td>
+              <td><span class="badge" [ngClass]="getStatusBadgeClass(item.status)">{{ getStatusLabel(item.status) }}</span></td>
               <td>
                 <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
                   <select [disabled]="isUpdatingRequest(item.id)"
                     (change)="onSelectStatus(item.id, $event)">
                     <option *ngFor="let s of statusOptions" [value]="s"
                       [selected]="getPendingStatus(item.id, item.status) === s"
-                      [disabled]="!canTransition(item.status, s)">{{ s }}</option>
+                      [disabled]="!canTransition(item.status, s)">{{ getStatusLabel(s) }}</option>
                   </select>
-                  @if (getPendingStatus(item.id, item.status) === 'AWAITING_PAYMENT') {
-                    <input type="number" min="1" placeholder="Prix" style="width:72px"
-                      [value]="pendingPrice[item.id] ?? ''"
-                      (input)="onPriceInput(item.id, $event)" />
-                  }
                   @if (hasPendingStatusChange(item.id, item.status)) {
                     <button type="button" class="btn-primary btn-sm"
                       [disabled]="isUpdatingRequest(item.id)"
@@ -99,8 +97,7 @@
               </td>
               <td>
                 @if (item.file?.path) {
-                  <a [href]="getDownloadUrl(item.file?.path)" target="_blank" rel="noopener noreferrer" download
-                    style="color:var(--accent);font-weight:600;font-size:.82rem">⬇ Télécharger</a>
+                  <button type="button" class="btn-secondary btn-sm" (click)="downloadFile(item)">Télécharger</button>
                 } @else {
                   <span class="empty-cell">—</span>
                 }
@@ -111,6 +108,67 @@
       </div>
     </section>
   </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- TAB: REFUNDS                                               -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" [class.active]="activeTab() === 'refunds'">
+    <section class="section">
+      <div class="section-header">
+        <h2>Remboursements</h2>
+        <span style="font-size:.82rem;color:var(--muted)">Impressions échouées et remboursements</span>
+      </div>
+
+      <div class="search-row">
+        <input type="search" placeholder="Rechercher (id, fichier, utilisateur, statut)…"
+          [value]="refundSearchQuery()" (input)="onRefundSearchChange($event)" />
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th class="sortable" (click)="onRefundHeaderSort('id')">Id {{ refundSortIndicator('id') }}</th>
+              <th class="sortable" (click)="onRefundHeaderSort('file')">Fichier {{ refundSortIndicator('file') }}</th>
+              <th class="sortable" (click)="onRefundHeaderSort('user')">Utilisateur {{ refundSortIndicator('user') }}</th>
+              <th>Priorité</th>
+              <th class="sortable" (click)="onRefundHeaderSort('created_at')">Date {{ refundSortIndicator('created_at') }}</th>
+              <th class="sortable" (click)="onRefundHeaderSort('status')">Statut {{ refundSortIndicator('status') }}</th>
+              <th>Prix (€)</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="sortedRefundPrints().length === 0">
+              <td colspan="8" class="empty-cell">Aucune impression à rembourser.</td>
+            </tr>
+            <tr *ngFor="let item of sortedRefundPrints()">
+              <td title="{{ item.id }}">{{ item.id | slice:0:8 }}…</td>
+              <td>{{ getFileName(item.file?.path) }}</td>
+              <td title="{{ item.user }}">{{ getUserEmail(item.user) }}</td>
+              <td><span class="badge" [ngClass]="'badge-role-' + getUserRole(item.user)">{{ getUserRole(item.user) }}</span></td>
+              <td>{{ item.created_at | date:'dd/MM/yy HH:mm' }}</td>
+              <td><span class="badge" [ngClass]="getStatusBadgeClass(item.status)">{{ getStatusLabel(item.status) }}</span></td>
+              <td>
+                @if (item.price) { {{ item.price }} }
+                @else { <span class="empty-cell">—</span> }
+              </td>
+              <td>
+                @if (canRefund(item)) {
+                  <button type="button" class="btn-primary btn-sm"
+                    [disabled]="isRefundingRequest(item.id)"
+                    (click)="onRefund(item)">Rembourser</button>
+                } @else {
+                  <span class="empty-cell">—</span>
+                }
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB: USERS                                                 -->
@@ -354,7 +412,7 @@
           </div>
           <div class="form-group">
             <label>Prix (crédits)</label>
-            <input type="number" formControlName="price" min="0" />
+            <input type="number" formControlName="price" min="1" />
           </div>
         </div>
         <div class="form-actions" style="margin-top:12px">

@@ -92,6 +92,11 @@ tbody tr:hover {
 	color: #991b1b;
 }
 
+.status-progress {
+	background: #e0f2fe;
+	color: #0369a1;
+}
+
 .reprint-btn {
 	padding: 6px 10px;
 	border: 1px solid transparent;
