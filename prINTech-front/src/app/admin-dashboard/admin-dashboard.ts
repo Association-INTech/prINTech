@@ -72,6 +72,7 @@ export class AdminDashboard implements OnInit {
     username: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
+    credit: [90, [Validators.required]],
     is_staff: [false],
     is_active: [true],
   });
@@ -388,7 +389,7 @@ export class AdminDashboard implements OnInit {
     this.adminService.createUser(payload).subscribe({
       next: () => {
         this.successMessage.set('Compte créé avec succès.');
-        this.createUserForm.reset({ username: '', email: '', password: '', is_staff: false, is_active: true });
+        this.createUserForm.reset({ username: '', email: '', password: '', credit: 90, is_staff: false, is_active: true });
         this.loadUsers();
       },
       error: (err) => this.errorMessage.set(this.readError(err, 'Création du compte impossible.')),
