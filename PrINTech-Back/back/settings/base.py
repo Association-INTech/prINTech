@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import timedelta
 
 
 DJANGO_ROOT = Path(__file__).resolve(strict=True).parent.parent
@@ -140,3 +141,11 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # Passe à 30 minutes au lieu de 5 min
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Durée du refresh token (1 jour)
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
