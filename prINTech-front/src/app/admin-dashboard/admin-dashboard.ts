@@ -185,31 +185,54 @@ export class AdminDashboard implements OnInit {
   }
 
   onApplyStatus(item: PrintRequest): void {
-    const newStatus = this.pendingStatus()[item.id];
-    if (!newStatus || newStatus === item.status || !this.canTransition(item.status, newStatus)) return;
     if (this.updatingRequestIds.has(item.id)) return;
 
-    const needsPrice = newStatus === 'AWAITING_PAYMENT';
-    const price = needsPrice ? this.pendingPrice[item.id] : undefined;
+    const currentStatus = item.status;
+    const targetStatus = this.pendingStatus()[item.id] ?? currentStatus;
+    const isStatusChange = targetStatus !== currentStatus;
 
-    if (needsPrice && (!price || price < 0)) {
-      this.errorMessage.set('Un prix est requis pour passer en AWAITING_PAYMENT.');
+    // 1. Validation de la transition si le statut change
+    if (isStatusChange && !this.canTransition(currentStatus, targetStatus)) {
+      return;
+    }
+
+    // 2. Gestion et récupération du prix
+    const inputPrice = this.pendingPrice[item.id];
+    const isPriceModified = inputPrice !== undefined && inputPrice !== null && Number(inputPrice) !== Number(item.price);
+
+    // Rien n'a changé : on ne fait rien
+    if (!isStatusChange && !isPriceModified) return;
+
+    // On détermine le statut final concerné
+    const effectiveStatus = isStatusChange ? targetStatus : currentStatus;
+    const needsPrice = effectiveStatus === 'AWAITING_PAYMENT';
+
+    // Si l'impression doit être ou rester en AWAITING_PAYMENT, on vérifie la présence du prix
+    const priceToSubmit = isPriceModified ? Number(inputPrice) : item.price;
+
+    if (needsPrice && (priceToSubmit === undefined || priceToSubmit === null || priceToSubmit < 0)) {
+      this.errorMessage.set('Un prix valide est requis pour le statut AWAITING_PAYMENT.');
       return;
     }
 
     this.updatingRequestIds.add(item.id);
     this.errorMessage.set('');
 
-    this.adminService.changeRequestStatus(item.id, newStatus, price).subscribe({
+    // 3. Appel unique à l'API avec le statut (nouveau ou actuel) et le prix mis à jour
+    this.adminService.changeRequestStatus(item.id, targetStatus, priceToSubmit).subscribe({
       next: () => {
-        this.successMessage.set('Statut mis à jour.');
-        this.pendingStatus.update(map => { const m = { ...map }; delete m[item.id]; return m; });
+        this.successMessage.set('Demande mise à jour avec succès.');
+        this.pendingStatus.update(map => {
+          const m = { ...map };
+          delete m[item.id];
+          return m;
+        });
         delete this.pendingPrice[item.id];
         this.updatingRequestIds.delete(item.id);
         this.loadRequests();
       },
       error: (err) => {
-        this.errorMessage.set(this.readError(err, 'Impossible de changer le statut.'));
+        this.errorMessage.set(this.readError(err, 'Impossible de mettre à jour la demande.'));
         this.updatingRequestIds.delete(item.id);
         this.applyPrintSort();
       },
@@ -585,4 +608,14 @@ export class AdminDashboard implements OnInit {
     }
     return fallback;
   }
+
+  //si le prix change 
+  isPriceModified(item: any): boolean {
+  const inputPrice = this.pendingPrice[item.id];
+  if (inputPrice === undefined || inputPrice === null) {
+    return false;
+  }
+  return Number(inputPrice) !== Number(item.price);
+}
+
 }

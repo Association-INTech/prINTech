@@ -124,7 +124,7 @@
                       [value]="pendingPrice[item.id] ?? ''"
                       (input)="onPriceInput(item.id, $event)" />
                   }
-                  @if (hasPendingStatusChange(item.id, item.status)) {
+                  @if (hasPendingStatusChange(item.id, item.status) || isPriceModified(item)) {
                     <button type="button" class="btn-primary btn-sm"
                       [disabled]="isUpdatingRequest(item.id)"
                       (click)="onApplyStatus(item)">✔ Appliquer</button>
