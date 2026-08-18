@@ -177,7 +177,6 @@ tbody tr:hover {
   color: #64748B;
 }
 
-/* ── Boutons de filtre de statut (Copie conforme Admin Dashboard) ─ */
 .status-filters {
   display: flex;
   flex-wrap: wrap;
@@ -196,12 +195,10 @@ tbody tr:hover {
   transition: all 0.2s ease;
 }
 
-/* Survol identique à l'admin (fond légèrement éclairci) */
 .filter-btn:hover {
   background: #eaeef2;
 }
 
-/* État actif identique à l'admin */
 .filter-btn.active {
   background: #0969da;
   color: #ffffff;

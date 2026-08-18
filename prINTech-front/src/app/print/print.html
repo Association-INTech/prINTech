@@ -20,6 +20,10 @@
                 <input #fileInput id="stl-file" type="file" accept=".stl" (change)="onFileSelected($event)" />
                 <p class="upload-subtitle">{{ fileInput.files?.[0]?.name || 'Aucun fichier sélectionné' }}</p>
             </div>
+            <app-stl-viewer 
+            *ngIf="filePreviewUrl()" 
+            [stlUrl]="filePreviewUrl()!">
+            </app-stl-viewer>
         </article>
 
         <article class="panel" aria-labelledby="settings-title">

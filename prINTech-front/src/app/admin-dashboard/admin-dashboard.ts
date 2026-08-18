@@ -305,7 +305,7 @@ export class AdminDashboard implements OnInit {
     if (currentFilter === 'BASIC') {
       filtered = filtered.filter((item) => {
         const st = item.status;
-        return st == 'SUBMITTED' || st == 'PENDING' || st == 'PRINTING';
+        return st == 'SUBMITTED' || st == 'PENDING' || st == 'PRINTING' || st == 'AWAITING_PICKUP';
       });
     } else {
       // Filtre strict si un statut spécifique est cliqué

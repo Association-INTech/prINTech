@@ -4,10 +4,11 @@ import { finalize } from 'rxjs';
 import { Print as printService, Filament, PrintRequestResponse } from '../services/print';
 import { HomeService as homeService } from '../services/home';
 import { Printer } from '../services/home';
+import { StlViewerComponent } from '../components/stl-viewer/stl-viewer';
 
 @Component({
   selector: 'app-print',
-  imports: [CommonModule],
+  imports: [CommonModule, StlViewerComponent],
   templateUrl: './print.html',
   styleUrl: './print.css',
 })
@@ -34,6 +35,8 @@ export class Print implements OnInit {
     return Array.from(new Set(this.filaments().map((f) => f.type)));
   });
 
+  readonly filePreviewUrl = signal<string | null>(null);
+  
   readonly availableColors = computed(() => {
     const material = this.selectedMaterial();
     if (!material) return [];
@@ -87,6 +90,13 @@ export class Print implements OnInit {
     const file = input.files?.[0] ?? null;
     this.selectedFile = file;
     this.isFileSelected.set(file !== null);
+
+    if (file) {
+      // Génère une URL temporaire directement depuis le navigateur
+      this.filePreviewUrl.set(URL.createObjectURL(file));
+    } else {
+      this.filePreviewUrl.set(null);
+    }
   }
   
   onPrinterChange(event: Event): void {
@@ -170,6 +180,7 @@ export class Print implements OnInit {
     fileInput.value = '';
     this.selectedFile = null;
     this.isFileSelected.set(false);
+    this.filePreviewUrl.set(null);
     this.selectedQuantity.set(1);
     this.selectedPrinter.set('')
     setTimeout(() => this.successMessage.set(''), 6000);
