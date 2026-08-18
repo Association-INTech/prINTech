@@ -6,10 +6,10 @@
     
     <div class="history-controls"><input type="search" id="print-search" placeholder="Filtrer par nom de fichier..." (input)="onSearch($event)">
     <div class="status-filters">
-        <button class="filter-btn" (click)="setStatusFilter('ONGOING')">ONGOING</button>
-        <button class="filter-btn" (click)="setStatusFilter('PICKED_UP')">PICKED UP</button>
-        <button class="filter-btn" (click)="setStatusFilter('CANCELED')">CANCELED</button>
-        <button class="filter-btn" (click)="setStatusFilter('FAILED')">FAILED</button>
+        <button class="filter-btn" [class.active]="statusFilter() === 'ONGOING'" (click)="setStatusFilter('ONGOING')">ONGOING</button>
+        <button class="filter-btn" [class.active]="statusFilter() === 'PICKED_UP'" (click)="setStatusFilter('PICKED_UP')">PICKED UP</button>
+        <button class="filter-btn" [class.active]="statusFilter() === 'CANCELED'" (click)="setStatusFilter('CANCELED')">CANCELED</button>
+        <button class="filter-btn" [class.active]="statusFilter() === 'FAILED'" (click)="setStatusFilter('FAILED')">FAILED</button>
     </div>
     </div>
 
@@ -29,7 +29,7 @@
             </thead>
             <tbody>
                 <tr *ngIf="filteredHistory.length === 0">
-                    <td colspan="7" style="text-align: center; padding: 24px; color: #64748b; font-style: italic;">
+                    <td colspan="8" style="text-align: center; padding: 24px; color: #64748b; font-style: italic;">
                         Aucune impression trouvée pour ce compte.
                     </td>
                 </tr>
