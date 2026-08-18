@@ -24,6 +24,7 @@
                     <th (click)="onHeaderSort('created_at')" style="cursor: pointer;">Date {{ sortIndicator('created_at') }}</th>
                     <th>Statut</th>
                     <th>Action</th>
+                    <th>Prix</th>
                 </tr>
             </thead>
             <tbody>
@@ -66,6 +67,7 @@
                             </button>
                         </div>
                     </td>
+                    <td>{{ item.price || '-' }}</td>
                 </tr>
             </tbody>
         </table>
