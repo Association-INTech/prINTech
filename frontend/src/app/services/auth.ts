@@ -137,7 +137,7 @@ export class AuthService {
       next: (u) => {
         this.currentUser.set(u);
       },
-      error: (err) => {
+s      error: (err) => {
         // On ne déconnecte QUE si le token est invalide (401/403)
         if (err.status === 401 || err.status === 403) {
           this.logout();
