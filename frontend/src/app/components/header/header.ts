@@ -1,0 +1,31 @@
+import { Component, inject, signal, computed } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { NgIf } from '@angular/common';
+import { AvatarStateService } from '../../services/avatar-state';
+import { AuthService } from '../../services/auth';
+
+@Component({
+  selector: 'app-header',
+  imports: [RouterLink, RouterLinkActive, NgIf],
+  templateUrl: './header.html',
+  styleUrl: './header.css',
+})
+export class Header {
+  private readonly avatarState = inject(AvatarStateService);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+
+  title = signal('prINTech') ;
+  avatarSrc = this.avatarState.avatarSrc;
+  isAdmin = computed(() => !!this.auth.currentUser()?.is_staff);
+
+  showLogout(): boolean {
+    return this.auth.isAuthenticated() && !this.router.url.startsWith('/login');
+  }
+
+  logout(): void {
+    this.auth.logout();
+    void this.router.navigate(['/login']);
+  }
+}
+
