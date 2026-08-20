@@ -24,7 +24,6 @@ export class StlViewerComponent implements OnChanges {
   private camera!: THREE.PerspectiveCamera;
   private renderer!: THREE.WebGLRenderer;
   private controls!: OrbitControls;
-  
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['stlUrl'] && this.stlUrl) {
