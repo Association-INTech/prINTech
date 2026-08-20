@@ -2,10 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { finalize } from 'rxjs';
 import { Print as printService, Filament, PrintRequestResponse } from '../services/print';
+import { StlViewerComponent } from '../components/stl-viewer/stl-viewer';
 
 @Component({
   selector: 'app-print',
-  imports: [CommonModule],
+  imports: [CommonModule, StlViewerComponent],
   templateUrl: './print.html',
   styleUrl: './print.css',
 })
@@ -70,11 +71,19 @@ export class Print implements OnInit {
     this.selectedQuantity.set(Math.max(1, value || 1));
   }
 
+    readonly filePreviewUrl = signal<string | null>(null);
+
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0] ?? null;
     this.selectedFile = file;
     this.isFileSelected.set(file !== null);
+    if (file) {
+      // Génère une URL temporaire directement depuis le navigateur
+      this.filePreviewUrl.set(URL.createObjectURL(file));
+    } else {
+      this.filePreviewUrl.set(null);
+    }
   }
 
   SendRequest(fileInput: HTMLInputElement, comment: string): void {
@@ -153,6 +162,7 @@ export class Print implements OnInit {
     fileInput.value = '';
     this.selectedFile = null;
     this.isFileSelected.set(false);
+    this.filePreviewUrl.set(null);
     this.selectedQuantity.set(1);
     setTimeout(() => this.successMessage.set(''), 6000);
   }
