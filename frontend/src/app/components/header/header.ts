@@ -1,12 +1,12 @@
 import { Component, inject, signal, computed } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIf } from '@angular/common';
 import { AvatarStateService } from '../../services/avatar-state';
 import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink, NgIf],
+  imports: [RouterLink, RouterLinkActive, NgIf],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })

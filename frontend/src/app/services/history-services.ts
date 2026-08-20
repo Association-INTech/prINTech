@@ -11,11 +11,16 @@ export interface Filament {
   quantity: number;
 }
 
+export interface Printer {
+  name: string; 
+  status: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class HistoryServices {
-  private readonly apiBase = '/api/v1';
+  private readonly apiBase = 'http://127.0.0.1:8000/api/v1';
   private readonly http = inject(HttpClient)
 
   getHistory(): Observable<HistoryItem[]> {
@@ -24,6 +29,10 @@ export class HistoryServices {
 
   getFilaments(): Observable<Filament[]> {
     return this.http.get<Filament[]>(`${this.apiBase}/filaments/`)
+  }
+  
+  getPrinters(): Observable<Printer[]> {
+    return this.http.get<Printer[]>(`${this.apiBase}/printers/`)
   }
 
   relaunchRequest(requestId: string): Observable<HistoryItem> {

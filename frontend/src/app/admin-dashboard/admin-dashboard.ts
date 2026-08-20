@@ -47,7 +47,7 @@ export class AdminDashboard implements OnInit {
   readonly sortedWaitingPrints = signal<PrintRequest[]>([]);
   readonly refundPrints = signal<PrintRequest[]>([]);
   readonly sortedRefundPrints = signal<PrintRequest[]>([]);
-  readonly sortColumn = signal<'id' | 'file' | 'user' | 'created_at' | 'status'>('created_at');
+  readonly sortColumn = signal<'id' | 'file' | 'user' | 'created_at' | 'status' | 'printer' | 'comment'>('created_at');
   readonly sortDirection = signal<'asc' | 'desc'>('desc');
   readonly searchQuery = signal('');
   readonly refundSearchQuery = signal('');
@@ -78,6 +78,7 @@ export class AdminDashboard implements OnInit {
     username: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
+    credit: [90, [Validators.required]],
     is_staff: [false],
     is_active: [true],
   });
@@ -140,23 +141,21 @@ export class AdminDashboard implements OnInit {
   private loadRequests(): void {
     this.adminService.getWaitingRequests().subscribe({
       next: (requests) => {
-        /*
-        const waiting = requests.filter((r) =>
-          ['SUBMITTED', 'AWAITING_PAYMENT', 'PENDING', 'PRINTING', 'AWAITING_PICKUP'].includes(r.status)
-        );
-        */
+        const rawList = Array.isArray(requests) ? requests : ((requests as any)?.results || []);
         const refundStatuses: PrintRequestStatus[] = ['FAILED', 'REFUNDED'];
+        
         this.pendingStatus.set({});
-        this.waitingPrints.set(requests.filter((request) => !refundStatuses.includes(request.status)));
-        this.refundPrints.set(requests.filter((request) => refundStatuses.includes(request.status)));
+        this.waitingPrints.set(rawList.filter((request: PrintRequest) => !refundStatuses.includes(request.status)));
+        this.refundPrints.set(rawList.filter((request: PrintRequest) => refundStatuses.includes(request.status)));
+        
         this.applyPrintSort();
         this.applyRefundSort();
       },
-      error: () => this.errorMessage.set('Impossible de charger les impressions en attente.'),
+      error: () => this.errorMessage.set('Impossible de charger les impressions.'),
     });
   }
 
-  onHeaderSort(column: 'id' | 'file' | 'user' | 'created_at' | 'status'): void {
+  onHeaderSort(column: 'id' | 'file' | 'user' | 'created_at' | 'status' | 'printer' | 'comment'): void {
     if (this.sortColumn() === column) {
       this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
     } else {
@@ -166,7 +165,7 @@ export class AdminDashboard implements OnInit {
     this.applyPrintSort();
   }
 
-  sortIndicator(column: 'id' | 'file' | 'user' | 'created_at' | 'status'): string {
+  sortIndicator(column: 'id' | 'file' | 'user' | 'created_at' | 'status' | 'printer' | 'comment'): string {
     if (this.sortColumn() !== column) return '';
     return this.sortDirection() === 'asc' ? '↑' : '↓';
   }
@@ -218,23 +217,47 @@ export class AdminDashboard implements OnInit {
   }
 
   onApplyStatus(item: PrintRequest): void {
-    const newStatus = this.pendingStatus()[item.id];
-    if (!newStatus || newStatus === item.status || !this.canTransition(item.status, newStatus)) return;
     if (this.updatingRequestIds.has(item.id)) return;
+
+    const currentStatus = item.status;
+    const targetStatus = this.pendingStatus()[item.id] ?? currentStatus;
+    const isStatusChange = targetStatus !== currentStatus;
+
+    if (isStatusChange && !this.canTransition(currentStatus, targetStatus)) {
+      return;
+    }
+
+    const inputPrice = this.pendingPrice[item.id];
+    const isPriceModified = inputPrice !== undefined && inputPrice !== null && Number(inputPrice) !== Number(item.price);
+
+    if (!isStatusChange && !isPriceModified) return;
+
+    const effectiveStatus = isStatusChange ? targetStatus : currentStatus;
+    const needsPrice = effectiveStatus === 'AWAITING_PAYMENT';
+    const priceToSubmit = isPriceModified ? Number(inputPrice) : item.price;
+
+    if (needsPrice && (priceToSubmit === undefined || priceToSubmit === null || priceToSubmit < 0)) {
+      this.errorMessage.set('Un prix valide est requis pour le statut AWAITING_PAYMENT.');
+      return;
+    }
 
     this.updatingRequestIds.add(item.id);
     this.errorMessage.set('');
 
-    this.adminService.changeRequestStatus(item.id, newStatus).subscribe({
+    this.adminService.changeRequestStatus(item.id, targetStatus, priceToSubmit).subscribe({
       next: () => {
-        this.successMessage.set('Statut mis à jour.');
-        this.pendingStatus.update(map => { const m = { ...map }; delete m[item.id]; return m; });
+        this.successMessage.set('Demande mise à jour avec succès.');
+        this.pendingStatus.update(map => {
+          const m = { ...map };
+          delete m[item.id];
+          return m;
+        });
         delete this.pendingPrice[item.id];
         this.updatingRequestIds.delete(item.id);
         this.loadRequests();
       },
       error: (err) => {
-        this.errorMessage.set(this.readError(err, 'Impossible de changer le statut.'));
+        this.errorMessage.set(this.readError(err, 'Impossible de mettre à jour la demande.'));
         this.updatingRequestIds.delete(item.id);
         this.applyPrintSort();
       },
@@ -246,19 +269,29 @@ export class AdminDashboard implements OnInit {
   }
 
   canTransition(current: PrintRequestStatus, next: PrintRequestStatus): boolean {
-    if (current === next) return true;
+    if (current === next) return false;
+  
+    if (['PICKED_UP', 'FAILED', 'CANCELED'].includes(current)) {
+      return false;
+    }
+
+    if (next === 'CANCELED' || next === 'FAILED') {
+      return true;
+    }
+
     const transitions: Record<PrintRequestStatus, PrintRequestStatus[]> = {
-      SUBMITTED: ['PENDING', 'FAILED', 'CANCELED'],
-      AWAITING_PAYMENT: ['PENDING', 'FAILED', 'CANCELED'],
-      PENDING: ['PRINTING', 'FAILED', 'CANCELED'],
-      PRINTING: ['AWAITING_PICKUP', 'FAILED'],
-      AWAITING_PICKUP: ['PICKED_UP', 'FAILED'],
+      SUBMITTED: ['AWAITING_PAYMENT'],
+      AWAITING_PAYMENT: ['PENDING'],
+      PENDING: ['PRINTING'],
+      PRINTING: ['AWAITING_PICKUP'],
+      AWAITING_PICKUP: ['PICKED_UP'],
       PICKED_UP: [],
       FAILED: [],
       REFUNDED: [],
       CANCELED: [],
     };
-    return transitions[current].includes(next);
+
+    return transitions[current]?.includes(next) ?? false;
   }
 
   getFileName(path?: string | null): string {
@@ -310,33 +343,21 @@ export class AdminDashboard implements OnInit {
     return 'badge-failed';
   }
 
-  private applyPrintSort(): void {
-    this.sortedWaitingPrints.set(this.sortRequests(
-      this.waitingPrints(),
-      this.searchQuery(),
-      this.sortColumn(),
-      this.sortDirection()
-    ));
+  // Filter status 
+  readonly statusFilter = signal<string>('BASIC');
+  setStatusFilter(status: string): void {
+    this.statusFilter.set(status);
+    this.applyPrintSort();
   }
 
   private applyRefundSort(): void {
-    this.sortedRefundPrints.set(this.sortRequests(
-      this.refundPrints(),
-      this.refundSearchQuery(),
-      this.refundSortColumn(),
-      this.refundSortDirection()
-    ));
-  }
+    const query = this.refundSearchQuery();
+    const column = this.refundSortColumn();
+    const direction = this.refundSortDirection();
 
-  private sortRequests(
-    requests: PrintRequest[],
-    query: string,
-    column: 'id' | 'file' | 'user' | 'created_at' | 'status',
-    direction: 'asc' | 'desc'
-  ): PrintRequest[] {
     const filtered = !query
-      ? requests
-      : requests.filter((item) => {
+      ? this.refundPrints()
+      : this.refundPrints().filter((item) => {
           const id = item.id.toLowerCase();
           const file = this.getFileName(item.file?.path).toLowerCase();
           const user = item.user.toLowerCase();
@@ -344,8 +365,7 @@ export class AdminDashboard implements OnInit {
           return id.includes(query) || file.includes(query) || user.includes(query) || st.includes(query);
         });
 
-    const sorted = [...filtered];
-    sorted.sort((a, b) => {
+    const sorted = [...filtered].sort((a, b) => {
       let result = 0;
       if (column === 'created_at') {
         result = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
@@ -361,7 +381,78 @@ export class AdminDashboard implements OnInit {
       return direction === 'asc' ? result : -result;
     });
 
-    return sorted;
+    this.sortedRefundPrints.set(sorted);
+  }
+
+  private applyPrintSort(): void {
+    const query = this.searchQuery();
+    const currentFilter = this.statusFilter();
+    const column = this.sortColumn();
+    const direction = this.sortDirection();
+
+    let filtered = this.waitingPrints();
+
+    if (currentFilter === 'BASIC') {
+      filtered = filtered.filter((item) => {
+        const st = item.status;
+        return st === 'SUBMITTED' || st === 'PENDING' || st === 'PRINTING' || st === 'AWAITING_PICKUP';
+      });
+    } else {
+      filtered = filtered.filter((item) => item.status === currentFilter);
+    }
+
+    if (query) {
+      filtered = filtered.filter((item) => {
+        const id = (item.id || '').toLowerCase();
+        const file = this.getFileName(item.file?.path).toLowerCase();
+        const user = this.getUserEmail(item.user).toLowerCase();
+        const st = (item.status || '').toLowerCase();
+        const printer = this.getPrinterName((item as any).printer).toLowerCase();
+        const comment = ((item as any).comment || '').toLowerCase();
+
+        return (
+          id.includes(query) ||
+          file.includes(query) ||
+          user.includes(query) ||
+          st.includes(query) ||
+          printer.includes(query) ||
+          comment.includes(query)
+        );
+      });
+    }
+
+    const sorted = [...filtered].sort((a, b) => {
+      let result = 0;
+
+      switch (column) {
+        case 'created_at':
+          result = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          break;
+        case 'status':
+          result = (a.status || '').localeCompare(b.status || '');
+          break;
+        case 'user':
+          result = this.getUserEmail(a.user).localeCompare(this.getUserEmail(b.user));
+          break;
+        case 'file':
+          result = this.getFileName(a.file?.path).localeCompare(this.getFileName(b.file?.path));
+          break;
+        case 'printer':
+          result = this.getPrinterName((a as any).printer).localeCompare(this.getPrinterName((b as any).printer));
+          break;
+        case 'comment':
+          result = ((a as any).comment || '').localeCompare((b as any).comment || '');
+          break;
+        case 'id':
+        default:
+          result = (a.id || '').localeCompare(b.id || '');
+          break;
+      }
+
+      return direction === 'asc' ? result : -result;
+    });
+
+    this.sortedWaitingPrints.set(sorted);
   }
 
   // Users
@@ -381,7 +472,7 @@ export class AdminDashboard implements OnInit {
     this.adminService.createUser(payload).subscribe({
       next: () => {
         this.successMessage.set('Compte créé avec succès.');
-        this.createUserForm.reset({ username: '', email: '', password: '', is_staff: false, is_active: true });
+        this.createUserForm.reset({ username: '', email: '', password: '', credit: 90, is_staff: false, is_active: true });
         this.loadUsers();
       },
       error: (err) => this.errorMessage.set(this.readError(err, 'Création du compte impossible.')),
@@ -469,7 +560,7 @@ export class AdminDashboard implements OnInit {
         this.successMessage.set('Opération créée avec succès.');
         this.createOperationForm.reset({ beneficiary: '', amount: 0, operation_type: 'CASH', request: '', comment: '' });
         this.loadOperations();
-        this.loadUsers(); // refresh credits
+        this.loadUsers();
       },
       error: (err) => this.errorMessage.set(this.readError(err, 'Création de l\'opération impossible.')),
     });
@@ -573,14 +664,21 @@ export class AdminDashboard implements OnInit {
     return 'badge-down';
   }
 
+  getPrinterName(printer: string | Printer | null | undefined): string {
+    if (!printer) return '-';
+    const found = this.printers().find(p => String(p.name) === printer);
+    return found ? found.name : String(printer);
+  }
+
   getUserEmail(userId: string): string {
     return this.users().find((u) => u.id === userId)?.email ?? userId.slice(0, 8) + '…';
   }
 
   getUserRole(userId: string): string {
-  const user = this.users().find((u) => u.id === userId);
-  return user && 'role' in user ? (user as any).role : '—';
-}
+    const user = this.users().find((u) => u.id === userId);
+    return user && 'role' in user ? (user as any).role : '—';
+  }
+
   canRefund(item: PrintRequest): boolean {
     return item.status === 'FAILED';
   }
@@ -622,5 +720,13 @@ export class AdminDashboard implements OnInit {
       return `${firstKey}: ${data[firstKey][0]}`;
     }
     return fallback;
+  }
+
+  isPriceModified(item: any): boolean {
+    const inputPrice = this.pendingPrice[item.id];
+    if (inputPrice === undefined || inputPrice === null) {
+      return false;
+    }
+    return Number(inputPrice) !== Number(item.price);
   }
 }

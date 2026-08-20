@@ -30,7 +30,7 @@
             <h2 id="settings-title">2. Paramètres</h2>
             
             <div class="form-block">
-                <label for="material">Matériau</label>
+                <label for="material">Matériau *</label>
                 <select id="material" [value]="selectedMaterial()" (change)="onMaterialChange($event)">
                     <option *ngFor="let t of availableMaterials()" [value]="t">{{ t }}</option>
                 </select>
@@ -38,15 +38,23 @@
 
             <div class="form-row">
                 <div class="form-block">
-                    <label for="color">Couleur</label>
+                    <label for="color">Couleur *</label>
                     <select id="color" [value]="selectedColor()" (change)="onColorChange($event)">
                         <option *ngFor="let c of availableColors()" [value]="c">{{ c }}</option>
                     </select>
                 </div>
                 <div class="form-block">
-                    <label for="quantity">Quantité</label>
+                    <label for="quantity">Quantité *</label>
                     <input id="quantity" type="number" min="1" [value]="selectedQuantity()" (input)="onQuantityChange($event)" />
                 </div>
+            </div>
+
+            <div class="form-block">
+                <label for="printer">Imprimante souhaitée</label>
+                <select id="printer" [value]="selectedPrinter()" (change)="onPrinterChange($event)">
+                    <option value="">Aucune préférence</option>
+                    <option *ngFor="let p of printers()" [value]="p.name">{{ p.name }}</option>
+                </select>
             </div>
 
             <div class="form-block">

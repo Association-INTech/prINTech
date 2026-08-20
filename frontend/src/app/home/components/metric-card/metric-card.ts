@@ -1,9 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { HomeService } from '../../../services/home';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-metric-card',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './metric-card.html',
   styleUrl: './metric-card.css',
 })

@@ -14,8 +14,8 @@ export class Home implements OnInit{
   private readonly homeService = inject(HomeService);
 
   ngOnInit(): void {
-    this.homeService.loadUserInfo();
     this.homeService.getActivePrinters();
+    this.homeService.GetQueue(); 
   }
 
   Username = this.homeService.username

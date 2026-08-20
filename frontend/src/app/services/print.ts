@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class Print {
   private readonly http = inject(HttpClient);
-  private readonly ApiBase = '/api/v1';
+  private readonly ApiBase = 'http://127.0.0.1:8000/api/v1';
 
   getFilaments(): Observable<Filament[]> {
     return this.http.get<Filament[]>(`${this.ApiBase}/filaments/`);
@@ -20,6 +20,11 @@ export class Print {
     formData.append('comment', payload.comment ?? '');
     formData.append('path', payload.path);
     formData.append('number_of_printing', String(payload.number_of_printing));
+    
+    // seulement si une imprimante est sélectionnée
+    if (payload.printer) {
+      formData.append('printer', String(payload.printer));
+    }
 
     if (payload.para_slicer !== undefined) {
       formData.append('para_slicer', JSON.stringify(payload.para_slicer));
@@ -40,9 +45,10 @@ export interface Filament {
 
 export interface PrintRequestPayload {
   filament: number;
-  comment: string;
+  comment: string | null;
   path: File;
   number_of_printing: number;
+  printer: string | null; 
   para_slicer?: Record<string, unknown>;
 }
 
