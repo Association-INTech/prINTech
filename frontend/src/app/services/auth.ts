@@ -10,8 +10,12 @@ export class AuthService {
   
   private readonly http = inject(HttpClient);
   private readonly accessTokenStorageKey = 'auth_access_token';
-  private readonly apiBase = '/api/v1';
-  private readonly token = signal<string | null>(null);
+  private readonly refreshTokenStorageKey = 'auth_refresh_token';
+  private readonly apiBase = 'http://127.0.0.1:8000/api/v1';
+  private readonly token = signal<string | null>(
+    localStorage.getItem(this.accessTokenStorageKey)
+  );
+
 
   private readonly userStorageKey = 'auth_current_user';
   // Current user cached as a signal so UI can reactively depend on it
@@ -21,6 +25,24 @@ export class AuthService {
 
   constructor() {
     this.clearPersistentAuthCache();
+    const token = this.token();
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token as string);
+        const now = Date.now() / 1000;
+        if (!decoded.exp || decoded.exp < now) {
+          this.clearToken();
+        } else {
+          this.loadCurrentUser().subscribe({
+            error: (err) => {
+              if (err.status === 401 || err.status === 403) 
+                {this.logout();} 
+            }});
+        }
+      } catch (e) {
+        this.clearToken();
+      }
+    }
   }
 
   login(email: string, password: string): Observable<LoginResponse> {
@@ -115,10 +137,13 @@ export class AuthService {
       next: (u) => {
         this.currentUser.set(u);
       },
-      error: () => {
-        this.currentUser.set(null);
-      }
-    });
+s      error: (err) => {
+        // On ne déconnecte QUE si le token est invalide (401/403)
+        if (err.status === 401 || err.status === 403) {
+          this.logout();
+        }
+    }});
+
     return obs;
   }
 }

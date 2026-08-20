@@ -25,7 +25,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--surface
 
 /* ── Layout ───────────────────────────────────────────────────── */
 .page-content {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 24px 20px;
   display: flex;
@@ -121,6 +121,8 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--surface
 
 table {
   width: 100%;
+  min-width: 1650px;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 0.87rem;
 }
@@ -132,6 +134,7 @@ th, td {
   padding: 10px 12px;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 th {
@@ -140,6 +143,7 @@ th {
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: .04em;
+  white-space: nowrap;
 }
 
 th.sortable { cursor: pointer; user-select: none; }
@@ -147,6 +151,74 @@ th.sortable:hover { color: var(--navy); }
 
 tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover { background: #F1F5F9; }
+
+/* Cellule fixée en largeur */
+td.cell-comment, td.cell-file, td.cell-user{
+  width: 150px;
+  max-width: 150px;
+  position: relative;
+}
+
+.file-box, .user-box, .comment-box {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+/* Au survol : le pavé s'ouvre par-dessus le tableau (vers la gauche) */
+.comment-box:hover, .file-box:hover, .user-box:hover {
+  position: absolute;
+  top: 50%;
+  right: 8px; 
+  left: auto;
+  transform: translateY(-50%);
+  white-space: normal;
+  word-break: break-word;
+  background: var(--navy-dark, #122850);
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  z-index: 50;
+  width: max-content;
+  max-width: 300px;
+}
+
+td.cell-printer {
+  white-space: nowrap;
+  font-weight: 500;
+}
+/* ── Boutons filtre────────────────────────────────────────────── */
+
+.status-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.filter-btn {
+  padding: 6px 14px;
+  border: 1px solid #d0d7de;
+  border-radius: 20px;
+  background: #f6f8fa;
+  color: #24292f;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+  background: #eaeef2;
+}
+
+.filter-btn.active {
+  background: #0969da;
+  color: #ffffff;
+  border-color: #0969da;
+}
 
 /* ── Search ───────────────────────────────────────────────────── */
 .search-row { margin-bottom: 12px; }

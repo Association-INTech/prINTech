@@ -4,8 +4,15 @@
     <div *ngIf="successMessage" class="feedback success">{{ successMessage }}</div>
     <div *ngIf="errorMessage" class="feedback error">{{ errorMessage }}</div>
     
-    <input type="search" id="print-search" placeholder="Filtrer par nom de fichier..." (input)="onSearch($event)">
-    
+    <div class="history-controls"><input type="search" id="print-search" placeholder="Filtrer par nom de fichier..." (input)="onSearch($event)">
+    <div class="status-filters">
+        <button class="filter-btn" [class.active]="statusFilter() === 'ONGOING'" (click)="setStatusFilter('ONGOING')">ONGOING</button>
+        <button class="filter-btn" [class.active]="statusFilter() === 'PICKED_UP'" (click)="setStatusFilter('PICKED_UP')">PICKED UP</button>
+        <button class="filter-btn" [class.active]="statusFilter() === 'CANCELED'" (click)="setStatusFilter('CANCELED')">CANCELED</button>
+        <button class="filter-btn" [class.active]="statusFilter() === 'FAILED'" (click)="setStatusFilter('FAILED')">FAILED</button>
+    </div>
+    </div>
+
     <div class="table-wrapper">
         <table>
             <thead>
@@ -14,21 +21,22 @@
                     <th>Modèle 3D</th>
                     <th>Imprimante 3D</th>
                     <th>Matériau</th>
-                    <th>Date</th>
+                    <th (click)="onHeaderSort('created_at')" style="cursor: pointer;">Date {{ sortIndicator('created_at') }}</th>
                     <th>Statut</th>
                     <th>Action</th>
+                    <th>Prix</th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngIf="filteredHistory.length === 0">
-                    <td colspan="7" style="text-align: center; padding: 24px; color: #64748b; font-style: italic;">
+                    <td colspan="8" style="text-align: center; padding: 24px; color: #64748b; font-style: italic;">
                         Aucune impression trouvée pour ce compte.
                     </td>
                 </tr>
                 <tr *ngFor="let item of filteredHistory">
                     <td title="{{ item.id }}">{{ item.id | slice:0:8 }}</td>
                     <td class="file-name">{{ getFileName(item.file?.path) }}</td>
-                    <td>{{ item.printer || '-' }}</td>
+                    <td>{{ getPrinterName(item.printer) }}</td>
                     <td>{{ getFilamentName(item.file?.filament) }}</td>
                     <td>{{ item.created_at | date:'short' }}</td>
                     <td>
@@ -60,6 +68,7 @@
                             </button>
                         </div>
                     </td>
+                    <td>{{ item.price || '-' }}</td>
                 </tr>
             </tbody>
         </table>

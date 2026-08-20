@@ -1,6 +1,7 @@
 from datetime import timedelta
 from os import environ
 from pathlib import Path
+from datetime import timedelta
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -95,6 +96,7 @@ TEMPLATES = [
 ######################
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'back.apps.api.middleware.UploadSizeLimitMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -122,6 +124,7 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    'corsheaders',
     'django_extensions',
     'rest_framework',
     'drf_spectacular',
@@ -179,6 +182,16 @@ REST_FRAMEWORK = {
         'signup': environ.get('DRF_THROTTLE_SIGNUP', '10/hour'),
     },
 }
+    
+#################
+# CORS Configuration
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",
+    "http://127.0.0.1:4200",
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 110 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024

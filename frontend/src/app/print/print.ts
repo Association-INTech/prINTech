@@ -2,24 +2,31 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { finalize } from 'rxjs';
 import { Print as printService, Filament, PrintRequestResponse } from '../services/print';
+import { HomeService as homeService } from '../services/home';
+import { Printer } from '../services/home';
+import { StlViewerComponent } from '../components/stl-viewer/stl-viewer';
 
 @Component({
   selector: 'app-print',
-  imports: [CommonModule],
+  imports: [CommonModule, StlViewerComponent],
   templateUrl: './print.html',
   styleUrl: './print.css',
 })
 export class Print implements OnInit {
   private readonly printService = inject(printService);
+  private readonly homeService = inject(homeService); 
 
   readonly loading = signal(false);
   readonly errorMessage = signal('');
   readonly successMessage = signal('');
   readonly filaments = signal<Filament[]>([]);
+  readonly printers = signal<Printer[]>([]);
   
   readonly selectedMaterial = signal<string>('');
   readonly selectedColor = signal<string>('');
   readonly selectedQuantity = signal<number>(1);
+  readonly selectedPrinter = signal<string>('');
+
   
   readonly isFileSelected = signal<boolean>(false);
   private selectedFile: File | null = null;
@@ -28,6 +35,8 @@ export class Print implements OnInit {
     return Array.from(new Set(this.filaments().map((f) => f.type)));
   });
 
+  readonly filePreviewUrl = signal<string | null>(null);
+  
   readonly availableColors = computed(() => {
     const material = this.selectedMaterial();
     if (!material) return [];
@@ -47,9 +56,15 @@ export class Print implements OnInit {
   readonly selectedFilamentId = computed<number | null>(() => {
     return this.selectedFilament()?.id ?? null;
   });
+
   ngOnInit(): void {
     this.loadFilaments();
+    this.loadPrinters(); 
   }
+
+  readonly selectedPrinterName = computed<string | null>(() => {
+    return this.selectedPrinter(); 
+  });
 
   onMaterialChange(event: Event): void {
     const target = event.target as HTMLSelectElement;
@@ -75,6 +90,18 @@ export class Print implements OnInit {
     const file = input.files?.[0] ?? null;
     this.selectedFile = file;
     this.isFileSelected.set(file !== null);
+
+    if (file) {
+      // Génère une URL temporaire directement depuis le navigateur
+      this.filePreviewUrl.set(URL.createObjectURL(file));
+    } else {
+      this.filePreviewUrl.set(null);
+    }
+  }
+  
+  onPrinterChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    this.selectedPrinter.set(target.value);
   }
 
   SendRequest(fileInput: HTMLInputElement, comment: string): void {
@@ -104,6 +131,7 @@ export class Print implements OnInit {
         comment: comment.trim(),
         path: file,
         number_of_printing: this.selectedQuantity(),
+        printer: this.selectedPrinter() || null,
       })
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
@@ -134,26 +162,41 @@ export class Print implements OnInit {
     });
   }
 
-  private readError(error: any, fallback: string): string {
-    const data = error?.error;
-    if (typeof data === 'string') return data;
-    if (Array.isArray(data) && data.length > 0) return String(data[0]);
-    if (data?.detail) return data.detail;
-    if (data?.error) return data.error;
-    if (data?.non_field_errors?.length) return data.non_field_errors[0];
-    const firstKey = data && typeof data === 'object' ? Object.keys(data)[0] : null;
-    if (firstKey && Array.isArray(data[firstKey]) && data[firstKey][0]) {
-      return `${firstKey}: ${data[firstKey][0]}`;
+  private loadPrinters(): void {
+  this.homeService.getPrinters().subscribe({
+    next: (res) => {
+      // On garde uniquement les imprimantes disponibles ("UP")
+      const availablePrinters = res.filter((p) => p.status === 'UP');
+      this.printers.set(availablePrinters);
+    },
+    error: (err) => {
+      console.error('Erreur chargement imprimantes:', err);
     }
-    return fallback;
-  }
+  });
+}
+
+  private readError(error: any, fallback: string): string {
+      const data = error?.error;
+      if (typeof data === 'string') return data;
+      if (Array.isArray(data) && data.length > 0) return String(data[0]);
+      if (data?.detail) return data.detail;
+      if (data?.error) return data.error;
+      if (data?.non_field_errors?.length) return data.non_field_errors[0];
+      const firstKey = data && typeof data === 'object' ? Object.keys(data)[0] : null;
+      if (firstKey && Array.isArray(data[firstKey]) && data[firstKey][0]) {
+        return `${firstKey}: ${data[firstKey][0]}`;
+      }
+      return fallback;
+    }
 
   private resetForm(fileInput: HTMLInputElement): void {
     this.scrollToTop();
     fileInput.value = '';
     this.selectedFile = null;
     this.isFileSelected.set(false);
+    this.filePreviewUrl.set(null);
     this.selectedQuantity.set(1);
+    this.selectedPrinter.set('')
     setTimeout(() => this.successMessage.set(''), 6000);
   }
 

@@ -24,4 +24,5 @@ export interface HistoryItem {
     comment: string;
     created_at: string;
     status: HistoryStatus;
+    price: number; 
 }

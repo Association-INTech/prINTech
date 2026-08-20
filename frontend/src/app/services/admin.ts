@@ -7,7 +7,7 @@ import { Observable, map } from 'rxjs';
 })
 export class AdminService {
   private readonly http = inject(HttpClient);
-  private readonly apiBase = '/api/v1';
+  private readonly apiBase = 'http://127.0.0.1:8000/api/v1';
 
   // ── Requests ────────────────────────────────────────────────
   getWaitingRequests(): Observable<PrintRequest[]> {

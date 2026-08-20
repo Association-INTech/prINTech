@@ -38,16 +38,36 @@
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!-- TAB: REQUESTS                                              -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <div class="tab-panel" [class.active]="activeTab() === 'requests'">
-    <section class="section">
-      <div class="section-header">
-        <h2>Impressions</h2>
-        <span style="font-size:.82rem;color:var(--muted)">Cliquez un en-tête pour trier</span>
-      </div>
+        <div class="tab-panel" [class.active]="activeTab() === 'requests'">
+          <section class="section">
+            <div class="section-header">
+              <h2>Impressions</h2>
+              <span style="font-size:.82rem;color:var(--muted)">Cliquez un en-tête pour trier</span>
+            </div>
 
-      <div class="search-row">
-        <input type="search" placeholder="Rechercher (id, fichier, utilisateur, statut)…"
-          [value]="searchQuery()" (input)="onSearchChange($event)" />
+            <div class="search-row">
+              <input type="search" placeholder="Rechercher (id, fichier, utilisateur, statut)…"
+                [value]="searchQuery()" (input)="onSearchChange($event)" />
+            </div>
+
+            <div class="status-filters">
+        <button 
+          type="button" 
+          class="filter-btn" 
+          [class.active]="statusFilter() === 'BASIC'"
+          (click)="setStatusFilter('BASIC')">
+          BASIC
+        </button>
+
+        @for (st of statusOptions; track st) {
+          <button 
+            type="button" 
+            class="filter-btn" 
+            [class.active]="statusFilter() === st"
+            (click)="setStatusFilter(st)">
+            {{ st }}
+          </button>
+        }
       </div>
 
       <div class="table-wrapper">
@@ -59,23 +79,41 @@
               <th class="sortable" (click)="onHeaderSort('user')">Utilisateur {{ sortIndicator('user') }}</th>
               <th>Priorité</th>
               <th class="sortable" (click)="onHeaderSort('created_at')">Date {{ sortIndicator('created_at') }}</th>
+              <th>Téléchargement</th>
+              <th>Prix (€)</th>
               <th class="sortable" (click)="onHeaderSort('status')">Statut {{ sortIndicator('status') }}</th>
               <th>Changer statut</th>
-              <th>Prix (€)</th>
-              <th>Téléchargement</th>
+              <th class="sortable" (click)="onHeaderSort('printer')">Printer {{ sortIndicator('printer') }}</th>
+              <th>Commentaire</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngIf="sortedWaitingPrints().length === 0">
-              <td colspan="9" class="empty-cell">Aucune impression en attente.</td>
+              <td colspan="11" class="empty-cell">Aucune impression en attente.</td>
             </tr>
             <tr *ngFor="let item of sortedWaitingPrints()">
               <td title="{{ item.id }}">{{ item.id | slice:0:8 }}…</td>
-              <td>{{ getFileName(item.file?.path) }}</td>
-              <td title="{{ item.user }}">{{ getUserEmail(item.user) }}</td>              
+              <td class="cell-file">
+                <div class="file-box">{{ getFileName(item.file?.path) }}</div>
+              </td>
+              <td class="cell-user">
+                <div class="user-box">{{ getUserEmail(item.user) }}</div>
+              </td>              
               <td><span class="badge" [ngClass]="'badge-role-' + getUserRole(item.user)">{{ getUserRole(item.user) }}</span></td>
               <td>{{ item.created_at | date:'dd/MM/yy HH:mm' }}</td>
-              <td><span class="badge" [ngClass]="getStatusBadgeClass(item.status)">{{ getStatusLabel(item.status) }}</span></td>
+              <td>
+                @if (item.file?.path) {
+                  <a [href]="getDownloadUrl(item.file?.path)" target="_blank" rel="noopener noreferrer" download
+                    style="color:var(--accent);font-weight:600;font-size:.82rem">⬇ Télécharger</a>
+                } @else {
+                  <span class="empty-cell">—</span>
+                }
+              </td>
+              <td>
+                @if (item.price) { {{ item.price }} }
+                @else { <span class="empty-cell">—</span> }
+              </td>
+              <td><span class="badge" [ngClass]="getStatusBadgeClass(item.status)">{{ item.status }}</span></td>
               <td>
                 <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
                   <select [disabled]="isUpdatingRequest(item.id)"
@@ -84,7 +122,12 @@
                       [selected]="getPendingStatus(item.id, item.status) === s"
                       [disabled]="!canTransition(item.status, s)">{{ getStatusLabel(s) }}</option>
                   </select>
-                  @if (hasPendingStatusChange(item.id, item.status)) {
+                  @if (getPendingStatus(item.id, item.status) === 'AWAITING_PAYMENT') {
+                    <input type="number" min="1" placeholder="Prix" style="width:72px"
+                      [value]="pendingPrice[item.id] ?? ''"
+                      (input)="onPriceInput(item.id, $event)" />
+                  }
+                  @if (hasPendingStatusChange(item.id, item.status) || isPriceModified(item)) {
                     <button type="button" class="btn-primary btn-sm"
                       [disabled]="isUpdatingRequest(item.id)"
                       (click)="onApplyStatus(item)">✔ Appliquer</button>
@@ -92,15 +135,12 @@
                 </div>
               </td>
               <td>
-                @if (item.price) { {{ item.price }} }
-                @else { <span class="empty-cell">—</span> }
+                {{ getPrinterName(item.printer) }}
               </td>
-              <td>
-                @if (item.file?.path) {
-                  <button type="button" class="btn-secondary btn-sm" (click)="downloadFile(item)">Télécharger</button>
-                } @else {
-                  <span class="empty-cell">—</span>
-                }
+              <td class="cell-comment">
+                <div class="comment-box">
+                  {{ item.comment || '—' }}
+                </div>s
               </td>
             </tr>
           </tbody>
