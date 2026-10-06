@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 from os import environ
 from pathlib import Path
@@ -30,11 +31,11 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'back',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '5432',
+        'NAME': os.environ.get('POSTGRES_DB', 'back'),
+        'USER': os.environ.get('POSTGRES_USER', 'back'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'db'),  
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
     }
 }
 

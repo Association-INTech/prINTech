@@ -13,17 +13,6 @@ from .base import *
 
 DEBUG = True
 
-DATABASES = {
-    'default': {
-        'ENGINE': environ.get('DEFAULT_DB_ENGINE', 'django.db.backends.postgresql'),
-        'NAME': environ.get('DEFAULT_DB_NAME', 'back'),
-        'USER': environ.get('DEFAULT_DB_USER', 'back'),
-        'PASSWORD': environ.get('DEFAULT_DB_PASSWORD', 'back'),
-        'HOST': environ.get('DEFAULT_DB_HOST', 'localhost'),
-        'PORT': environ.get('DEFAULT_DB_PORT', '5432'),
-    }
-}
-
 ALLOWED_HOSTS = [host.strip() for host in environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,[::1]').split(',') if host.strip()]
 
 INSTALLED_APPS += [
