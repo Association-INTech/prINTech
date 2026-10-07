@@ -29,7 +29,7 @@ _static
 _template
 
 # env
-PrINTech-Back/.env
+backend/.env
 .venv
 .env
 

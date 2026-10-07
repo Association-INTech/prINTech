@@ -502,7 +502,7 @@ class AdminRequestView(viewsets.ReadOnlyModelViewSet):
             )
 
         allowed_transitions = {
-            Request.Status.SUBMITTED: [Request.Status.PENDING, Request.Status.FAILED, Request.Status.CANCELED],
+            Request.Status.SUBMITTED: [Request.Status.AWAITING_PAYMENT, Request.Status.PENDING, Request.Status.FAILED, Request.Status.CANCELED],
             Request.Status.PENDING: [Request.Status.PRINTING, Request.Status.FAILED, Request.Status.CANCELED],
             Request.Status.PRINTING: [Request.Status.AWAITING_PICKUP, Request.Status.FAILED],
             Request.Status.AWAITING_PICKUP: [Request.Status.PICKED_UP, Request.Status.FAILED],

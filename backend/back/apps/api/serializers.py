@@ -19,7 +19,7 @@ MAX_NUMBER_OF_PRINTS = 100
 MAX_PARA_SLICER_BYTES = 10 * 1024
 MAX_COMMENT_LENGTH = 2000
 ALLOWED_PROFILE_PICTURE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp'}
-ALLOWED_PRINT_EXTENSIONS = {'.stl'}
+ALLOWED_PRINT_EXTENSIONS = {'stl', 'obj', '3mf', 'gcode', 'step', 'stp', 'zip', 'rar'}
 
 
 def normalize_email(email):
@@ -37,7 +37,7 @@ def validate_unique_email(email, *, instance=None):
 
 
 def validate_upload(uploaded_file, *, allowed_extensions, max_size, label):
-    extension = Path(uploaded_file.name).suffix.lower()
+    extension = Path(uploaded_file.name).suffix.lower().lstrip('.')
     if extension not in allowed_extensions:
         raise serializers.ValidationError(
             f"Invalid {label} extension. Allowed extensions: {', '.join(sorted(allowed_extensions))}."
@@ -71,47 +71,13 @@ def validate_image_upload(uploaded_file):
         reset_upload(uploaded_file)
     return uploaded_file
 
-
-def looks_like_stl(uploaded_file):
-    reset_upload(uploaded_file)
-    head = uploaded_file.read(512)
-    reset_upload(uploaded_file)
-
-    if head.lstrip().lower().startswith(b'solid'):
-        try:
-            uploaded_file.seek(max(uploaded_file.size - 1024, 0))
-            tail = uploaded_file.read(1024).lower()
-        finally:
-            reset_upload(uploaded_file)
-        return b'endsolid' in tail
-
-    if uploaded_file.size < 84:
-        return False
-
-    try:
-        uploaded_file.seek(80)
-        triangle_count_bytes = uploaded_file.read(4)
-    finally:
-        reset_upload(uploaded_file)
-
-    if len(triangle_count_bytes) != 4:
-        return False
-
-    triangle_count = struct.unpack('<I', triangle_count_bytes)[0]
-    return 84 + triangle_count * 50 == uploaded_file.size
-
-
 def validate_stl_upload(uploaded_file):
-    validate_upload(
+    return validate_upload(
         uploaded_file,
         allowed_extensions=ALLOWED_PRINT_EXTENSIONS,
         max_size=MAX_PRINT_FILE_SIZE,
         label='print file',
     )
-    if not looks_like_stl(uploaded_file):
-        raise serializers.ValidationError('Invalid STL file content.')
-    return uploaded_file
-
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True, write_only=True)

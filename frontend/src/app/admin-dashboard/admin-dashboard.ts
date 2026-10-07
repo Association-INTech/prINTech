@@ -60,6 +60,7 @@ export class AdminDashboard implements OnInit {
 
   readonly statusOptions: PrintRequestStatus[] = [
     'SUBMITTED',
+    'AWAITING_PAYMENT',
     'PENDING',
     'PRINTING',
     'AWAITING_PICKUP',
@@ -280,7 +281,7 @@ export class AdminDashboard implements OnInit {
     }
 
     const transitions: Record<PrintRequestStatus, PrintRequestStatus[]> = {
-      SUBMITTED: ['AWAITING_PAYMENT'],
+      SUBMITTED: ['AWAITING_PAYMENT', 'FAILED', 'CANCELED'],
       AWAITING_PAYMENT: ['PENDING'],
       PENDING: ['PRINTING'],
       PRINTING: ['AWAITING_PICKUP'],

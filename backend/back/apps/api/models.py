@@ -104,7 +104,7 @@ class Request(models.Model):
     file = models.ForeignKey(File, on_delete=models.PROTECT, null=True)
     printer = models.ForeignKey(Printer, on_delete=models.SET_NULL, null=True)
     price = models.PositiveIntegerField(default=0)
-    comment = models.TextField(null=True, blank=True)
+    comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(choices=Status.choices, max_length=25, null=False, blank=False, default=Status.SUBMITTED)
 
@@ -153,7 +153,7 @@ class AdminActionLog(models.Model):
     target_id = models.CharField(max_length=120)
     before = models.JSONField(null=True, blank=True)
     after = models.JSONField(null=True, blank=True)
-    comment = models.TextField(null=True, blank=True)
+    comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
