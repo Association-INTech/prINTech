@@ -22,7 +22,7 @@ class User(AbstractUser):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(blank=False, unique=True, null=False)
-    credit = models.IntegerField(default=0)
+    credit = models.IntegerField(default=6)
     role = models.CharField(choices=Role.choices, max_length=25, null=False, blank=False, default=Role.ADHERENT)
     profile_picture = models.ImageField(upload_to=profile_pic_path, null=True, blank=True)
     USERNAME_FIELD = 'email'
