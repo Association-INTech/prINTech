@@ -640,16 +640,24 @@ class AdminUserView(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         user = self.get_object()
         before = model_snapshot(user, ['email', 'username', 'role', 'is_staff', 'is_active'])
-        user.is_active = False
-        user.save(update_fields=['is_active'])
-        log_admin_action(
-            request,
-            'user.deactivate',
-            user,
-            before=before,
-            after=model_snapshot(user, ['email', 'username', 'role', 'is_staff', 'is_active']),
-        )
-        return Response(status=status.HTTP_204_NO_CONTENT)
+
+        try:
+            # Vrai DELETE physique en BDD SQL
+            user.delete()
+            log_admin_action(request, 'user.delete', user, before=before)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        except ProtectedError:
+            # Se déclenche si des ForeignKeys (PrintRequest, Operation, etc.) pointent vers cet utilisateur avec on_delete=PROTECT
+            return Response(
+                {
+                    'error': (
+                        'Impossible de supprimer définitivement cet utilisateur car il est lié à des '
+                        'demandes d\'impression ou des opérations financières.'
+                    )
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
     
     
 class FilamentView(viewsets.ReadOnlyModelViewSet):
