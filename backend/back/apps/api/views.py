@@ -77,11 +77,17 @@ def log_admin_action(request, action, target, *, before=None, after=None, commen
         comment=comment,
     )
 
-
 class IsSuperUser(permissions.BasePermission):
     def has_permission(self, request, view):
         return bool(request.user and request.user.is_authenticated and request.user.is_superuser)
 
+class IsAdmin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return bool(
+            request.user 
+            and request.user.is_authenticated 
+            and (request.user.is_staff or request.user.is_superuser)
+        )
 
 class HasScopedStaffPermission(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -615,7 +621,7 @@ class FileDownloadView(APIView):
 class AdminUserView(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('email')
     serializer_class = AdminUserSerializer
-    permission_classes = [IsSuperUser]
+    permission_classes = [IsAdmin]
 
     def perform_create(self, serializer):
         user = serializer.save()
