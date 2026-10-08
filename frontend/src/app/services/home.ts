@@ -16,10 +16,10 @@ export class HomeService {
   userCredit = computed(() => this.authService.currentUser()?.credit ?? null);
 
   active_printers = signal<number>(0);
-  total_printers = signal<number>(67);
+  total_printers = signal<number>(0);
   printers_status = signal<string>('Disponible');
   is_active = signal<boolean>(true);
-  queue_size = signal<number>(67);
+  queue_size = signal<number>(0);
 
   getActivePrinters(){
     this.http.get<Printer[]>(`${this.ApiBase}/printers/`)
@@ -41,8 +41,14 @@ export class HomeService {
     return this.http.get<Printer[]>(`${this.ApiBase}/printers/`);
   }
 
-  loadUserInfo(){
+  loadUserInfo(): void {
+  // Déclenche le rechargement de l'utilisateur connecté dans AuthService
+  if (typeof (this.authService as any).loadCurrentUser === 'function') {
+    (this.authService as any).loadCurrentUser().subscribe();
+  } else if (typeof (this.authService as any).me === 'function') {
+    (this.authService as any).me().subscribe();
   }
+}
 
 GetQueue() {
     this.http.get<Request[]>(`${this.ApiBase}/requests/`)

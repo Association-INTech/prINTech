@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
 import { ReactiveFormsModule, Validators, FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, switchMap } from 'rxjs';
 import { AuthService } from '../services/auth';
+import { HomeService } from '../services/home';
 
 @Component({
   selector: 'app-login',
@@ -11,8 +12,9 @@ import { AuthService } from '../services/auth';
   styleUrl: './login.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Login {
+export class Login implements OnInit{
   private readonly auth = inject(AuthService);
+  private readonly homeService = inject(HomeService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(FormBuilder);
@@ -24,6 +26,13 @@ export class Login {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
   });
+
+  ngOnInit(): void {
+    const savedEmail = localStorage.getItem('last_login_email');
+    if (savedEmail) {
+      this.loginForm.patchValue({ email: savedEmail });
+    }
+  }
 
   onLogin(): void {
     if (this.loginForm.invalid || this.loading()) {
@@ -42,6 +51,7 @@ export class Login {
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (user) => {
+          localStorage.setItem('last_login_email', email);
           const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
           if (returnUrl && returnUrl.startsWith('/')) {
             void this.router.navigateByUrl(returnUrl);
