@@ -480,6 +480,7 @@ class AdminRequestView(viewsets.ReadOnlyModelViewSet):
         print_request = self.get_locked_object()
         new_status = request.data.get('status')
         current_status = str(print_request.status)
+        new_price = request.data.get('price')
 
         if not new_status:
             auto_next_status = {
@@ -518,10 +519,19 @@ class AdminRequestView(viewsets.ReadOnlyModelViewSet):
                 {'error': f'Invalid transition from {current_status} to {new_status}.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        # 1. Mise à jour du prix si fourni par l'admin
+        if new_price is not None:
+            try:
+                print_request.price = float(new_price)
+            except (ValueError, TypeError):
+                return Response(
+                    {"error": "Prix invalide"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
         before = {'status': current_status}
         print_request.status = new_status
-        print_request.save(update_fields=['status'])
+        print_request.save()
         log_admin_action(
             request,
             'request.change_status',

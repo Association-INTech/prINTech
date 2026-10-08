@@ -197,11 +197,16 @@ export class AdminDashboard implements OnInit {
   }
 
   onPriceInput(requestId: string, event: Event): void {
-    const val = parseInt((event.target as HTMLInputElement).value, 10);
-    if (!isNaN(val)) {
-      this.pendingPrice[requestId] = val;
+  const val = (event.target as HTMLInputElement).value;
+  if (val === '' || val === null) {
+    delete this.pendingPrice[requestId];
+  } else {
+    const num = Number(val);
+    if (!isNaN(num)) {
+      this.pendingPrice[requestId] = num;
     }
   }
+}
 
   getPendingStatus(requestId: string, currentStatus: PrintRequestStatus): PrintRequestStatus {
     return this.pendingStatus()[requestId] ?? currentStatus;
@@ -215,54 +220,6 @@ export class AdminDashboard implements OnInit {
   onSelectStatus(requestId: string, event: Event): void {
     const selected = (event.target as HTMLSelectElement).value as PrintRequestStatus;
     this.pendingStatus.update(map => ({ ...map, [requestId]: selected }));
-  }
-
-  onApplyStatus(item: PrintRequest): void {
-    if (this.updatingRequestIds.has(item.id)) return;
-
-    const currentStatus = item.status;
-    const targetStatus = this.pendingStatus()[item.id] ?? currentStatus;
-    const isStatusChange = targetStatus !== currentStatus;
-
-    if (isStatusChange && !this.canTransition(currentStatus, targetStatus)) {
-      return;
-    }
-
-    const inputPrice = this.pendingPrice[item.id];
-    const isPriceModified = inputPrice !== undefined && inputPrice !== null && Number(inputPrice) !== Number(item.price);
-
-    if (!isStatusChange && !isPriceModified) return;
-
-    const effectiveStatus = isStatusChange ? targetStatus : currentStatus;
-    const needsPrice = effectiveStatus === 'AWAITING_PAYMENT';
-    const priceToSubmit = isPriceModified ? Number(inputPrice) : item.price;
-
-    if (needsPrice && (priceToSubmit === undefined || priceToSubmit === null || priceToSubmit < 0)) {
-      this.errorMessage.set('Un prix valide est requis pour le statut AWAITING_PAYMENT.');
-      return;
-    }
-
-    this.updatingRequestIds.add(item.id);
-    this.errorMessage.set('');
-
-    this.adminService.changeRequestStatus(item.id, targetStatus, priceToSubmit).subscribe({
-      next: () => {
-        this.successMessage.set('Demande mise à jour avec succès.');
-        this.pendingStatus.update(map => {
-          const m = { ...map };
-          delete m[item.id];
-          return m;
-        });
-        delete this.pendingPrice[item.id];
-        this.updatingRequestIds.delete(item.id);
-        this.loadRequests();
-      },
-      error: (err) => {
-        this.errorMessage.set(this.readError(err, 'Impossible de mettre à jour la demande.'));
-        this.updatingRequestIds.delete(item.id);
-        this.applyPrintSort();
-      },
-    });
   }
 
   isUpdatingRequest(requestId: string): boolean {
@@ -393,10 +350,10 @@ export class AdminDashboard implements OnInit {
 
     let filtered = this.waitingPrints();
 
-    if (currentFilter === 'BASIC') {
+    if (currentFilter === 'ACTIVE') {
       filtered = filtered.filter((item) => {
         const st = item.status;
-        return st === 'SUBMITTED' || st === 'PENDING' || st === 'PRINTING' || st === 'AWAITING_PICKUP';
+        return st === 'SUBMITTED' || st === 'AWAITING_PAYMENT' || st === 'PENDING' || st === 'PRINTING' || st === 'AWAITING_PICKUP';
       });
     } else {
       filtered = filtered.filter((item) => item.status === currentFilter);
@@ -723,11 +680,65 @@ export class AdminDashboard implements OnInit {
     return fallback;
   }
 
-  isPriceModified(item: any): boolean {
-    const inputPrice = this.pendingPrice[item.id];
-    if (inputPrice === undefined || inputPrice === null) {
-      return false;
-    }
-    return Number(inputPrice) !== Number(item.price);
+  // Vérifie si l'utilisateur a modifié le prix dans l'input
+isPriceModified(item: PrintRequest): boolean {
+  const inputPrice = this.pendingPrice[item.id];
+  if (inputPrice === undefined || inputPrice === null) {
+    return false;
   }
+  return Number(inputPrice) !== Number(item.price ?? 0);
+}
+onApplyStatus(item: PrintRequest): void {
+  if (this.updatingRequestIds.has(item.id)) return;
+
+  const currentStatus = item.status;
+  const targetStatus = this.pendingStatus()[item.id] ?? currentStatus;
+  const isStatusChange = targetStatus !== currentStatus;
+
+  // Si le statut change, vérifier si la transition est valide
+  if (isStatusChange && !this.canTransition(currentStatus, targetStatus)) {
+    this.errorMessage.set('Transition de statut non autorisée.');
+    return;
+  }
+
+  const isPriceChanged = this.isPriceModified(item);
+
+  // Si aucun changement (ni statut ni prix), on ne fait rien
+  if (!isStatusChange && !isPriceChanged) return;
+
+  // Récupérer le prix à soumettre (le nouveau prix ou le prix existant)
+  const priceToSubmit = isPriceChanged ? Number(this.pendingPrice[item.id]) : item.price;
+
+  // Validation du prix si l'état passe/reste en AWAITING_PAYMENT ou si le prix est modifié
+  if (priceToSubmit === undefined || priceToSubmit === null || priceToSubmit < 0) {
+    this.errorMessage.set('Veuillez renseigner un prix valide (supérieur ou égal à 0).');
+    return;
+  }
+
+  this.updatingRequestIds.add(item.id);
+  this.errorMessage.set('');
+
+  // Envoi de la mise à jour (statut + prix)
+  this.adminService.changeRequestStatus(item.id, targetStatus, priceToSubmit).subscribe({
+    next: () => {
+      this.successMessage.set('Impression et prix mis à jour avec succès.');
+      
+      // Nettoyage des états temporaires
+      this.pendingStatus.update(map => {
+        const m = { ...map };
+        delete m[item.id];
+        return m;
+      });
+      delete this.pendingPrice[item.id];
+      
+      this.updatingRequestIds.delete(item.id);
+      this.loadRequests(); // Recharge pour mettre à jour l'affichage
+    },
+    error: (err) => {
+      this.errorMessage.set(this.readError(err, 'Impossible de mettre à jour la demande.'));
+      this.updatingRequestIds.delete(item.id);
+    },
+  });
+}
+
 }

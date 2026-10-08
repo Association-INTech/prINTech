@@ -54,9 +54,9 @@
         <button 
           type="button" 
           class="filter-btn" 
-          [class.active]="statusFilter() === 'BASIC'"
-          (click)="setStatusFilter('BASIC')">
-          BASIC
+          [class.active]="statusFilter() === 'ACTIVE'"
+          (click)="setStatusFilter('ACTIVE')">
+          ACTIVE
         </button>
 
         @for (st of statusOptions; track st) {
@@ -115,25 +115,32 @@
               </td>
               <td><span class="badge" [ngClass]="getStatusBadgeClass(item.status)">{{ item.status }}</span></td>
               <td>
-                <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-                  <select [disabled]="isUpdatingRequest(item.id)"
-                    (change)="onSelectStatus(item.id, $event)">
-                    <option *ngFor="let s of statusOptions" [value]="s"
-                      [selected]="getPendingStatus(item.id, item.status) === s"
-                      [disabled]="!canTransition(item.status, s)">{{ getStatusLabel(s) }}</option>
-                  </select>
-                  @if (getPendingStatus(item.id, item.status) === 'AWAITING_PAYMENT') {
-                    <input type="number" min="1" placeholder="Prix" style="width:72px"
-                      [value]="pendingPrice[item.id] ?? ''"
-                      (input)="onPriceInput(item.id, $event)" />
-                  }
-                  @if (hasPendingStatusChange(item.id, item.status) || isPriceModified(item)) {
-                    <button type="button" class="btn-primary btn-sm"
-                      [disabled]="isUpdatingRequest(item.id)"
-                      (click)="onApplyStatus(item)">✔ Appliquer</button>
-                  }
-                </div>
-              </td>
+              <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                <!-- Menu déroulant du statut -->
+                <select [disabled]="isUpdatingRequest(item.id)"
+                  (change)="onSelectStatus(item.id, $event)">
+                  <option *ngFor="let s of statusOptions" [value]="s"
+                    [selected]="getPendingStatus(item.id, item.status) === s"
+                    [disabled]="!canTransition(item.status, s)">
+                    {{ getStatusLabel(s) }}
+                  </option>
+                </select>
+
+                <!-- Champ d'édition du Prix -->
+                <input type="number" min="0" placeholder="Prix (€)" style="width:72px"
+                  [value]="pendingPrice[item.id] ?? item.price ?? ''"
+                  (input)="onPriceInput(item.id, $event)" />
+
+                <!-- Bouton d'action visible si le statut OU le prix a été modifié -->
+                @if (hasPendingStatusChange(item.id, item.status) || isPriceModified(item)) {
+                  <button type="button" class="btn-primary btn-sm"
+                    [disabled]="isUpdatingRequest(item.id)"
+                    (click)="onApplyStatus(item)">
+                    ✔ Appliquer
+                  </button>
+                }
+              </div>
+            </td>
               <td>
                 {{ getPrinterName(item.printer) }}
               </td>
