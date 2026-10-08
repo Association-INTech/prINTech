@@ -302,7 +302,7 @@ export class AdminDashboard implements OnInit {
   }
 
   // Filter status 
-  readonly statusFilter = signal<string>('BASIC');
+  readonly statusFilter = signal<string>('ACTIVE');
   setStatusFilter(status: string): void {
     this.statusFilter.set(status);
     this.applyPrintSort();
