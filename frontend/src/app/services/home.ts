@@ -52,7 +52,8 @@ GetQueue() {
         const inProgressRequests = res.filter(request => 
           request.status !== 'PICKED_UP' && 
           request.status !== 'CANCELED' && 
-          request.status !== 'FAILED'
+          request.status !== 'FAILED' &&
+          request.status !== 'REFUNDED'
         );
         
         // Set the queue size to only show active requests

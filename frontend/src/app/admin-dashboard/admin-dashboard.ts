@@ -140,21 +140,38 @@ export class AdminDashboard implements OnInit {
 
   // Requests 
   private loadRequests(): void {
-    this.adminService.getWaitingRequests().subscribe({
-      next: (requests) => {
-        const rawList = Array.isArray(requests) ? requests : ((requests as any)?.results || []);
-        const refundStatuses: PrintRequestStatus[] = ['FAILED', 'REFUNDED'];
-        
-        this.pendingStatus.set({});
-        this.waitingPrints.set(rawList.filter((request: PrintRequest) => !refundStatuses.includes(request.status)));
-        this.refundPrints.set(rawList.filter((request: PrintRequest) => refundStatuses.includes(request.status)));
-        
-        this.applyPrintSort();
-        this.applyRefundSort();
-      },
-      error: () => this.errorMessage.set('Impossible de charger les impressions.'),
-    });
-  }
+  this.adminService.getWaitingRequests().subscribe({
+    next: (requests) => {
+      const rawList = Array.isArray(requests) ? requests : ((requests as any)?.results || []);
+      const refundStatuses: PrintRequestStatus[] = ['FAILED', 'REFUNDED'];
+      
+      this.pendingStatus.set({});
+
+      // 1. Définir les statuts considérés comme "en file d'attente / actifs"
+      const activeStatuses: PrintRequestStatus[] = [
+        'SUBMITTED',
+        'AWAITING_PAYMENT',
+        'PENDING',
+        'PRINTING',
+        'AWAITING_PICKUP'
+      ];
+
+      // 2. Ne garder que les travaux véritablement actifs pour la liste principale
+      this.waitingPrints.set(
+        rawList.filter((request: PrintRequest) => activeStatuses.includes(request.status))
+      );
+
+      // 3. Garder les éléments à rembourser dans leur liste dédiée
+      this.refundPrints.set(
+        rawList.filter((request: PrintRequest) => refundStatuses.includes(request.status))
+      );
+      
+      this.applyPrintSort();
+      this.applyRefundSort();
+    },
+    error: () => this.errorMessage.set('Impossible de charger les impressions.'),
+  });
+}
 
   onHeaderSort(column: 'id' | 'file' | 'user' | 'created_at' | 'status' | 'printer' | 'comment'): void {
     if (this.sortColumn() === column) {
